@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MilkTea.Domain.Entities.Users;
 
 namespace MilkTea.Domain.Entities.Orders
 {

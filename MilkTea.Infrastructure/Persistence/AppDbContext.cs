@@ -104,19 +104,19 @@ namespace MilkTea.Infrastructure.Persistence
             modelBuilder.Entity<Employee>()
                 .HasOne<Gender>(e => e.Gender)
                 .WithMany()
-                .HasForeignKey<Employee>(e => e.GenderID)
+                .HasForeignKey(e => e.GenderID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Employee>()
                 .HasOne<Position>(e => e.Position)
                 .WithMany()
-                .HasForeignKey<Employee>(e => e.PositionID)
+                .HasForeignKey(e => e.PositionID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Employee>()
                 .HasOne<Status>(e => e.Status)
                 .WithMany()
-                .HasForeignKey<Employee>(e => e.StatusID)
+                .HasForeignKey(e => e.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ===== User Relationships =====
@@ -126,7 +126,6 @@ namespace MilkTea.Infrastructure.Persistence
                 .HasForeignKey<User>(u => u.EmployeesID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // đảm bảo 1 Employee chỉ có 1 User (unique index ở mức DB)
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.EmployeesID)
                 .IsUnique();
@@ -134,100 +133,100 @@ namespace MilkTea.Infrastructure.Persistence
             modelBuilder.Entity<User>()
                 .HasOne<Status>(u => u.Status)
                 .WithMany()
-                .HasForeignKey<User>(u => u.StatusID)
+                .HasForeignKey(u => u.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ===== Permission Relationships =====
             modelBuilder.Entity<Permission>()
                 .HasOne<PermissionGroup>(p => p.PermissionGroup)
                 .WithMany()
-                .HasForeignKey<Permission>(p => p.PermissionGroupID)
+                .HasForeignKey(p => p.PermissionGroupID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ===== PermissionDetail Relationships =====
             modelBuilder.Entity<PermissionDetail>()
                 .HasOne<Permission>(pd => pd.Permission)
                 .WithMany()
-                .HasForeignKey<PermissionDetail>(pd => pd.PermissionID)
+                .HasForeignKey(pd => pd.PermissionID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // ===== PermissionGroup Relationships =====
             modelBuilder.Entity<PermissionGroup>()
                 .HasOne<PermissionGroupType>(pg => pg.PermissionGroupType)
                 .WithMany()
-                .HasForeignKey<PermissionGroup>(pg => pg.PermissionGroupTypeID)
+                .HasForeignKey(pg => pg.PermissionGroupTypeID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ===== Role Relationships =====
             modelBuilder.Entity<Role>()
                 .HasOne<Status>(r => r.Status)
                 .WithMany()
-                .HasForeignKey<Role>(r => r.StatusID)
+                .HasForeignKey(r => r.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ===== RoleDetail Relationships =====
             modelBuilder.Entity<RoleDetail>()
                 .HasOne<Role>(rd => rd.Role)
                 .WithMany()
-                .HasForeignKey<RoleDetail>(rd => rd.RoleID)
+                .HasForeignKey(rd => rd.RoleID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RoleDetail>()
                 .HasOne<PermissionDetail>(rd => rd.PermissionDetail)
                 .WithMany()
-                .HasForeignKey<RoleDetail>(rd => rd.PermissionDetailID)
+                .HasForeignKey(rd => rd.PermissionDetailID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // ===== UserAndRole Relationships =====
             modelBuilder.Entity<UserAndRole>()
                 .HasOne<User>(ur => ur.User)
                 .WithMany()
-                .HasForeignKey<UserAndRole>(ur => ur.UserID)
+                .HasForeignKey(ur => ur.UserID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserAndRole>()
                 .HasOne<Role>(ur => ur.Role)
                 .WithMany()
-                .HasForeignKey<UserAndRole>(ur => ur.RoleID)
+                .HasForeignKey(ur => ur.RoleID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // ===== UserAndPermissionDetail Relationships =====
             modelBuilder.Entity<UserAndPermissionDetail>()
                 .HasOne<User>(up => up.User)
                 .WithMany()
-                .HasForeignKey<UserAndPermissionDetail>(up => up.UserID)
+                .HasForeignKey(up => up.UserID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserAndPermissionDetail>()
                 .HasOne<PermissionDetail>(up => up.PermissionDetail)
                 .WithMany()
-                .HasForeignKey<UserAndPermissionDetail>(up => up.PermissionDetailID)
+                .HasForeignKey(up => up.PermissionDetailID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             //  ===== RefreshToken Relationships =====
             modelBuilder.Entity<RefreshToken>()
                 .HasOne<User>(rt => rt.User)
                 .WithMany()
-                .HasForeignKey<RefreshToken>(rt => rt.UserId)
+                .HasForeignKey(rt => rt.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //===== Order Relationships =====
             modelBuilder.Entity<Order>()
                 .HasOne<DinnerTable>(o => o.DinnerTable)
                 .WithMany()
-                .HasForeignKey<Order>(o => o.DinnerTableID)
+                .HasForeignKey(o => o.DinnerTableID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Order>()
                 .HasOne<StatusOfOrder>(o => o.StatusOfOrder)
                 .WithMany()
-                .HasForeignKey<Order>(o => o.StatusOfOrderID)
+                .HasForeignKey(o => o.StatusOfOrderID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Order>()
                 .HasOne<PromotionOnTotalBill>(o => o.PromotionOnTotalBill)
                 .WithMany()
-                .HasForeignKey<Order>(o => o.PromotionID)
+                .HasForeignKey(o => o.PromotionID)
                 .OnDelete(DeleteBehavior.SetNull);
 
             //// ===== OrdersDetail Relationships =====
@@ -240,173 +239,173 @@ namespace MilkTea.Infrastructure.Persistence
             modelBuilder.Entity<Order>()
                 .HasMany<OrdersDetail>(o => o.OrdersDetails)
                 .WithOne(od => od.Order)
-                .HasForeignKey<OrdersDetail>(od => od.OrderID)
+                .HasForeignKey(od => od.OrderID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<OrdersDetail>()
                 .HasOne<Menu>(od => od.Menu)
                 .WithMany()
-                .HasForeignKey<OrdersDetail>(od => od.MenuID)
+                .HasForeignKey(od => od.MenuID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<OrdersDetail>()
                 .HasOne<Size>(od => od.Size)
                 .WithMany()
-                .HasForeignKey<OrdersDetail>(od => od.SizeID)
+                .HasForeignKey(od => od.SizeID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<OrdersDetail>()
                 .HasOne<PriceList>(od => od.PriceList)
                 .WithMany()
-                .HasForeignKey<OrdersDetail>(od => od.PriceListID)
+                .HasForeignKey(od => od.PriceListID)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<OrdersDetail>()
                 .HasOne<KindOfHotpot>(od => od.KindOfHotpot1)
                 .WithMany()
-                .HasForeignKey<OrdersDetail>(od => od.KindOfHotpot1ID)
+                .HasForeignKey(od => od.KindOfHotpot1ID)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<OrdersDetail>()
                 .HasOne<KindOfHotpot>(od => od.KindOfHotpot2)
                 .WithMany()
-                .HasForeignKey<OrdersDetail>(od => od.KindOfHotpot2ID)
+                .HasForeignKey(od => od.KindOfHotpot2ID)
                 .OnDelete(DeleteBehavior.SetNull);
 
             //// ===== DinnerTable Relationships =====
             modelBuilder.Entity<DinnerTable>()
                 .HasOne<StatusOfDinnerTable>(dt => dt.StatusOfDinnerTable)
                 .WithMany()
-                .HasForeignKey<DinnerTable>(dt => dt.StatusOfDinnerTableID)
+                .HasForeignKey(dt => dt.StatusOfDinnerTableID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== Menu Relationships =====
             modelBuilder.Entity<Menu>()
                 .HasOne<MenuGroup>(m => m.MenuGroup)
                 .WithMany()
-                .HasForeignKey<Menu>(m => m.MenuGroupID)
+                .HasForeignKey(m => m.MenuGroupID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Menu>()
                 .HasOne<Unit>(m => m.Unit)
                 .WithMany()
-                .HasForeignKey<Menu>(m => m.UnitID)
+                .HasForeignKey(m => m.UnitID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Menu>()
                 .HasOne<Status>(m => m.Status)
                 .WithMany()
-                .HasForeignKey<Menu>(m => m.StatusID)
+                .HasForeignKey(m => m.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== MenuGroup Relationships =====
             modelBuilder.Entity<MenuGroup>()
                 .HasOne<Status>(mg => mg.Status)
                 .WithMany()
-                .HasForeignKey<MenuGroup>(mg => mg.StatusID)
+                .HasForeignKey(mg => mg.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== MenuSize Relationships =====
             modelBuilder.Entity<MenuSize>()
                 .HasOne<Menu>(ms => ms.Menu)
                 .WithMany()
-                .HasForeignKey<MenuSize>(ms => ms.MenuID)
+                .HasForeignKey(ms => ms.MenuID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MenuSize>()
                 .HasOne<Size>(ms => ms.Size)
                 .WithMany()
-                .HasForeignKey<MenuSize>(ms => ms.SizeID)
+                .HasForeignKey(ms => ms.SizeID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== MenuAndMaterial Relationships =====
             modelBuilder.Entity<MenuAndMaterial>()
                 .HasOne<Menu>(mm => mm.Menu)
                 .WithMany()
-                .HasForeignKey<MenuAndMaterial>(mm => mm.MenuID)
+                .HasForeignKey(mm => mm.MenuID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MenuAndMaterial>()
                 .HasOne<Material>(mm => mm.Material)
                 .WithMany()
-                .HasForeignKey<MenuAndMaterial>(mm => mm.MaterialsID)
+                .HasForeignKey(mm => mm.MaterialsID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MenuAndMaterial>()
                 .HasOne<Size>(mm => mm.Size)
                 .WithMany()
-                .HasForeignKey<MenuAndMaterial>(mm => mm.SizeID)
+                .HasForeignKey(mm => mm.SizeID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== Material Relationships =====
             modelBuilder.Entity<Material>()
                 .HasOne<MaterialsGroup>(m => m.MaterialsGroup)
                 .WithMany()
-                .HasForeignKey<Material>(m => m.MaterialsGroupID)
+                .HasForeignKey(m => m.MaterialsGroupID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Material>()
                 .HasOne<MaterialsStatus>(m => m.MaterialsStatus)
                 .WithMany()
-                .HasForeignKey<Material>(m => m.StatusID)
+                .HasForeignKey(m => m.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Material>()
                 .HasOne<Unit>(m => m.Unit)
                 .WithMany()
-                .HasForeignKey<Material>(m => m.UnitID)
+                .HasForeignKey(m => m.UnitID)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Material>()
                 .HasOne<Unit>(m => m.UnitMax)
                 .WithMany()
-                .HasForeignKey<Material>(m => m.UnitID_Max)
+                .HasForeignKey(m => m.UnitID_Max)
                 .OnDelete(DeleteBehavior.SetNull);
 
             //// ===== PriceList Relationships =====
             modelBuilder.Entity<PriceList>()
                 .HasOne<Currency>(pl => pl.Currency)
                 .WithMany()
-                .HasForeignKey<PriceList>(pl => pl.CurrencyID)
+                .HasForeignKey(pl => pl.CurrencyID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PriceList>()
                 .HasOne<StatusOfPriceList>(pl => pl.StatusOfPriceList)
                 .WithMany()
-                .HasForeignKey<PriceList>(pl => pl.StatusOfPriceListID)
+                .HasForeignKey(pl => pl.StatusOfPriceListID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== PriceListDetail Relationships =====
             modelBuilder.Entity<PriceListDetail>()
                 .HasOne<PriceList>(pld => pld.PriceList)
                 .WithMany()
-                .HasForeignKey<PriceListDetail>(pld => pld.PriceListID)
+                .HasForeignKey(pld => pld.PriceListID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PriceListDetail>()
                 .HasOne<Menu>(pld => pld.Menu)
                 .WithMany()
-                .HasForeignKey<PriceListDetail>(pld => pld.MenuID)
+                .HasForeignKey(pld => pld.MenuID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PriceListDetail>()
                 .HasOne<Size>(pld => pld.Size)
                 .WithMany()
-                .HasForeignKey<PriceListDetail>(pld => pld.SizeID)
+                .HasForeignKey(pld => pld.SizeID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== PromotionOnTotalBill Relationships =====
             modelBuilder.Entity<PromotionOnTotalBill>()
                 .HasOne<StatusOfPromotion>(p => p.StatusOfPromotion)
                 .WithMany()
-                .HasForeignKey<PromotionOnTotalBill>(p => p.StatusID)
+                .HasForeignKey(p => p.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== Warehouse Relationships =====
             modelBuilder.Entity<Warehouse>()
                 .HasOne<Material>(w => w.Material)
                 .WithMany()
-                .HasForeignKey<Warehouse>(w => w.MaterialsID)
+                .HasForeignKey(w => w.MaterialsID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //modelBuilder.Entity<Warehouse>()
@@ -418,20 +417,20 @@ namespace MilkTea.Infrastructure.Persistence
             modelBuilder.Entity<Warehouse>()
                 .HasOne<Status>(w => w.Status)
                 .WithMany()
-                .HasForeignKey<Warehouse>(w => w.StatusID)
+                .HasForeignKey(w => w.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== WarehouseRollback Relationships =====
             modelBuilder.Entity<WarehouseRollback>()
                 .HasOne<Order>(wr => wr.Order)
                 .WithMany()
-                .HasForeignKey<WarehouseRollback>(wr => wr.OrderID)
+                .HasForeignKey(wr => wr.OrderID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<WarehouseRollback>()
                 .HasOne<Warehouse>(wr => wr.Warehouse)
                 .WithMany()
-                .HasForeignKey<WarehouseRollback>(wr => wr.WarehouseID)
+                .HasForeignKey(wr => wr.WarehouseID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// ===== ImportFromSupplier Relationships =====
@@ -535,7 +534,7 @@ namespace MilkTea.Infrastructure.Persistence
             modelBuilder.Entity<Definition>()
                 .HasOne<DefinitionGroup>(d => d.DefinitionGroup)
                 .WithMany()
-                .HasForeignKey<Definition>(d => d.DefinitionGroupID)
+                .HasForeignKey(d => d.DefinitionGroupID)
                 .OnDelete(DeleteBehavior.Restrict);
             #endregion
         }
