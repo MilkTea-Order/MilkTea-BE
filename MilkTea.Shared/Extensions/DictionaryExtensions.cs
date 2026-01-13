@@ -1,0 +1,72 @@
+﻿namespace MilkTea.Shared.Extensions
+{
+    public static class DictionaryExtensions
+    {
+        public static List<Dictionary<string, object?>> ToDictList<T>(this IEnumerable<T> source, bool flatten = true)
+        {
+            return [.. source.Select(item => ToDict(item!))];
+        }
+
+
+        private static Dictionary<string, object?> ToDict(object obj)
+        {
+            var dict = new Dictionary<string, object?>();
+            var props = obj.GetType().GetProperties();
+
+            foreach (var prop in props)
+            {
+                if (prop.GetIndexParameters().Length > 0)
+                    continue;
+
+                var name = prop.Name;
+                var value = prop.GetValue(obj);
+
+                if (value != null
+                    && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType)
+                    && prop.PropertyType != typeof(string))
+                {
+                    continue;
+                }
+
+                if (value != null && !prop.PropertyType.IsSimpleType())
+                {
+                    var nested = ToDict(value);
+                    foreach (var kvp in nested)
+                        dict[kvp.Key] = kvp.Value;
+                }
+                else
+                {
+                    dict[name] = value;
+                }
+            }
+
+            return dict;
+        }
+
+        //private static Dictionary<string, object?> ToDict(object obj)
+        //{
+        //    var dict = new Dictionary<string, object?>();
+        //    var props = obj.GetType().GetProperties();
+
+        //    foreach (var prop in props)
+        //    {
+        //        var name = prop.Name;
+        //        var value = prop.GetValue(obj);
+
+        //        if (value != null && !prop.PropertyType.IsSimpleType())
+        //        {
+        //            // Recursively flatten complex types
+        //            var nested = ToDict(value);
+        //            foreach (var kvp in nested)
+        //                dict[kvp.Key] = kvp.Value;
+        //        }
+        //        else
+        //        {
+        //            dict[name] = value;
+        //        }
+        //    }
+
+        //    return dict;
+        //}
+    }
+}

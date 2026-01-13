@@ -1,0 +1,80 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: MilkTea.API/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/milktea-be:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/milktea-be:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_PRODUCTION }}
+          username: ${{ secrets.USERNAME_PRODUCTION }}
+          password: ${{ secrets.PASSWORD_PRODUCTION }}
+          port: ${{ secrets.PORT_PRODUCTION }}
+          script: |
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            cd ~/MilkTea
+
+            cat > .env << EOF
+            ASPNETCORE_ENVIRONMENT=${{ secrets.ASPNETCORE_ENVIRONMENT }}
+
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            IMAGE_TAG=${{ github.sha }}
+
+            DatabaseConfig__Provider=${{ secrets.DB_PROVIDER }}
+            DatabaseConfig__Server=${{ secrets.DB_SERVER }}
+            DatabaseConfig__Port=${{ secrets.DB_PORT }}
+            DatabaseConfig__Username=${{ secrets.DB_USERNAME }}
+            DatabaseConfig__Password=${{ secrets.DB_PASSWORD }}
+            DatabaseConfig__Database=${{ secrets.DB_DATABASE }}
+
+            JwtSettings__Key=${{ secrets.JWT_KEY }}
+            JwtSettings__Issuer=${{ secrets.JWT_ISSUER }}
+            JwtSettings__Audience=${{ secrets.JWT_AUDIENCE }}
+            JwtSettings__AccessTokenExpirationMinutes=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }}
+            JwtSettings__RefreshTokenExpirationMinutes=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }}
+
+            Logging__LogLevel__Default=Information
+            Logging__LogLevel__Microsoft.AspNetCore=Warning
+            AllowedHosts=*
+            EOF
+            # Set secure permissions (only owner can read/write)
+            chmod 600 .env
+
+            docker compose pull milktea-be
+            docker compose up -d --force-recreate milktea-be
+
+            docker image prune -f

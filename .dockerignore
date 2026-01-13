@@ -1,0 +1,71 @@
+# Build outputs
+**/bin
+**/obj
+**/out
+
+# IDE and editor files
+**/.vs
+**/.vscode
+**/.idea
+**/.classpath
+**/.project
+**/.settings
+**/.toolstarget
+**/*.suo
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/*.*proj.user
+
+# Git
+**/.git
+**/.gitignore
+**/.gitattributes
+
+# Docker
+**/.dockerignore
+**/docker-compose*
+**/Dockerfile*
+**/.docker
+
+# Environment and secrets
+**/.env
+**/.env.*
+**/secrets.dev.yaml
+**/values.dev.yaml
+
+# CI/CD (not needed in image)
+**/.github
+
+# Node.js (if any)
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+
+# Documentation
+**/*.md
+LICENSE
+
+# Temporary files
+**/*.tmp
+**/*.temp
+**/*.log
+**/*.cache
+**/*.dbmdl
+**/*.jfm
+
+# Azure/Kubernetes
+**/azds.yaml
+**/charts
+
+# Publish profiles (not needed in image)
+**/PublishProfiles
+
+# Test projects (if any)
+**/*Tests
+**/*Test
+**/*.Tests.csproj
+**/*.Test.csproj
+
+# Keep .gitignore for reference (optional)
+!**/.gitignore

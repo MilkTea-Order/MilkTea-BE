@@ -1,0 +1,539 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Entities.Config;
+using MilkTea.Domain.Entities.Orders;
+using MilkTea.Domain.Entities.Users;
+
+namespace MilkTea.Infrastructure.Persistence
+{
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    {
+
+        #region DbSet
+
+        // ===== User and Permission Management =====
+        public DbSet<UserAndPermissionDetail> UserAndPermissionDetail { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Gender> Gender { get; set; }
+        public DbSet<Permission> Permission { get; set; }
+        public DbSet<PermissionDetail> PermissionDetail { get; set; }
+        public DbSet<PermissionGroup> PermissionGroup { get; set; }
+        public DbSet<PermissionGroupType> PermissionGroupType { get; set; }
+        public DbSet<Position> Position { get; set; }
+        public DbSet<Role> Role { get; set; }
+        public DbSet<RoleDetail> RoleDetail { get; set; }
+        public DbSet<UserAndRole> UserAndRole { get; set; }
+        public DbSet<Status> Status { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        // Order
+        public DbSet<Currency> Currency { get; set; }
+        public DbSet<DinnerTable> DinnerTable { get; set; }
+        public DbSet<KindOfHotpot> KindOfHotpot { get; set; }
+        public DbSet<Material> Materials { get; set; }
+        public DbSet<MaterialsGroup> MaterialsGroup { get; set; }
+        public DbSet<MaterialsStatus> MaterialsStatus { get; set; }
+
+        public DbSet<Menu> Menu { get; set; }
+        public DbSet<MenuAndMaterial> MenuAndMaterials { get; set; }
+        public DbSet<MenuGroup> MenuGroup { get; set; }
+        public DbSet<MenuSize> MenuSize { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrdersDetail> OrdersDetail { get; set; }
+        public DbSet<PriceList> PriceList { get; set; }
+        public DbSet<PriceListDetail> PriceListDetail { get; set; }
+        public DbSet<Size> Size { get; set; }
+        public DbSet<StatusOfDinnerTable> StatusOfDinnerTable { get; set; }
+        public DbSet<StatusOfOrder> StatusOfOrder { get; set; }
+        public DbSet<StatusOfPriceList> StatusOfPriceList { get; set; }
+        public DbSet<StatusOfPromotion> StatusOfPromotion { get; set; }
+        public DbSet<Unit> Unit { get; set; }
+        public DbSet<PromotionOnTotalBill> PromotionOnTotalBill { get; set; }
+        public DbSet<Warehouse> Warehouse { get; set; }
+        public DbSet<WarehouseRollback> WarehouseRollback { get; set; }
+
+
+        public DbSet<Definition> Definition { get; set; }
+        public DbSet<DefinitionGroup> DefinitionGroups { get; set; }
+
+        //public DbSet<AttendanceData> AttendanceData { get; set; }
+        //public DbSet<AttendanceDataRecordType> AttendanceDataRecordTypes { get; set; }
+        //public DbSet<AttendanceDataStatus> AttendanceDataStatuses { get; set; }
+        //public DbSet<CollectAndSpend> CollectAndSpend { get; set; }
+        //public DbSet<CollectAndSpendGroup> CollectAndSpendGroups { get; set; }
+
+        //public DbSet<ImportFromSupplier> ImportFromSuppliers { get; set; }
+        //public DbSet<ImportFromSuppliersStatus> ImportFromSuppliersStatus { get; set; }
+        //public DbSet<Overtime> Overtime { get; set; }
+        //public DbSet<OvertimeStatus> OvertimeStatus { get; set; }
+        //public DbSet<Payroll> Payroll { get; set; }
+        //public DbSet<PayrollDetail> PayrollDetail { get; set; }
+        //public DbSet<PayrollStatus> PayrollStatus { get; set; }
+        //public DbSet<Supplier> Suppliers { get; set; }
+
+
+        #endregion
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            #region Composite Keys
+            //User
+            modelBuilder.Entity<RoleDetail>()
+                .HasKey(x => new { x.PermissionDetailID, x.RoleID });
+
+            modelBuilder.Entity<UserAndPermissionDetail>()
+                .HasKey(x => new { x.UserID, x.PermissionDetailID });
+
+            modelBuilder.Entity<UserAndRole>()
+                .HasKey(x => new { x.UserID, x.RoleID });
+
+            //Order
+            modelBuilder.Entity<MenuSize>()
+             .HasKey(x => new { x.MenuID, x.SizeID });
+
+            modelBuilder.Entity<PriceListDetail>()
+                .HasKey(x => new { x.PriceListID, x.MenuID, x.SizeID });
+
+            #endregion
+
+            #region Foreign Key Relationships
+
+            // ===== Employee Relationships =====
+            modelBuilder.Entity<Employee>()
+                .HasOne<Gender>()
+                .WithMany()
+                .HasForeignKey(e => e.GenderID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employee>()
+                .HasOne<Position>()
+                .WithMany()
+                .HasForeignKey(e => e.PositionID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employee>()
+                .HasOne<Status>()
+                .WithMany()
+                .HasForeignKey(e => e.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== User Relationships =====
+            modelBuilder.Entity<User>()
+                .HasOne<Employee>()
+                .WithMany()
+                .HasForeignKey(u => u.EmployeesID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasOne<Status>()
+                .WithMany()
+                .HasForeignKey(u => u.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== Permission Relationships =====
+            modelBuilder.Entity<Permission>()
+                .HasOne<PermissionGroup>()
+                .WithMany()
+                .HasForeignKey(p => p.PermissionGroupID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== PermissionDetail Relationships =====
+            modelBuilder.Entity<PermissionDetail>()
+                .HasOne<Permission>()
+                .WithMany()
+                .HasForeignKey(pd => pd.PermissionID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== PermissionGroup Relationships =====
+            modelBuilder.Entity<PermissionGroup>()
+                .HasOne<PermissionGroupType>()
+                .WithMany()
+                .HasForeignKey(pg => pg.PermissionGroupTypeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== Role Relationships =====
+            modelBuilder.Entity<Role>()
+                .HasOne<Status>()
+                .WithMany()
+                .HasForeignKey(r => r.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== RoleDetail Relationships =====
+            modelBuilder.Entity<RoleDetail>()
+                .HasOne<Role>()
+                .WithMany()
+                .HasForeignKey(rd => rd.RoleID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RoleDetail>()
+                .HasOne<PermissionDetail>()
+                .WithMany()
+                .HasForeignKey(rd => rd.PermissionDetailID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== UserAndRole Relationships =====
+            modelBuilder.Entity<UserAndRole>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(ur => ur.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserAndRole>()
+                .HasOne<Role>()
+                .WithMany()
+                .HasForeignKey(ur => ur.RoleID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== UserAndPermissionDetail Relationships =====
+            modelBuilder.Entity<UserAndPermissionDetail>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(up => up.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserAndPermissionDetail>()
+                .HasOne<PermissionDetail>()
+                .WithMany()
+                .HasForeignKey(up => up.PermissionDetailID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //  ===== RefreshToken Relationships =====
+            modelBuilder.Entity<RefreshToken>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            //===== Order Relationships =====
+            modelBuilder.Entity<Order>()
+                .HasOne<DinnerTable>()
+                .WithMany()
+                .HasForeignKey(o => o.DinnerTableID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne<StatusOfOrder>()
+                .WithMany()
+                .HasForeignKey(o => o.StatusOfOrderID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne<PromotionOnTotalBill>()
+                .WithMany()
+                .HasForeignKey(o => o.PromotionID)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            //// ===== OrdersDetail Relationships =====
+            //modelBuilder.Entity<OrdersDetail>()
+            //    .HasOne<Order>()
+            //    .WithMany()
+            //    .HasForeignKey(od => od.OrderID)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.OrdersDetails)
+                .WithOne(od => od.Order)
+                .HasForeignKey(od => od.OrderID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrdersDetail>()
+                .HasOne<Menu>()
+                .WithMany()
+                .HasForeignKey(od => od.MenuID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrdersDetail>()
+                .HasOne<Size>()
+                .WithMany()
+                .HasForeignKey(od => od.SizeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrdersDetail>()
+                .HasOne<PriceList>()
+                .WithMany()
+                .HasForeignKey(od => od.PriceListID)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<OrdersDetail>()
+                .HasOne<KindOfHotpot>()
+                .WithMany()
+                .HasForeignKey(od => od.KindOfHotpot1ID)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<OrdersDetail>()
+                .HasOne<KindOfHotpot>()
+                .WithMany()
+                .HasForeignKey(od => od.KindOfHotpot2ID)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            //// ===== DinnerTable Relationships =====
+            modelBuilder.Entity<DinnerTable>()
+                .HasOne<StatusOfDinnerTable>()
+                .WithMany()
+                .HasForeignKey(dt => dt.StatusOfDinnerTableID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== Menu Relationships =====
+            modelBuilder.Entity<Menu>()
+                .HasOne<MenuGroup>()
+                .WithMany()
+                .HasForeignKey(m => m.MenuGroupID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Menu>()
+                .HasOne<Unit>()
+                .WithMany()
+                .HasForeignKey(m => m.UnitID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Menu>()
+                .HasOne<Status>()
+                .WithMany()
+                .HasForeignKey(m => m.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== MenuGroup Relationships =====
+            modelBuilder.Entity<MenuGroup>()
+                .HasOne<Status>()
+                .WithMany()
+                .HasForeignKey(mg => mg.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== MenuSize Relationships =====
+            modelBuilder.Entity<MenuSize>()
+                .HasOne<Menu>()
+                .WithMany()
+                .HasForeignKey(ms => ms.MenuID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MenuSize>()
+                .HasOne<Size>()
+                .WithMany()
+                .HasForeignKey(ms => ms.SizeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== MenuAndMaterial Relationships =====
+            modelBuilder.Entity<MenuAndMaterial>()
+                .HasOne<Menu>()
+                .WithMany()
+                .HasForeignKey(mm => mm.MenuID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MenuAndMaterial>()
+                .HasOne<Material>()
+                .WithMany()
+                .HasForeignKey(mm => mm.MaterialsID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MenuAndMaterial>()
+                .HasOne<Size>()
+                .WithMany()
+                .HasForeignKey(mm => mm.SizeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== Material Relationships =====
+            modelBuilder.Entity<Material>()
+                .HasOne<MaterialsGroup>()
+                .WithMany()
+                .HasForeignKey(m => m.MaterialsGroupID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Material>()
+                .HasOne<MaterialsStatus>()
+                .WithMany()
+                .HasForeignKey(m => m.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Material>()
+                .HasOne<Unit>()
+                .WithMany()
+                .HasForeignKey(m => m.UnitID)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Material>()
+                .HasOne<Unit>()
+                .WithMany()
+                .HasForeignKey(m => m.UnitID_Max)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            //// ===== PriceList Relationships =====
+            modelBuilder.Entity<PriceList>()
+                .HasOne<Currency>()
+                .WithMany()
+                .HasForeignKey(pl => pl.CurrencyID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PriceList>()
+                .HasOne<StatusOfPriceList>()
+                .WithMany()
+                .HasForeignKey(pl => pl.StatusOfPriceListID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== PriceListDetail Relationships =====
+            modelBuilder.Entity<PriceListDetail>()
+                .HasOne<PriceList>()
+                .WithMany()
+                .HasForeignKey(pld => pld.PriceListID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PriceListDetail>()
+                .HasOne<Menu>()
+                .WithMany()
+                .HasForeignKey(pld => pld.MenuID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PriceListDetail>()
+                .HasOne<Size>()
+                .WithMany()
+                .HasForeignKey(pld => pld.SizeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== PromotionOnTotalBill Relationships =====
+            modelBuilder.Entity<PromotionOnTotalBill>()
+                .HasOne<StatusOfPromotion>()
+                .WithMany()
+                .HasForeignKey(p => p.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== Warehouse Relationships =====
+            modelBuilder.Entity<Warehouse>()
+                .HasOne<Material>()
+                .WithMany()
+                .HasForeignKey(w => w.MaterialsID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Warehouse>()
+            //    .HasOne<ImportFromSupplier>()
+            //    .WithMany()
+            //    .HasForeignKey(w => w.ImportFromSuppliersID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Warehouse>()
+                .HasOne<Status>()
+                .WithMany()
+                .HasForeignKey(w => w.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== WarehouseRollback Relationships =====
+            modelBuilder.Entity<WarehouseRollback>()
+                .HasOne<Order>()
+                .WithMany()
+                .HasForeignKey(wr => wr.OrderID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<WarehouseRollback>()
+                .HasOne<Warehouse>()
+                .WithMany()
+                .HasForeignKey(wr => wr.WarehouseID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== ImportFromSupplier Relationships =====
+            //modelBuilder.Entity<ImportFromSupplier>()
+            //    .HasOne<Supplier>()
+            //    .WithMany()
+            //    .HasForeignKey(ifs => ifs.SuppliersID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<ImportFromSupplier>()
+            //    .HasOne<ImportFromSuppliersStatus>()
+            //    .WithMany()
+            //    .HasForeignKey(ifs => ifs.StatusID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== Supplier Relationships =====
+            //modelBuilder.Entity<Supplier>()
+            //    .HasOne<Status>()
+            //    .WithMany()
+            //    .HasForeignKey(s => s.StatusID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== Payroll Relationships =====
+            //modelBuilder.Entity<Payroll>()
+            //    .HasOne<Employee>()
+            //    .WithMany()
+            //    .HasForeignKey(p => p.EmployeeID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Payroll>()
+            //    .HasOne<PayrollStatus>()
+            //    .WithMany()
+            //    .HasForeignKey(p => p.StatusID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== PayrollDetail Relationships =====
+            //modelBuilder.Entity<PayrollDetail>()
+            //    .HasOne<Payroll>()
+            //    .WithMany()
+            //    .HasForeignKey(pd => pd.PayrollID)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
+            //// ===== Overtime Relationships =====
+            //modelBuilder.Entity<Overtime>()
+            //    .HasOne<Employee>()
+            //    .WithMany()
+            //    .HasForeignKey(o => o.EmployeeID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Overtime>()
+            //    .HasOne<OvertimeStatus>()
+            //    .WithMany()
+            //    .HasForeignKey(o => o.StatusID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Overtime>()
+            //    .HasOne<Payroll>()
+            //    .WithMany()
+            //    .HasForeignKey(o => o.PayrollID)
+            //    .OnDelete(DeleteBehavior.SetNull);
+
+            //// ===== AttendanceData Relationships =====
+            //modelBuilder.Entity<AttendanceData>()
+            //    .HasOne<Employee>()
+            //    .WithMany()
+            //    .HasForeignKey(a => a.EmployeeID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<AttendanceData>()
+            //    .HasOne<AttendanceDataStatus>()
+            //    .WithMany()
+            //    .HasForeignKey(a => a.StatusID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<AttendanceData>()
+            //    .HasOne<AttendanceDataRecordType>()
+            //    .WithMany()
+            //    .HasForeignKey(a => a.RecordTypeID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<AttendanceData>()
+            //    .HasOne<Payroll>()
+            //    .WithMany()
+            //    .HasForeignKey(a => a.PayrollID)
+            //    .OnDelete(DeleteBehavior.SetNull);
+
+            //modelBuilder.Entity<AttendanceData>()
+            //    .HasOne<Employee>()
+            //    .WithMany()
+            //    .HasForeignKey(a => a.EmployeeID_ChangeShift)
+            //    .OnDelete(DeleteBehavior.SetNull);
+
+            //// ===== CollectAndSpend Relationships =====
+            //modelBuilder.Entity<CollectAndSpend>()
+            //    .HasOne<CollectAndSpendGroup>()
+            //    .WithMany()
+            //    .HasForeignKey(cas => cas.CollectAndSpendGroupID)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //// ===== Definition Relationships =====
+            //modelBuilder.Entity<Definition>()
+            //    .HasOne<DefinitionGroup>()
+            //    .WithMany()
+            //    .HasForeignKey(d => d.DefinitionGroupID)
+            //    .OnDelete(DeleteBehavior.Restrict
+            #endregion
+        }
+    }
+}
+
