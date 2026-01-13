@@ -64,8 +64,8 @@ jobs:
             JwtSettings__Key=${{ secrets.JWT_KEY }}
             JwtSettings__Issuer=${{ secrets.JWT_ISSUER }}
             JwtSettings__Audience=${{ secrets.JWT_AUDIENCE }}
-            JwtSettings__AccessTokenExpirationMinutes=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }}
-            JwtSettings__RefreshTokenExpirationMinutes=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }}
+            JwtSettings__AccessTokenExpireMinutes=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }}
+            JwtSettings__RefreshTokenExpireMinutes=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }}
 
             Logging__LogLevel__Default=Information
             Logging__LogLevel__Microsoft.AspNetCore=Warning
