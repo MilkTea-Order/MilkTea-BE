@@ -44,6 +44,10 @@ namespace MilkTea.Domain.Entities.Users
 
         [Required, Column("StatusID")]
         public int StatusID { get; set; }
+
+        // ===== Navigations =====
+        public Employee? Employee { get; set; }
+        public Status? Status { get; set; }
     }
 
 }

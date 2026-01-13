@@ -29,6 +29,9 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Required, Column("StatusID")]
         public int StatusID { get; set; }
+
+        public Material? Material { get; set; }
+        public Status? Status { get; set; }
     }
 
 }

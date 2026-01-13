@@ -93,6 +93,12 @@ namespace MilkTea.Domain.Entities.Orders
         [Column("ActionDate")]
         public DateTime? ActionDate { get; set; }
 
+        // Navigations
+        public DinnerTable? DinnerTable { get; set; }
+        public StatusOfOrder? StatusOfOrder { get; set; }
+        public PromotionOnTotalBill? PromotionOnTotalBill { get; set; }
+
+        // Last
         public ICollection<OrdersDetail> OrdersDetails { get; set; } = new List<OrdersDetail>();
     }
 

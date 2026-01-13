@@ -20,6 +20,11 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Required, Column("Quantity")]
         public decimal Quantity { get; set; }
+
+        // Navigations
+        public Menu? Menu { get; set; }
+        public Material? Material { get; set; }
+        public Size? Size { get; set; }
     }
 
 

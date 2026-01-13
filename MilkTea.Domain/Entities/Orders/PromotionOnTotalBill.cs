@@ -41,6 +41,9 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Column("Note")]
         public string? Note { get; set; }
+
+        // Navigation
+        public StatusOfPromotion? StatusOfPromotion { get; set; }
     }
 
 

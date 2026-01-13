@@ -17,6 +17,9 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Column("SalePrice")]
         public decimal? SalePrice { get; set; }
+
+        public Menu? Menu { get; set; }
+        public Size? Size { get; set; }
     }
 
 }

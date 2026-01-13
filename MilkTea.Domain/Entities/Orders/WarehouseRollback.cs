@@ -17,6 +17,9 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Required, Column("QuantitySubtract")]
         public decimal QuantitySubtract { get; set; }
+
+        public Order? Order { get; set; }
+        public Warehouse? Warehouse { get; set; }
     }
 
 

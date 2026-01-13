@@ -92,6 +92,12 @@ namespace MilkTea.Domain.Entities.Users
 
         [Column("BreakTimeTo")]
         public DateTime? BreakTimeTo { get; set; }
+
+        // ===== Navigations =====
+        public Gender? Gender { get; set; }
+        public Position? Position { get; set; }
+        public Status? Status { get; set; }
+        public User? User { get; set; }
     }
 
 

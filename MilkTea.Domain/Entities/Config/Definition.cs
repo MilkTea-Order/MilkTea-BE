@@ -29,6 +29,9 @@ namespace MilkTea.Domain.Entities.Config
 
         [Required, Column("DefinitionGroupID")]
         public int DefinitionGroupID { get; set; }
+
+        // Navigation
+        public DefinitionGroup? DefinitionGroup { get; set; }
     }
 
 }

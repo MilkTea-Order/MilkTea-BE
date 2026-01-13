@@ -29,5 +29,8 @@ namespace MilkTea.Domain.Entities.Users
 
         [Column("LastUpdatedDate")]
         public DateTime? LastUpdatedDate { get; set; }
+
+        // Navigation
+        public Status? Status { get; set; }
     }
 }

@@ -38,6 +38,11 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Column("PrintSticker")]
         public bool? PrintSticker { get; set; }
+
+        // Navigations
+        public MenuGroup? MenuGroup { get; set; }
+        public Status? Status { get; set; }
+        public Unit? Unit { get; set; }
     }
 
 

@@ -19,6 +19,8 @@ namespace MilkTea.Domain.Entities.Orders
         [Required, Column("MenuID")]
         public int MenuID { get; set; }
 
+        public Menu? Menu { get; set; }
+
         [Required, Column("Quantity")]
         public int Quantity { get; set; }
 
@@ -27,6 +29,8 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Column("PriceListID")]
         public int? PriceListID { get; set; }
+
+        public PriceList? PriceList { get; set; }
 
         [Required, Column("CreatedBy")]
         public int CreatedBy { get; set; }
@@ -49,8 +53,13 @@ namespace MilkTea.Domain.Entities.Orders
         [Column("KindOfHotpot2ID")]
         public int? KindOfHotpot2ID { get; set; }
 
+        public KindOfHotpot? KindOfHotpot1 { get; set; }
+        public KindOfHotpot? KindOfHotpot2 { get; set; }
+
         [Required, Column("SizeID")]
         public int SizeID { get; set; }
+
+        public Size? Size { get; set; }
     }
 
 }

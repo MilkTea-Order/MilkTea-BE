@@ -17,6 +17,10 @@ namespace MilkTea.Domain.Entities.Users
 
         [Required, Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
+
+        // Navigations
+        public Role? Role { get; set; }
+        public PermissionDetail? PermissionDetail { get; set; }
     }
 
 

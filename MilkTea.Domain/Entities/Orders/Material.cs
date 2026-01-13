@@ -33,5 +33,11 @@ namespace MilkTea.Domain.Entities.Orders
         [Required]
         [Column("StatusID")]
         public int StatusID { get; set; }
+
+        // Navigations
+        public MaterialsGroup? MaterialsGroup { get; set; }
+        public MaterialsStatus? MaterialsStatus { get; set; }
+        public Unit? Unit { get; set; }
+        public Unit? UnitMax { get; set; }
     }
 }

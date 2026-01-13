@@ -20,6 +20,9 @@ namespace MilkTea.Domain.Entities.Users
 
         [Column("Note")]
         public string? Note { get; set; }
+
+        // Navigation
+        public PermissionGroup? PermissionGroup { get; set; }
     }
 
 

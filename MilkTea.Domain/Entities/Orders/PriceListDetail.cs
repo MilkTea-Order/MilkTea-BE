@@ -17,6 +17,11 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Key, Column("SizeID", Order = 2)]
         public int SizeID { get; set; }
+
+        // Navigations
+        public PriceList? PriceList { get; set; }
+        public Menu? Menu { get; set; }
+        public Size? Size { get; set; }
     }
 
 

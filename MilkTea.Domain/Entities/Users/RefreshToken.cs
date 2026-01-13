@@ -32,5 +32,8 @@ namespace MilkTea.Domain.Entities.Users
         [Required]
         [Column("IsRevoked")]
         public bool IsRevoked { get; set; } = false;
+
+        // Navigation
+        public User? User { get; set; }
     }
 }

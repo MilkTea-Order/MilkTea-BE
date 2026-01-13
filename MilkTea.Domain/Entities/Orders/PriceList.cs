@@ -26,6 +26,10 @@ namespace MilkTea.Domain.Entities.Orders
 
         [Required, Column("StatusOfPriceListID")]
         public int StatusOfPriceListID { get; set; }
+
+        // Navigations
+        public Currency? Currency { get; set; }
+        public StatusOfPriceList? StatusOfPriceList { get; set; }
     }
 
 
