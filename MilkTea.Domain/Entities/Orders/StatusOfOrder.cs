@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MilkTea.Domain.Entities.Orders
 {
-    [Table("StatusOfOrder")]
+    [Table("statusoforder")]
     public class StatusOfOrder : BaseModel
     {
         [Key, Column("ID")]

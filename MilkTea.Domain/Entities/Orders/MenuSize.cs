@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MilkTea.Domain.Entities.Orders
 {
-    [Table("Menu_Size")]
+    [Table("menu_size")]
     public class MenuSize : BaseModel
     {
         [Key, Column("MenuID", Order = 0)]

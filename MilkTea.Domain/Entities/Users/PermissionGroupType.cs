@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MilkTea.Domain.Entities.Users
 {
-    [Table("PermissionGroupType")]
+    [Table("permissiongrouptype")]
     public class PermissionGroupType : BaseModel
     {
         [Key, Column("ID")]

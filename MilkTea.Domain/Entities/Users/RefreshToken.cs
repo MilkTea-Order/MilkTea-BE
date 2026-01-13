@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MilkTea.Domain.Entities.Users
 {
-    [Table("RefreshTokens")]
+    [Table("refreshtokens")]
     public class RefreshToken
     {
         [Key]

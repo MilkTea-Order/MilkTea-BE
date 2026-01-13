@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MilkTea.Domain.Entities.Users
 {
-    [Table("RoleDetail")]
+    [Table("roledetail")]
     public class RoleDetail : BaseModel
     {
         [Key, Column("PermissionDetailID", Order = 0)]

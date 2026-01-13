@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace MilkTea.Domain.Entities.Orders
 {
-    [Table("OrdersDetail")]
+    [Table("ordersdetail")]
     public class OrdersDetail : BaseModel
     {
         [Key, Column("ID")]

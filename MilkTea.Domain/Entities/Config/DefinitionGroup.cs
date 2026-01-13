@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MilkTea.Domain.Entities.Config
 {
-    [Table("DefinitionGroup")]
+    [Table("definitiongroup")]
     public class DefinitionGroup : BaseModel
     {
         [Key, Column("ID")]
