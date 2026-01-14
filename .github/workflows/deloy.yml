@@ -136,12 +136,11 @@ jobs:
             ${{ github.event.commits[0].message }}
             ```
 
-            **Environment:** Production
+            **Environment:** ${{secrets.ASPNETCORE_ENVIRONMENT}}
             **Image Tag:** `${{ github.sha }}`
 
             **View Changes:**
             https://github.com/${{ github.repository }}/commit/${{github.sha}}
-
       - name: send telegram message after deploy failed
         if: failure()
         uses: appleboy/telegram-action@master
