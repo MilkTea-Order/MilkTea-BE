@@ -34,7 +34,7 @@ namespace MilkTea.Application.Services.Orders
             if (insufficientMaterials.Count > 0)
             {
                 return new ValidationError(
-                    ErrorCode.E0040,
+                    ErrorCode.E0041,
                     insufficientMaterials.ToArray()
                 );
             }

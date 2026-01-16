@@ -28,21 +28,27 @@ namespace MilkTea.Application.UseCases.Users
                 return SendMessageError(result, ErrorCode.E0004, "RefreshToken");
             }
 
-            // Get refresh token from database
             var refreshToken = await _vRefreshTokenRepository.GetByTokenAsync(command.RefreshToken);
+            
+            // Check if token exists
             if (refreshToken == null)
             {
-                return SendMessageError(result, ErrorCode.E0001, "RefreshToken");
-            }
-
-            // Check if token is already revoked
-            if (refreshToken.IsRevoked)
-            {
-                return SendMessageError(result, ErrorCode.E0043, "RefreshToken");
+                return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
             }
 
             // Check if token belongs to the user
             if (refreshToken.UserId != command.UserId)
+            {
+                return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
+            }
+
+            // Check if token is revoked
+            if (refreshToken.IsRevoked)
+            {
+                return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
+            }
+
+            if (refreshToken.ExpiryDate <= DateTime.UtcNow)
             {
                 return SendMessageError(result, ErrorCode.E0043, "RefreshToken");
             }

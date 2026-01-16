@@ -19,6 +19,17 @@ namespace MilkTea.Infrastructure.Repositories.Users
                 .FirstOrDefaultAsync(t => t.Token == token);
         }
 
+        public async Task<RefreshToken?> GetValidTokenByTokenAndUserIdAsync(string token, int userId)
+        {
+            var now = DateTime.UtcNow;
+            return await _vContext.RefreshTokens
+                .FirstOrDefaultAsync(t => 
+                    t.Token == token 
+                    && t.UserId == userId
+                    && !t.IsRevoked 
+                    && t.ExpiryDate > now);
+        }
+
         public async Task RevokeAsync(RefreshToken token)
         {
             token.IsRevoked = true;
