@@ -25,6 +25,7 @@ namespace MilkTea.Application.UseCases
             services.AddScoped<GetOrderDetailByIDAndStatusUseCase>();
             services.AddScoped<CancelOrderUseCase>();
             services.AddScoped<CancelOrderDetailsUseCase>();
+            services.AddScoped<LogoutUseCase>();
             // ===== Orders – Validators =====
             services.AddScoped<OrderRequestValidator>();
             services.AddScoped<OrderItemValidator>();

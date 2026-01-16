@@ -190,6 +190,11 @@
         /// </summary>
         public const string E0042 = "E0042";
 
+        /// <summary>
+        /// Unauthorized - Token has been revoked or invalid
+        /// </summary>
+        public const string E0043 = "E0043";
+
         public const string E9999 = "E9999";
     }
 }
