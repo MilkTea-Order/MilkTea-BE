@@ -11,5 +11,7 @@ namespace MilkTea.Domain.Respositories.Users
         Task<User> UpdatePasswordAsync(int userId, string newPassword, int? updateByUserId = null);
 
         Task<User?> GetByIdAsync(int userId);
+
+        Task<User?> GetUserWithEmployeeAsync(int userId);
     }
 }

@@ -45,5 +45,19 @@ namespace MilkTea.Infrastructure.Repositories.Users
             return user;
         }
 
+        public async Task<User?> GetUserWithEmployeeAsync(int userId)
+        {
+            return await _vContext.Users
+                .AsNoTracking()
+                .Include(u => u.Employee)
+                    .ThenInclude(e => e.Gender)
+                .Include(u => u.Employee)
+                    .ThenInclude(e => e.Position)
+                .Include(u => u.Employee)
+                    .ThenInclude(e => e.Status)
+                .Include(u => u.Status)
+                .FirstOrDefaultAsync(x => x.ID == userId);
+        }
+
     }
 }

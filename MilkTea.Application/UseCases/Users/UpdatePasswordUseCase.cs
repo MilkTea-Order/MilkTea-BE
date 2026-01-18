@@ -22,15 +22,15 @@ namespace MilkTea.Application.UseCases.Users
 
             // Check exist user
             var vUser = await _vUserRepository.GetUserByUserID(command.UserId);
-            if (vUser == null) return sendMessageError(result, ErrorCode.E0001, "UserName");
+            if (vUser == null) return sendMessageError(result, ErrorCode.E0001, "userName");
 
             // Verify password
             if (!RC2Helper.VerifyPasswordRC2(vUser.Password, command.Password))
-                return sendMessageError(result, ErrorCode.E0001, "Password");
+                return sendMessageError(result, ErrorCode.E0001, "password");
 
             // Validate reused password
             if (RC2Helper.VerifyPasswordRC2(vUser.Password, command.NewPassword))
-                return sendMessageError(result, ErrorCode.E0012, "NewPassword");
+                return sendMessageError(result, ErrorCode.E0012, "newPassword");
 
             // Update password
             var newEncryptedPassword = RC2Helper.EncryptByRC2(command.NewPassword);
