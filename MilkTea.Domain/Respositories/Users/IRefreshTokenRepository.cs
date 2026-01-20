@@ -6,7 +6,8 @@ namespace MilkTea.Domain.Respositories.Users
     {
         Task StoreRefreshTokenAsync(RefreshToken token);
         Task<RefreshToken?> GetByTokenAsync(string token);
-        Task<RefreshToken?> GetValidTokenByTokenAndUserIdAsync(string token, int userId);
+        Task<RefreshToken?> GetValidTokenByTokenAsync(string token);
+        Task<RefreshToken?> GetTokenAndRevokeAsync(string token);
         Task RevokeAsync(RefreshToken token);
         Task RevokeAllByUserAsync(int userId);
     }

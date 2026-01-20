@@ -36,6 +36,11 @@ namespace MilkTea.API.RestfulAPI.Controllers
             return ResultsReturned.ErrorDetail(msg);
         }
 
+        protected ResponseDto SendTokenError(string? msg = null)
+        {
+            return ResultsReturned.TokenError(msg);
+        }
+
         protected ResponseDto SendError(ModelStateDictionary modelState)
         {
             var errors = modelState

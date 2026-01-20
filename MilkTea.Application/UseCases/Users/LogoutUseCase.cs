@@ -1,9 +1,8 @@
 using MilkTea.Application.Commands.Users;
 using MilkTea.Application.Results.Users;
-using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Users;
-using MilkTea.Shared.Extensions;
+using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.UseCases.Users
 {
@@ -15,48 +14,13 @@ namespace MilkTea.Application.UseCases.Users
         public async Task<LogoutResult> Execute(LogoutCommand command)
         {
             LogoutResult result = new();
-
-            // Validate userId
-            if (command.UserId <= 0)
+            var refreshToken = await _vRefreshTokenRepository.GetTokenAndRevokeAsync(command.RefreshToken);
+            if (refreshToken == null || refreshToken.UserId != command.UserId)
             {
-                return SendMessageError(result, ErrorCode.E0036, "UserId");
+                result.ResultData.AddMeta(MetaKey.TOKEN_ERROR, true);
             }
-
-            // Validate refreshToken
-            if (command.RefreshToken.IsNullOrWhiteSpace())
-            {
-                return SendMessageError(result, ErrorCode.E0004, "RefreshToken");
-            }
-
-            var refreshToken = await _vRefreshTokenRepository.GetByTokenAsync(command.RefreshToken);
-            
-            // Check if token exists
-            if (refreshToken == null)
-            {
-                return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
-            }
-
-            // Check if token belongs to the user
-            if (refreshToken.UserId != command.UserId)
-            {
-                return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
-            }
-
-            // Check if token is revoked
-            if (refreshToken.IsRevoked)
-            {
-                return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
-            }
-
-            if (refreshToken.ExpiryDate <= DateTime.UtcNow)
-            {
-                return SendMessageError(result, ErrorCode.E0043, "RefreshToken");
-            }
-
             // Revoke the specific refresh token
-            await _vRefreshTokenRepository.RevokeAsync(refreshToken);
             await _vUnitOfWork.CommitAsync();
-
             return result;
         }
 
@@ -73,3 +37,41 @@ namespace MilkTea.Application.UseCases.Users
         }
     }
 }
+
+
+//// Validate userId
+//if (command.UserId <= 0)
+//{
+//    return SendMessageError(result, ErrorCode.E0036, "UserId");
+//}
+
+//// Validate refreshToken
+//if (command.RefreshToken.IsNullOrWhiteSpace())
+//{
+//    return SendMessageError(result, ErrorCode.E0004, "RefreshToken");
+//}
+
+//var refreshToken = await _vRefreshTokenRepository.GetByTokenAsync(command.RefreshToken);
+
+//// Check if token exists
+//if (refreshToken == null)
+//{
+//    return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
+//}
+
+//// Check if token belongs to the user
+//if (refreshToken.UserId != command.UserId)
+//{
+//    return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
+//}
+
+//// Check if token is revoked
+//if (refreshToken.IsRevoked)
+//{
+//    return SendMessageError(result, ErrorCode.E0044, "RefreshToken");
+//}
+
+//if (refreshToken.ExpiryDate <= DateTime.UtcNow)
+//{
+//    return SendMessageError(result, ErrorCode.E0043, "RefreshToken");
+//}

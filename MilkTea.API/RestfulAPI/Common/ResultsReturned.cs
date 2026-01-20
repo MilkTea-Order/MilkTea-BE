@@ -19,6 +19,25 @@ namespace MilkTea.API.RestfulAPI.Common
             return resultToReturn;
         }
 
+        public static ResponseDto TokenError(string? Message)
+        {
+            ResponseDto resultToReturn = new()
+            {
+                Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error, " + Parameters.CODE_UNAUTHORIZED + " - " + Parameters.TEXT_UNAUTHORIZED,
+                Data = null,
+                Code = Parameters.CODE_UNAUTHORIZED,
+                Message = Message ?? Parameters.TEXT_UNAUTHORIZED
+            };
+            return resultToReturn;
+        }
+
+
+        //public static ResponseDto TokenError()
+        //{
+        //    return ResultsReturned.Error("INVALID_TOKEN");
+        //}
+
+
 
 
         public static ResponseDto Error(string Message)
@@ -49,11 +68,6 @@ namespace MilkTea.API.RestfulAPI.Common
             LogHelper.Write(logMessage);
 
             return ResultsReturned.Error(customMessage ?? "INTERNAL_SERVER_ERROR");
-        }
-
-        public static ResponseDto TokenError()
-        {
-            return ResultsReturned.Error("INVALID_TOKEN");
         }
 
 
