@@ -30,7 +30,10 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankName : null))
                 .ForMember(dest => dest.BankAccountName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankAccountName : null))
                 .ForMember(dest => dest.BankAccountNumber, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankAccountNumber : null))
-                .ForMember(dest => dest.BankQRCode, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankQRCode : null));
+                .ForMember(dest => dest.BankQRCode, opt => opt.MapFrom(src => src.Employee != null && src.Employee.BankQRCode != null
+                                                                                ? $"data:image/png;base64,{Convert.ToBase64String(src.Employee.BankQRCode)}"
+                                                                                : null)
+                           );
         }
     }
 }

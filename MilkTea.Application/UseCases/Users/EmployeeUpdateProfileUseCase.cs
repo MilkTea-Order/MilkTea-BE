@@ -5,6 +5,8 @@ using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Users;
 using MilkTea.Shared.Domain.Constants;
 using MilkTea.Shared.Extensions;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace MilkTea.Application.UseCases.Users
 {
@@ -57,6 +59,8 @@ namespace MilkTea.Application.UseCases.Users
                     (command.BankAccountNumber, v => employee.BankAccountNumber = v, nameof(command.BankAccountNumber))
                                             );
 
+            if (!isValid) return result;
+
             if (command.GenderID.HasValue)
             {
                 if (command.GenderID <= 0) return SendMessageError(result, ErrorCode.E0036, nameof(command.GenderID));
@@ -75,7 +79,28 @@ namespace MilkTea.Application.UseCases.Users
                 employee.BirthDay = birthDay.ToString("dd/MM/yyyy");
             }
 
-            //if (command.BankQRCode != null) employee.BankQRCode = command.BankQRCode;
+            if (command.BankQRCode != null)
+            {
+                // basic validate
+                if (command.BankQRCode.Length == 0 ||
+                    command.BankQRCode.Length > 5 * 1024 * 1024)
+                {
+                    return SendMessageError(result, ErrorCode.E0036, nameof(command.BankQRCode));
+                }
+
+                try
+                {
+                    using var inputStream = command.BankQRCode.OpenReadStream();
+                    using var image = Image.Load(inputStream);
+                    using var pngStream = new MemoryStream();
+                    image.Save(pngStream, new PngEncoder());
+                    employee.BankQRCode = pngStream.ToArray();
+                }
+                catch
+                {
+                    return SendMessageError(result, ErrorCode.E0036, nameof(command.BankQRCode));
+                }
+            }
 
             employee.LastUpdatedBy = command.UserID;
             employee.LastUpdatedDate = DateTime.UtcNow;
@@ -120,3 +145,18 @@ namespace MilkTea.Application.UseCases.Users
     }
 
 }
+
+//if (command.BankQRCode.Length == 0 || // empty file
+//    command.BankQRCode.Length > (5 * 1024 * 1024) || //
+//    command.BankQRCode.ContentType?.ToLowerInvariant() is not ("image/png" or "image/jpeg" or "image/jpg"))
+//{
+//    return SendMessageError(result, ErrorCode.E0036, nameof(command.BankQRCode));
+//}
+////  Convert IFormFile to byte[]
+//byte[] bytes;
+//using (var ms = new MemoryStream())
+//{
+//    await command.BankQRCode.CopyToAsync(ms);
+//    bytes = ms.ToArray();
+//}
+//employee.BankQRCode = bytes;

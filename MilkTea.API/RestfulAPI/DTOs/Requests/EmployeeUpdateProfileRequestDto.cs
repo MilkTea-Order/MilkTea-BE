@@ -38,6 +38,6 @@ namespace MilkTea.API.RestfulAPI.DTOs.Requests
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "BankAccountNumber must contain digits only")]
         public string? BankAccountNumber { get; set; }
 
-        public byte[]? BankQRCode { get; set; }
+        public IFormFile? BankQRCode { get; set; }
     }
 }

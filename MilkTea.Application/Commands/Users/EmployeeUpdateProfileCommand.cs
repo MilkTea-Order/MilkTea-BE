@@ -1,4 +1,6 @@
-﻿namespace MilkTea.Application.Commands.Users
+﻿using Microsoft.AspNetCore.Http;
+
+namespace MilkTea.Application.Commands.Users
 {
     public class EmployeeUpdateProfileCommand
     {
@@ -15,6 +17,6 @@
         public string? BankName { get; set; }
         public string? BankAccountName { get; set; }
         public string? BankAccountNumber { get; set; }
-        public byte[]? BankQRCode { get; set; }
+        public IFormFile? BankQRCode { get; set; }
     }
 }

@@ -48,18 +48,15 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         }
 
         [Authorize]
-        [HttpPut("me/profile")]
-        public async Task<ResponseDto> UpdateProfile(EmployeeUpdateProfileRequestDto request)
+        [HttpPut("me/update-profile")]
+        public async Task<ResponseDto> UpdateProfile([FromForm] EmployeeUpdateProfileRequestDto request)
         {
-
             if (!ModelState.IsValid)
             {
                 return SendError(ModelState);
-                // Trả về ngay lập tức, KHÔNG GỌI UseCase
             }
             var userId = User.GetUserId();
-            if (!int.TryParse(userId, out var vUserId)) return SendError();
-
+            if (!int.TryParse(userId, out var vUserId)) return SendTokenError();
             var result = await _vEmployeeUpdateProfileUseCase.Execute(new EmployeeUpdateProfileCommand
             {
                 UserID = vUserId,
@@ -77,7 +74,6 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
             });
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
-
             return SendSuccess();
         }
 
@@ -100,8 +96,9 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
             {
                 return SendError(result.ResultData);
             }
-
             var responseDto = _vMapper.Map<GetUserProfileResponseDto>(result.User);
+            string? qrCodeDataUrl = null;
+
             return SendSuccess(responseDto);
         }
     }

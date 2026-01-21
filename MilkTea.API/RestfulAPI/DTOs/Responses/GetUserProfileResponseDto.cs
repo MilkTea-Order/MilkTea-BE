@@ -23,7 +23,7 @@ namespace MilkTea.API.RestfulAPI.DTOs.Responses
         public string? BankName { get; set; }
         public string? BankAccountName { get; set; }
         public string? BankAccountNumber { get; set; }
-        public byte[]? BankQRCode { get; set; }
+        public string? BankQRCode { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastUpdatedDate { get; set; }
     }

@@ -24,7 +24,6 @@ namespace MilkTea.Application.UseCases.Users
                 result.ResultData.Add(ErrorCode.E0001, nameof(command.UserId));
                 return result;
             }
-
             result.User = user;
             return result;
         }
