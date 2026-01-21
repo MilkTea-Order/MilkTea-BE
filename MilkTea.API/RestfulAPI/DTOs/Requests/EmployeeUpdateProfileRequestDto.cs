@@ -13,7 +13,7 @@ namespace MilkTea.API.RestfulAPI.DTOs.Requests
         [DataType(DataType.Date)]
         public DateTime? BirthDay { get; set; }
 
-        [RegularExpression(@"^\d{9}|\d{12}$", ErrorMessage = "IdentityCode must be 9 or 12 digits")]
+        [RegularExpression(@"^(\d{9}|\d{12})$", ErrorMessage = "IdentityCode must be 9 or 12 digits")]
         [StringLength(12)]
         public string? IdentityCode { get; set; }
 

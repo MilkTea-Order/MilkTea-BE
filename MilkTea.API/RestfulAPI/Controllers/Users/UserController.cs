@@ -23,7 +23,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         private readonly IMapper _vMapper = mapper;
 
         [Authorize]
-        [HttpPut("update-password")]
+        [HttpPatch("update-password")]
         public async Task<ResponseDto> UpdatePassword(UpdatePasswordRequestDto request)
         {
             var vUserID = User.GetUserId();
@@ -48,11 +48,12 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         }
 
         [Authorize]
-        [HttpPut("me/update-profile")]
+        [HttpPatch("me/update-profile")]
         public async Task<ResponseDto> UpdateProfile([FromForm] EmployeeUpdateProfileRequestDto request)
         {
             if (!ModelState.IsValid)
             {
+
                 return SendError(ModelState);
             }
             var userId = User.GetUserId();
@@ -97,7 +98,6 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
                 return SendError(result.ResultData);
             }
             var responseDto = _vMapper.Map<GetUserProfileResponseDto>(result.User);
-            string? qrCodeDataUrl = null;
 
             return SendSuccess(responseDto);
         }

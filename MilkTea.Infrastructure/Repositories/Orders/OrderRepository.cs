@@ -24,13 +24,18 @@ namespace MilkTea.Infrastructure.Repositories.Orders
             return orderDetail;
         }
 
-        public async Task<List<Dictionary<string, object?>>> GetOrdersByOrderByAndStatusIDAsync(int orderBy, int statusId)
+        public async Task<List<Dictionary<string, object?>>> GetOrdersByOrderByAndStatusIDAsync(int orderBy, int? statusId)
         {
-            var row = await _context.Orders
-                .Where(o => o.OrderBy == orderBy && o.StatusOfOrderID == statusId)
-                .ToListAsync();
-            return row.ToDictList();
+            var query = _context.Orders
+                                .Where(o => o.OrderBy == orderBy);
+
+            if (statusId.HasValue) query = query
+                                       .Where(o => o.StatusOfOrderID == statusId.Value);
+
+            var row = await query.ToListAsync();
+            return row.ToDictList(flatten: false);
         }
+
         public async Task<Order?> GetOrderByIdAsync(int orderId)
         {
             return await _context.Orders
@@ -65,13 +70,6 @@ namespace MilkTea.Infrastructure.Repositories.Orders
                 .Select(od => od.ID)
                 .ToListAsync();
         }
-        //public async Task<Order?> GetOrderByIDAndStatus(int orderId, int statusId)
-        //{
-        //    return await _context.Orders
-        //        .Include(o => o.OrdersDetails)
-        //        .Where(o => o.ID == orderId && o.StatusOfOrderID == statusId)
-        //        .FirstOrDefaultAsync();
-        //}
 
         public async Task<bool> UpdateOrderAsync(Order order)
         {

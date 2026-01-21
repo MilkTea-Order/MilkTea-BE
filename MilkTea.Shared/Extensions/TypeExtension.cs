@@ -4,12 +4,14 @@
     {
         public static bool IsSimpleType(this Type type)
         {
-            return type.IsPrimitive
-                 || type.IsEnum
-                 || type.Equals(typeof(string))
-                 || type.Equals(typeof(decimal))
-                 || type.Equals(typeof(DateTime))
-                 || type.Equals(typeof(Guid));
+            var t = Nullable.GetUnderlyingType(type) ?? type;
+
+            return t.IsPrimitive
+                 || t.IsEnum
+                 || t == typeof(string)
+                 || t == typeof(decimal)
+                 || t == typeof(DateTime)
+                 || t == typeof(Guid);
         }
     }
 }

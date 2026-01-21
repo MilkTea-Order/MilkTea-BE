@@ -3,6 +3,6 @@
     public class GetOrdersByOrderByAndStatusCommand
     {
         public int OrderBy { get; set; }
-        public int StatusId { get; set; }
+        public int? StatusId { get; set; }
     }
 }

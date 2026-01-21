@@ -18,10 +18,14 @@ namespace MilkTea.Application.UseCases.Orders
             {
                 return SendMessageError(result, ErrorCode.E0036, nameof(command.OrderBy));
             }
-            // Validate status ID
-            bool statusExists = await _vStatusOfOrderRepository.ExistsAsync(command.StatusId);
-            if (!statusExists) return SendMessageError(result, ErrorCode.E0036, nameof(command.StatusId));
+            // Validate status ID if provided
+            if (command.StatusId.HasValue)
+            {
+                bool statusExists = await _vStatusOfOrderRepository.ExistsAsync(command.StatusId.Value);
+                if (!statusExists) return SendMessageError(result, ErrorCode.E0036, nameof(command.StatusId));
+            }
             result.orders = await _vOrderRepository.GetOrdersByOrderByAndStatusIDAsync(command.OrderBy, command.StatusId);
+
             return result;
         }
 
@@ -36,6 +40,5 @@ namespace MilkTea.Application.UseCases.Orders
             }
             return result;
         }
-
     }
 }

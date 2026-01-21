@@ -25,7 +25,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         private readonly CancelOrderDetailsUseCase _vCancelOrderDetailsUseCase = cancelOrderDetailsUseCase;
         private readonly IMapper _vMapper = mapper;
         [Authorize]
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<ResponseDto> CreateOrder([FromBody] CreateOrderRequestDto request)
         {
             var vUserID = User.GetUserId();
@@ -75,8 +75,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
-        [HttpPost("get-orders-of-me-by-status")]
-        public async Task<ResponseDto> GetOrdersOfMeByStatusID(GetOrdersOfMeByStatusIDRequestDto request)
+        [HttpGet]
+        public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int? statusId)
         {
             var vUserID = User.GetUserId();
             if (!int.TryParse(vUserID, out var vUserIdInt))
@@ -86,7 +86,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
             var result = await _vGetOrdersByOrderByAndStatusUseCase.Execute(new GetOrdersByOrderByAndStatusCommand
             {
                 OrderBy = vUserIdInt,
-                StatusId = request.StatusID
+                StatusId = statusId
             });
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
@@ -95,14 +95,14 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
-        [HttpPost("item")]
-        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID(GetOrderDetailByIDAndStatusRequestDto request)
+        [HttpGet("{orderId:int}")]
+        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool? isCancelled)
         {
 
             var result = await _vGetOrderDetailByIDAndStatusUseCase.Execute(new GetOrderDetailByIDAndStatusCommand
             {
-                OrderID = request.OrderID,
-                IsCancelled = request.IsCancelled
+                OrderID = orderId,
+                IsCancelled = isCancelled ?? false
             });
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
@@ -112,8 +112,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
-        [HttpPost("cancel")]
-        public async Task<ResponseDto> CancelOrder([FromBody] CancelOrderRequestDto request)
+        [HttpPatch("{orderId:int}/cancel")]
+        public async Task<ResponseDto> CancelOrder([FromRoute] int orderId, [FromBody] CancelOrderRequestDto request)
         {
             var vUserID = User.GetUserId();
             if (!int.TryParse(vUserID, out var vUserIdInt))
@@ -123,7 +123,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
 
             var command = new CancelOrderCommand
             {
-                OrderID = request.OrderID,
+                OrderID = orderId,
                 CancelledBy = vUserIdInt,
                 CancelNote = request.CancelNote
             };
@@ -146,8 +146,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
-        [HttpPost("cancel-item")]
-        public async Task<ResponseDto> CancelOrderDetails([FromBody] CancelOrderDetailsRequestDto request)
+        [HttpPatch("{orderId:int}/items/cancel")]
+        public async Task<ResponseDto> CancelOrderDetails([FromRoute] int orderId, [FromBody] CancelOrderDetailsRequestDto request)
         {
             var vUserID = User.GetUserId();
             if (!int.TryParse(vUserID, out var vUserIdInt))
@@ -157,7 +157,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
 
             var command = new CancelOrderDetailsCommand
             {
-                OrderID = request.OrderID,
+                OrderID = orderId,
                 OrderDetailIDs = request.OrderDetailIDs,
                 CancelledBy = vUserIdInt
             };

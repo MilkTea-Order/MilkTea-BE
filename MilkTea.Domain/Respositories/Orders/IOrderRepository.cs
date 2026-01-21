@@ -8,7 +8,7 @@ namespace MilkTea.Domain.Respositories.Orders
         Task<OrdersDetail> CreateOrderDetailAsync(OrdersDetail orderDetail);
         Task<Order?> GetOrderByIdAsync(int orderId);
         Task<int> GetTotalOrdersCountInDateAsync(DateTime? date);
-        Task<List<Dictionary<string, object?>>> GetOrdersByOrderByAndStatusIDAsync(int orderBy, int statusId);
+        Task<List<Dictionary<string, object?>>> GetOrdersByOrderByAndStatusIDAsync(int orderBy, int? statusId);
         Task<Order?> GetOrderDetailByIDAndStatus(int orderID, bool isCancelled);
         Task<bool> CancelOrderAsync(Order order);
         Task<bool> CancelOrderDetailsAsync(int orderId, int cancelledBy, DateTime cancelledDate);

@@ -9,7 +9,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
     [Route("api/tables")]
     public class TableController(GetTableByStatusUseCase getTableByStatusUseCase) : BaseController
     {
-        [HttpGet("status")]
+        [HttpGet]
         public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
         {
             var vData = await getTableByStatusUseCase.Execute(new GetTableByStatusCommand { statusID = statusID });
