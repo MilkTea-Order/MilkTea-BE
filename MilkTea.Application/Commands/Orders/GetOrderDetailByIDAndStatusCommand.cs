@@ -3,6 +3,6 @@
     public class GetOrderDetailByIDAndStatusCommand
     {
         public int OrderID;
-        public bool IsCancelled;
+        public bool? IsCancelled;
     }
 }

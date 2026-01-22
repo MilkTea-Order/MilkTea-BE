@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Constants.Enums;
 using MilkTea.Domain.Respositories.Orders;
 using MilkTea.Infrastructure.Persistence;
 using MilkTea.Shared.Extensions;
@@ -31,6 +32,24 @@ namespace MilkTea.Infrastructure.Repositories.Orders
                 query = query.Where(x => x.statusID == statusID.Value);
             }
             return (await query.AsNoTracking().ToListAsync()).ToDictList();
+        }
+
+        public async Task<List<Domain.Entities.Orders.DinnerTable>> GetTableEmpty()
+        {
+            var query =
+                from dt in _vContext.DinnerTable
+                join o in _vContext.Orders
+                    on dt.ID equals o.DinnerTableID
+                where dt.StatusOfDinnerTableID == (int)TableStatus.Valiable
+                   && o.StatusOfOrderID == (int)OrderStatus.Unpaid
+                select dt;
+
+            var result = await query
+                .Include(x => x.StatusOfDinnerTable)
+                .Distinct()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+            return result;
         }
     }
 }

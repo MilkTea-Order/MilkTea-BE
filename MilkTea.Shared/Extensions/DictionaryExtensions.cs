@@ -32,14 +32,12 @@
                 {
                     if (flatten)
                     {
-                        // Flatten: merge các properties của navigation property vào dict chính
                         var nested = ToDict(value, flatten);
                         foreach (var kvp in nested)
-                            dict[kvp.Key] = kvp.Value; // ← Đây là lý do TotalAmount bị ghi đè!
+                            dict[kvp.Key] = kvp.Value;
                     }
                     else
                     {
-                        // Không flatten: bỏ qua navigation properties
                         continue;
                     }
                 }

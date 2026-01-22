@@ -6,6 +6,6 @@ namespace MilkTea.Application.Results.Orders
     public class GetOrderDetailByIDAndStatusResult
     {
         public StringListEntry ResultData { get; set; } = new();
-        public Order order = new();
+        public Order Order { get; set; } = new();
     }
 }

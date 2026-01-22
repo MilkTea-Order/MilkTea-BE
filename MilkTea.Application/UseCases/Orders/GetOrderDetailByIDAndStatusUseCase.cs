@@ -17,12 +17,15 @@ namespace MilkTea.Application.UseCases.Orders
             {
                 return SendMessageError(result, ErrorCode.E0036, nameof(command.OrderID));
             }
+
             var order = await _vOrderRepository.GetOrderDetailByIDAndStatus(command.OrderID, command.IsCancelled);
 
             if (order == null)
             {
                 return SendMessageError(result, ErrorCode.E0001, nameof(command.OrderID));
             }
+
+            result.Order = order;
             return result;
         }
 

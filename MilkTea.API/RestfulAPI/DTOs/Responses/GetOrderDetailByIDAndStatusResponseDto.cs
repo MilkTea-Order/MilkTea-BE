@@ -12,6 +12,9 @@
         public string? Note { get; set; }
         public decimal TotalAmount { get; set; }
 
+        public DinnerTableDto? DinnerTable { get; set; }
+        public OrderStatusDto? Status { get; set; }
+
         public List<OrderDetailDto> OrderDetails { get; set; } = default!;
     }
 
@@ -31,5 +34,26 @@
         public int? KindOfHotpot1ID { get; set; }
         public int? KindOfHotpot2ID { get; set; }
         public int SizeID { get; set; }
+
+        public MenuDto? Menu { get; set; }
+        public SizeDto? Size { get; set; }
+    }
+
+    public class MenuDto
+    {
+        public int ID { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? MenuGroupName { get; set; }
+        public string? StatusName { get; set; }
+        public string? UnitName { get; set; }
+        public string? Note { get; set; }
+    }
+
+    public class SizeDto
+    {
+        public int ID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int RankIndex { get; set; }
     }
 }

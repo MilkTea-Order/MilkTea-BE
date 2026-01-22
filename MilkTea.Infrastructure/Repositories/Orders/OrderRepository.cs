@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using MilkTea.Domain.Entities.Orders;
 using MilkTea.Domain.Respositories.Orders;
 using MilkTea.Infrastructure.Persistence;
-using MilkTea.Shared.Extensions;
 
 namespace MilkTea.Infrastructure.Repositories.Orders
 {
@@ -24,16 +23,18 @@ namespace MilkTea.Infrastructure.Repositories.Orders
             return orderDetail;
         }
 
-        public async Task<List<Dictionary<string, object?>>> GetOrdersByOrderByAndStatusIDAsync(int orderBy, int? statusId)
+        public async Task<List<Order>> GetOrdersByOrderByAndStatusIDAsync(int orderBy, int? statusId)
         {
             var query = _context.Orders
+                                .Include(o => o.DinnerTable)
+                                    .ThenInclude(dt => dt!.StatusOfDinnerTable)
+                                .Include(o => o.StatusOfOrder)
                                 .Where(o => o.OrderBy == orderBy);
 
             if (statusId.HasValue) query = query
                                        .Where(o => o.StatusOfOrderID == statusId.Value);
 
-            var row = await query.ToListAsync();
-            return row.ToDictList(flatten: false);
+            return await query.OrderByDescending(o => o.ID).ToListAsync();
         }
 
         public async Task<Order?> GetOrderByIdAsync(int orderId)
@@ -53,14 +54,31 @@ namespace MilkTea.Infrastructure.Repositories.Orders
                 .CountAsync();
         }
 
-        public async Task<Order?> GetOrderDetailByIDAndStatus(int orderId, bool isCancelled)
+        public async Task<Order?> GetOrderDetailByIDAndStatus(int orderId, bool? isCancelled)
         {
             return await _context.Orders
-                .Include(o => o.OrdersDetails.Where(od => isCancelled
-                    ? od.CancelledBy != null && od.CancelledDate != null
-                    : od.CancelledBy == null && od.CancelledDate == null))
-                .Where(o => o.ID == orderId)
-                .FirstOrDefaultAsync();
+                 .Include(o => o.DinnerTable)
+                     .ThenInclude(dt => dt!.StatusOfDinnerTable)
+                 .Include(o => o.StatusOfOrder)
+                 .Where(o => o.ID == orderId)
+                 .Include(o => o.OrdersDetails.Where(od =>
+                     isCancelled == null
+                         ? true
+                         : isCancelled.Value
+                             ? od.CancelledBy != null && od.CancelledDate != null
+                             : od.CancelledBy == null && od.CancelledDate == null
+                 ))
+                     .ThenInclude(od => od.Menu)
+                         .ThenInclude(m => m!.MenuGroup)
+                 .Include(o => o.OrdersDetails)
+                     .ThenInclude(od => od.Menu)
+                         .ThenInclude(m => m!.Status)
+                 .Include(o => o.OrdersDetails)
+                     .ThenInclude(od => od.Menu)
+                         .ThenInclude(m => m!.Unit)
+                 .Include(o => o.OrdersDetails)
+                     .ThenInclude(od => od.Size)
+                 .FirstOrDefaultAsync();
         }
 
         public async Task<List<int>> GetOrderDetailIdsByOrderIdAsync(int orderId)

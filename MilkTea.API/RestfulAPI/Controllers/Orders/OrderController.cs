@@ -91,7 +91,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
-            return SendSuccess(result.orders);
+            var response = result.Orders.Select(order => _vMapper.Map<GetOrdersByOrderByAndStatusResponseDto>(order)).ToList();
+            return SendSuccess(response);
         }
 
         [Authorize]
@@ -102,12 +103,12 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
             var result = await _vGetOrderDetailByIDAndStatusUseCase.Execute(new GetOrderDetailByIDAndStatusCommand
             {
                 OrderID = orderId,
-                IsCancelled = isCancelled ?? false
+                IsCancelled = isCancelled
             });
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
-            var response = _vMapper.Map<GetOrderDetailByIDAndStatusResponseDto>(result.order);
+            var response = _vMapper.Map<GetOrderDetailByIDAndStatusResponseDto>(result.Order);
             return SendSuccess(response);
         }
 

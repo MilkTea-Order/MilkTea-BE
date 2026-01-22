@@ -1,4 +1,4 @@
-﻿namespace MilkTea.API.RestfulAPI.DTOs.Responses
+namespace MilkTea.API.RestfulAPI.DTOs.Responses
 {
     public class GetTableByStatusResponseDto
     {

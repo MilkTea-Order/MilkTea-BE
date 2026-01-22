@@ -9,7 +9,7 @@ using MilkTea.Infrastructure.Authentication.JWT.Extensions;
 using MilkTea.Shared.Domain.Constants;
 
 
-namespace MilkTea.API.RestfulAPI.Controllers.Users
+namespace MilkTea.API.RestfulAPI.Controllers.Auth
 {
     [ApiController]
     [Route("api/auth")]

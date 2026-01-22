@@ -24,7 +24,7 @@ namespace MilkTea.Application.UseCases.Orders
                 bool statusExists = await _vStatusOfOrderRepository.ExistsAsync(command.StatusId.Value);
                 if (!statusExists) return SendMessageError(result, ErrorCode.E0036, nameof(command.StatusId));
             }
-            result.orders = await _vOrderRepository.GetOrdersByOrderByAndStatusIDAsync(command.OrderBy, command.StatusId);
+            result.Orders = await _vOrderRepository.GetOrdersByOrderByAndStatusIDAsync(command.OrderBy, command.StatusId);
 
             return result;
         }
