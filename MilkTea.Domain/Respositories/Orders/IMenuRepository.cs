@@ -1,19 +1,23 @@
-﻿using MilkTea.Domain.Entities.Orders;
+using MilkTea.Domain.Entities.Orders;
 
 namespace MilkTea.Domain.Respositories.Orders
 {
     public interface IMenuRepository
     {
-        Task<List<Dictionary<string, object?>>> GetMenuGroupByStatusAsync(int? statusID, int? sellingStatusID);
-        Task<List<Dictionary<string, object?>>> GetMenuGroupAvaliableAsync();
-        Task<List<Dictionary<string, object?>>> GetMenuItemsOfGroupByStatusAsync(int groupID, int? itemStatusID);
-        Task<List<Dictionary<string, object?>>> GetMenuItemsAvaliableOfGroupByStatusAsync(int groupID);
-        Task<List<Dictionary<string, object?>>> GetMenuSizeByMenuAsync(int menuID);
-        Task<List<Dictionary<string, object?>>> GetMenuSizeWithPriceByMenuAsync(int menuID);
+        // Read methods for menu groups
+        Task<List<MenuGroup>> GetMenuGroupsByStatusAsync(int? groupStatusID, int? sellingStatusID);
+        Task<List<MenuGroup>> GetMenuGroupsAvailableAsync();
         Task<MenuGroup?> GetMenuGroupByID(int groupID);
         Task<MenuGroup?> GetMenuGroupByIDAndAvaliableAsync(int groupID);
+
+        // Read methods for menu items
+        Task<List<Menu>> GetMenusOfGroupByStatusAsync(int groupID, int? itemStatusID);
+        Task<List<Menu>> GetMenusAvailableOfGroupAsync(int groupID);
         Task<Menu?> GetMenuByIDAsync(int menuId);
         Task<Menu?> GetMenuByIDAndAvaliableAsync(int menuID);
 
+        // Read methods for menu sizes
+        Task<List<MenuSize>> GetMenuSizesByMenuAsync(int menuID);
+        Task<List<MenuSize>> GetMenuSizesAvailableByMenuAsync(int menuID);
     }
 }

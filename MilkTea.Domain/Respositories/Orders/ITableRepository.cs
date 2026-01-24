@@ -1,10 +1,10 @@
-﻿using MilkTea.Domain.Entities.Orders;
+using MilkTea.Domain.Entities.Orders;
 
 namespace MilkTea.Domain.Respositories.Orders
 {
     public interface ITableRepository
     {
-        Task<List<Dictionary<string, object?>>> GetTablesByStatusAsync(int? statusID);
+        Task<List<DinnerTable>> GetTablesByStatusAsync(int? statusId);
 
         Task<List<DinnerTable>> GetTableEmpty();
     }

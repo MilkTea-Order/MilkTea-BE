@@ -1,4 +1,4 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Commands.Orders;
 using MilkTea.Application.Models.Errors;
 using MilkTea.Domain.Respositories.Orders;
 
@@ -17,12 +17,8 @@ namespace MilkTea.Application.Services.Orders
                 return ValidationError.NotExist(nameof(command.DinnerTableID));
 
             // Check ordered by
-            if (command.OrderedBy <= 0)
+            if (command.OrderedBy.HasValue && command.OrderedBy.Value <= 0)
                 return ValidationError.InvalidData(nameof(command.OrderedBy));
-
-            // Check created by
-            if (command.CreatedBy <= 0)
-                return ValidationError.InvalidData(nameof(command.CreatedBy));
 
             // Check Items
             if (command.Items == null || command.Items.Count == 0)

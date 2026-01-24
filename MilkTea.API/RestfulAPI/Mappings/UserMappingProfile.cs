@@ -1,39 +1,42 @@
 using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Application.DTOs.Users;
 
 namespace MilkTea.API.RestfulAPI.Mappings
 {
+    /// <summary>
+    /// API layer mappings: Application DTOs -> API Response DTOs.
+    /// </summary>
     public class UserMappingProfile : Profile
     {
         public UserMappingProfile()
         {
-            // Map User entity to GetUserProfileResponseDto
-            CreateMap<User, GetUserProfileResponseDto>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.ID))
-                .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.ID : 0))
-                .ForMember(dest => dest.EmployeeCode, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.Code : null))
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.FullName : null))
-                .ForMember(dest => dest.GenderID, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.GenderID : 0))
-                .ForMember(dest => dest.GenderName, opt => opt.MapFrom(src => src.Employee != null && src.Employee.Gender != null ? src.Employee.Gender.Name : null))
-                .ForMember(dest => dest.BirthDay, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BirthDay : null))
-                .ForMember(dest => dest.IdentityCode, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.IdentityCode : null))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.Email : null))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.Address : null))
-                .ForMember(dest => dest.CellPhone, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.CellPhone : null))
-                .ForMember(dest => dest.PositionID, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.PositionID : 0))
-                .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Employee != null && src.Employee.Position != null ? src.Employee.Position.Name : null))
-                .ForMember(dest => dest.StatusID, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.StatusID : 0))
-                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Employee != null && src.Employee.Status != null ? src.Employee.Status.Name : null))
-                .ForMember(dest => dest.StartWorkingDate, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.StartWorkingDate : null))
-                .ForMember(dest => dest.EndWorkingDate, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.EndWorkingDate : null))
-                .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankName : null))
-                .ForMember(dest => dest.BankAccountName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankAccountName : null))
-                .ForMember(dest => dest.BankAccountNumber, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.BankAccountNumber : null))
-                .ForMember(dest => dest.BankQRCode, opt => opt.MapFrom(src => src.Employee != null && src.Employee.BankQRCode != null
-                                                                                ? $"data:image/png;base64,{Convert.ToBase64String(src.Employee.BankQRCode)}"
-                                                                                : null)
-                           );
+            CreateMap<UserProfileDto, GetUserProfileResponseDto>()
+                .ForMember(d => d.UserId, o => o.MapFrom(s => s.UserId))
+                .ForMember(d => d.UserName, o => o.MapFrom(s => s.UserName ?? string.Empty))
+                .ForMember(d => d.EmployeeId, o => o.MapFrom(s => s.EmployeeId))
+                .ForMember(d => d.EmployeeCode, o => o.MapFrom(s => s.EmployeeCode))
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.FullName ?? string.Empty))
+                .ForMember(d => d.GenderID, o => o.MapFrom(s => s.GenderId))
+                .ForMember(d => d.GenderName, o => o.MapFrom(s => s.GenderName))
+                .ForMember(d => d.BirthDay, o => o.MapFrom(s => s.BirthDay))
+                .ForMember(d => d.IdentityCode, o => o.MapFrom(s => s.IdentityCode))
+                .ForMember(d => d.Email, o => o.MapFrom(s => s.Email))
+                .ForMember(d => d.Address, o => o.MapFrom(s => s.Address))
+                .ForMember(d => d.CellPhone, o => o.MapFrom(s => s.CellPhone))
+                .ForMember(d => d.PositionID, o => o.MapFrom(s => s.PositionId))
+                .ForMember(d => d.PositionName, o => o.MapFrom(s => s.PositionName))
+                .ForMember(d => d.StatusID, o => o.MapFrom(s => s.StatusId))
+                .ForMember(d => d.StatusName, o => o.MapFrom(s => s.StatusName))
+                .ForMember(d => d.StartWorkingDate, o => o.MapFrom(s => s.StartWorkingDate))
+                .ForMember(d => d.EndWorkingDate, o => o.MapFrom(s => s.EndWorkingDate))
+                .ForMember(d => d.BankName, o => o.MapFrom(s => s.BankName))
+                .ForMember(d => d.BankAccountName, o => o.MapFrom(s => s.BankAccountName))
+                .ForMember(d => d.BankAccountNumber, o => o.MapFrom(s => s.BankAccountNumber))
+                .ForMember(d => d.BankQRCode, o => o.MapFrom(s => s.BankQrCodeBase64))
+                .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate))
+                .ForMember(d => d.LastUpdatedDate, o => o.MapFrom(s => s.LastUpdatedDate));
         }
     }
 }
+

@@ -6,5 +6,6 @@ namespace MilkTea.Domain.Respositories.Orders
     {
         Task<PriceList?> GetActivePriceListAsync();
         Task<decimal?> GetPriceAsync(int priceListId, int menuId, int sizeId);
+        Task<Dictionary<int, decimal>> GetPricesForMenuAsync(int priceListId, int menuId);
     }
 }

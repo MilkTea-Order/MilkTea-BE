@@ -4,8 +4,8 @@ namespace MilkTea.Application.Commands.Orders
     {
         public int DinnerTableID { get; set; }
         public List<OrderItemCommand> Items { get; set; } = new();
-        public int OrderedBy { get; set; }
-        public int CreatedBy { get; set; }
+        // Optional: if omitted, defaults to current user.
+        public int? OrderedBy { get; set; }
         public string? Note { get; set; }
     }
 

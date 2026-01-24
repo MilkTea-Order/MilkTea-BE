@@ -1,10 +1,11 @@
-﻿using MilkTea.Shared.Domain.Services;
+using MilkTea.Application.DTOs.Orders;
+using MilkTea.Shared.Domain.Services;
 
 namespace MilkTea.Application.Results.Orders
 {
     public class GetTableByStatusResult
     {
-        public List<Dictionary<string, object?>> Tables { get; set; } = default!;
+        public List<DinnerTableDto> Tables { get; set; } = new();
         public StringListEntry ResultData { get; set; } = new();
     }
 }

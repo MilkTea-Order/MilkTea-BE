@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Commands.Users;
+using MilkTea.Application.Queries.Users;
 using MilkTea.Application.UseCases.Users;
-using MilkTea.Infrastructure.Authentication.JWT.Extensions;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Users
 {
@@ -26,15 +26,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         [HttpPatch("update-password")]
         public async Task<ResponseDto> UpdatePassword(UpdatePasswordRequestDto request)
         {
-            var vUserID = User.GetUserId();
-            if (!int.TryParse(vUserID, out var vUserIdInt))
-            {
-                return SendError();
-            }
-
             var vData = await _vUpdatePasswordUseCase.Execute(new UpdatePasswordCommand
             {
-                UserId = vUserIdInt,
                 Password = request.Password,
                 NewPassword = request.NewPassword
             });
@@ -56,11 +49,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
 
                 return SendError(ModelState);
             }
-            var userId = User.GetUserId();
-            if (!int.TryParse(userId, out var vUserId)) return SendTokenError();
             var result = await _vEmployeeUpdateProfileUseCase.Execute(new EmployeeUpdateProfileCommand
             {
-                UserID = vUserId,
                 FullName = request.FullName,
                 GenderID = request.GenderID,
                 BirthDay = request.BirthDay,
@@ -82,16 +72,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         [HttpGet("me")]
         public async Task<ResponseDto> GetMe()
         {
-            var userId = User.GetUserId();
-            if (!int.TryParse(userId, out var vUserId))
-            {
-                return SendError();
-            }
-
-            var result = await _vGetUserProfileUseCase.Execute(new GetUserProfileCommand
-            {
-                UserId = vUserId
-            });
+            var result = await _vGetUserProfileUseCase.Execute(new GetUserProfileQuery());
 
             if (result.ResultData.HasData)
             {

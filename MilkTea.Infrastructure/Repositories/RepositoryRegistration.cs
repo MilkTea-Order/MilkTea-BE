@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Configs;
 using MilkTea.Domain.Respositories.Orders;

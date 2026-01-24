@@ -1,6 +1,8 @@
 using Microsoft.OpenApi.Models;
 using MilkTea.API.RestfulAPI.Middlewares;
 using MilkTea.Application.UseCases;
+using MilkTea.Application.Ports.Identity;
+using MilkTea.API.RestfulAPI.Common;
 using MilkTea.Infrastructure.Authentication.JWT;
 using MilkTea.Infrastructure.Database;
 using MilkTea.Infrastructure.Database.MySQL;
@@ -12,6 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add JWT authentication
 builder.Services.AddAuthenticationJWTMicrosoft(builder.Configuration, builder.Environment);
+
+// Current user abstraction (Application port)
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
 
 // Add connect database service
 builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(builder.Configuration));

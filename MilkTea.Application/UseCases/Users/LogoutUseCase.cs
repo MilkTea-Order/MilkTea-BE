@@ -1,21 +1,23 @@
 using MilkTea.Application.Commands.Users;
 using MilkTea.Application.Results.Users;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Users;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.UseCases.Users
 {
-    public class LogoutUseCase(IRefreshTokenRepository refreshTokenRepository, IUnitOfWork unitOfWork)
+    public class LogoutUseCase(IRefreshTokenRepository refreshTokenRepository, IUnitOfWork unitOfWork, ICurrentUser currentUser)
     {
         private readonly IRefreshTokenRepository _vRefreshTokenRepository = refreshTokenRepository;
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<LogoutResult> Execute(LogoutCommand command)
         {
             LogoutResult result = new();
             var refreshToken = await _vRefreshTokenRepository.GetTokenAndRevokeAsync(command.RefreshToken);
-            if (refreshToken == null || refreshToken.UserId != command.UserId)
+            if (refreshToken == null || refreshToken.UserId != _currentUser.UserId)
             {
                 result.ResultData.AddMeta(MetaKey.TOKEN_ERROR, true);
             }

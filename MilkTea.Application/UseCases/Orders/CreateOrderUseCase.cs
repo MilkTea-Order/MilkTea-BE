@@ -1,7 +1,8 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Commands.Orders;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Results.Orders;
 using MilkTea.Application.Services.Orders;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 
@@ -13,7 +14,8 @@ namespace MilkTea.Application.UseCases.Orders
         OrderItemValidator itemValidator,
         OrderStockService stockService,
         OrderFactory orderFactory,
-        OrderPricingService pricingService)
+        OrderPricingService pricingService,
+        ICurrentUser currentUser)
     {
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
         private readonly OrderRequestValidator _vRequestValidator = requestValidator;
@@ -21,10 +23,13 @@ namespace MilkTea.Application.UseCases.Orders
         private readonly OrderStockService _vStockService = stockService;
         private readonly OrderFactory _vOrderFactory = orderFactory;
         private readonly OrderPricingService _vPricingService = pricingService;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<CreateOrderResult> Execute(CreateOrderCommand command)
         {
             var result = new CreateOrderResult();
+            var createdBy = _currentUser.UserId;
+            var orderedBy = command.OrderedBy ?? createdBy;
 
             // Validate request
             var requestError = await _vRequestValidator.Validate(command);
@@ -60,7 +65,7 @@ namespace MilkTea.Application.UseCases.Orders
 
             try
             {
-                var order = await _vOrderFactory.CreateOrder(command, pendingOrderStatus);
+                var order = await _vOrderFactory.CreateOrder(command, pendingOrderStatus, createdBy, orderedBy);
                 await _vOrderFactory.CreateOrderDetails(order, validatedItems, activePriceList.ID);
                 order.TotalAmount = _vPricingService.CalculateTotalAmount(validatedItems);
                 result.OrderDate = order.OrderDate;

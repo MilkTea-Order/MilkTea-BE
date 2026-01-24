@@ -1,5 +1,6 @@
-﻿using MilkTea.Application.Commands.Users;
+using MilkTea.Application.Commands.Users;
 using MilkTea.Application.Results.Users;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Users;
@@ -13,20 +14,22 @@ namespace MilkTea.Application.UseCases.Users
     public class EmployeeUpdateProfileUseCase(IUserRepository userRepository,
                                                 IEmployeeRepository employeeRepository,
                                                 IGenderRepository genderRepository,
-                                                IUnitOfWork unitOfWork)
+                                                IUnitOfWork unitOfWork,
+                                                ICurrentUser currentUser)
     {
         private readonly IUserRepository _vUserRepository = userRepository;
         private readonly IEmployeeRepository _vEmployeeRepository = employeeRepository;
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
         private readonly IGenderRepository _vGenderRepository = genderRepository;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<EmployeeUpdateProfileResult> Execute(EmployeeUpdateProfileCommand command)
         {
             EmployeeUpdateProfileResult result = new();
             result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
-            if (command.UserID <= 0) return SendMessageError(result, ErrorCode.E0036, "UserID");
+            var userId = _currentUser.UserId;
 
-            var user = await _vUserRepository.GetByIdAsync(command.UserID);
+            var user = await _vUserRepository.GetByIdAsync(userId);
             if (user == null) return SendMessageError(result, ErrorCode.E0001, "User");
 
             var employee = await _vEmployeeRepository.GetByIdAsync(user.EmployeesID);
@@ -102,7 +105,7 @@ namespace MilkTea.Application.UseCases.Users
                 }
             }
 
-            employee.LastUpdatedBy = command.UserID;
+            employee.LastUpdatedBy = userId;
             employee.LastUpdatedDate = DateTime.UtcNow;
 
             _vEmployeeRepository.Update(employee);

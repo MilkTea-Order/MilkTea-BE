@@ -1,4 +1,5 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.DTOs.Orders;
+using MilkTea.Application.Queries.Orders;
 using MilkTea.Application.Results.Orders;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories.Orders;
@@ -11,7 +12,7 @@ namespace MilkTea.Application.UseCases.Orders
     {
         private readonly IStatusRepository _vStatusRepository = statusRepository;
         private readonly ITableRepository _vTableRepository = tableRepository;
-        public async Task<GetTableByStatusResult> Execute(GetTableByStatusCommand command)
+        public async Task<GetTableByStatusResult> Execute(GetTableByStatusQuery query)
         {
 
             GetTableByStatusResult result = new();
@@ -19,20 +20,31 @@ namespace MilkTea.Application.UseCases.Orders
             result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
 
             // Validate status ID
-            if (command.statusID <= 0)
+            if (query.StatusId <= 0)
             {
                 return SendMessageError(result, ErrorCode.E0029, "StatusID");
             }
             // Check exist tables with status ID
-            if (command.statusID.HasValue)
+            if (query.StatusId.HasValue)
             {
-                var existsStatus = await _vStatusRepository.ExistsDinnerTableStatusAsync(command.statusID.Value);
+                var existsStatus = await _vStatusRepository.ExistsDinnerTableStatusAsync(query.StatusId.Value);
                 if (!existsStatus)
                 {
                     return SendMessageError(result, ErrorCode.E0001, "StatusID");
                 }
             }
-            result.Tables = await _vTableRepository.GetTablesByStatusAsync(command.statusID);
+            var tables = await _vTableRepository.GetTablesByStatusAsync(query.StatusId);
+            result.Tables = tables.Select(static t => new DinnerTableDto
+            {
+                Id = t.ID,
+                Code = t.Code,
+                Name = t.Name,
+                Position = t.Position,
+                NumberOfSeats = t.NumberOfSeats,
+                StatusId = t.StatusOfDinnerTableID,
+                StatusName = t.StatusOfDinnerTable?.Name,
+                Note = t.Note
+            }).ToList();
             return result;
         }
 

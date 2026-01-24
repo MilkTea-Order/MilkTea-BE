@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Commands.Users;
 using MilkTea.Application.UseCases.Users;
-using MilkTea.Infrastructure.Authentication.JWT.Extensions;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Users
 {
@@ -19,14 +18,10 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         {
             //if (!ModelState.IsValid) return SendError(ModelState);
 
-            var adminIdStr = User.GetUserId();
-            if (!int.TryParse(adminIdStr, out var adminId)) return SendError();
-
             var result = await _vAdminUpdateUserUseCase.Execute(
                 new AdminUpdateUserCommand
                 {
                     UserID = userId,
-                    AdminID = adminId,
 
                     FullName = request.FullName,
                     GenderID = request.GenderID,

@@ -1,5 +1,6 @@
 using MilkTea.Application.Commands.Orders;
 using MilkTea.Application.Results.Orders;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Orders;
@@ -9,11 +10,13 @@ namespace MilkTea.Application.UseCases.Orders
     public class CancelOrderDetailsUseCase(
                             IOrderRepository orderRepository,
                             IStatusOfOrderRepository statusOfOrderRepository,
-                            IUnitOfWork unitOfWork)
+                            IUnitOfWork unitOfWork,
+                            ICurrentUser currentUser)
     {
         private readonly IOrderRepository _vOrderRepository = orderRepository;
         private readonly IStatusOfOrderRepository _vStatusOfOrderRepository = statusOfOrderRepository;
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<CancelOrderDetailsResult> Execute(CancelOrderDetailsCommand command)
         {
@@ -66,13 +69,14 @@ namespace MilkTea.Application.UseCases.Orders
             try
             {
                 var now = DateTime.UtcNow;
+                var cancelledBy = _currentUser.UserId;
                 var successfullyCancelledIds = new List<int>();
 
                 foreach (var detailId in command.OrderDetailIDs)
                 {
                     var cancelled = await _vOrderRepository.CancelOrderDetailAsync(
                         detailId,
-                        command.CancelledBy,
+                        cancelledBy,
                         now);
 
                     if (cancelled) successfullyCancelledIds.Add(detailId);

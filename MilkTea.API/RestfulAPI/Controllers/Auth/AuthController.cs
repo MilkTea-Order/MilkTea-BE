@@ -1,11 +1,10 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Commands.Users;
 using MilkTea.Application.UseCases.Users;
-using MilkTea.Infrastructure.Authentication.JWT.Extensions;
 using MilkTea.Shared.Domain.Constants;
 
 
@@ -39,15 +38,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
         [HttpPost("logout")]
         public async Task<ResponseDto> Logout([FromBody] LogoutRequestDto request)
         {
-            var vUserID = User.GetUserId();
-            if (!int.TryParse(vUserID, out var vUserIdInt))
-            {
-                return SendTokenError();
-            }
-
             var vData = await _vLogoutUseCase.Execute(new LogoutCommand
             {
-                UserId = vUserIdInt,
                 RefreshToken = request.RefreshToken
             });
 
@@ -83,11 +75,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
                 return SendError(vData.ResultData);
             }
 
-            var response = new RefreshAccessTokenResponseDto
-            {
-                AccessToken = vData.AccessToken,
-                ExpiresAt = vData.AccessTokenExpiresAt
-            };
+            var response = _vMapper.Map<RefreshAccessTokenResponseDto>(vData);
 
             return SendSuccess(response);
         }

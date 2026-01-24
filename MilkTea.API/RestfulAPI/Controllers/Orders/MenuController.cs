@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Queries.Orders;
 using MilkTea.Application.UseCases.Orders;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Orders
@@ -16,7 +16,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet("groups")]
         public async Task<ResponseDto> GetGroupMenu([FromQuery] int? statusID, [FromQuery] int? itemStatus)
         {
-            var vData = await getGroupMenuUseCase.Execute(new GetGroupMenuCommnad { StatusID = statusID, ItemStatusID = itemStatus });
+            var vData = await getGroupMenuUseCase.Execute(new GetGroupMenuQuery { StatusId = statusID, ItemStatusId = itemStatus });
             if (vData.ResultData.HasData)
             {
                 return SendError(vData.ResultData);
@@ -39,7 +39,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet("groups/{groupID:int}/items")]
         public async Task<ResponseDto> GetMenuItemOfGroup([FromRoute] int groupID, [FromQuery] int? menuItemStatus)
         {
-            var vData = await getItemsOfGroupMenuUseCase.Execute(new GetMenuItemsOfGroupCommand { GroupID = groupID, MenuStatusID = menuItemStatus });
+            var vData = await getItemsOfGroupMenuUseCase.Execute(new GetMenuItemsOfGroupQuery { GroupId = groupID, MenuStatusId = menuItemStatus });
             if (vData.ResultData.HasData)
             {
                 return SendError(vData.ResultData);
@@ -50,7 +50,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet("groups/{groupID:int}/items/avaliable")]
         public async Task<ResponseDto> GetMenuItemAvaliableOfGroup([FromRoute] int groupID)
         {
-            var vData = await getMenuItemsAvaliableOfGroupUseCase.Execute(new GetMenuItemsAvaliableOfGroupCommand { GroupID = groupID });
+            var vData = await getMenuItemsAvaliableOfGroupUseCase.Execute(new GetMenuItemsAvailableOfGroupQuery { GroupId = groupID });
             if (vData.ResultData.HasData)
             {
                 return SendError(vData.ResultData);
@@ -62,7 +62,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet("{menuID:int}/sizes")]
         public async Task<ResponseDto> GetMenuSizeOfMenu([FromRoute] int menuID)
         {
-            var vData = await getMenuSizeOfMenuUseCase.Execute(new GetMenuSizeOfMenuCommand { MenuID = menuID });
+            var vData = await getMenuSizeOfMenuUseCase.Execute(new GetMenuSizeOfMenuQuery { MenuId = menuID });
             if (vData.ResultData.HasData)
             {
                 return SendError(vData.ResultData);

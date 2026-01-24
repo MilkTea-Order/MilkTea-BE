@@ -1,5 +1,6 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Commands.Orders;
 using MilkTea.Application.Results.Orders;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Orders;
@@ -9,11 +10,13 @@ namespace MilkTea.Application.UseCases.Orders
     public class CancelOrderUseCase(
         IOrderRepository orderRepository,
         IStatusOfOrderRepository statusOfOrderRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser)
     {
         private readonly IOrderRepository _vOrderRepository = orderRepository;
         private readonly IStatusOfOrderRepository _vStatusOfOrderRepository = statusOfOrderRepository;
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<CancelOrderResult> Execute(CancelOrderCommand command)
         {
@@ -38,10 +41,11 @@ namespace MilkTea.Application.UseCases.Orders
             try
             {
                 var now = DateTime.UtcNow;
+                var cancelledBy = _currentUser.UserId;
 
                 // Update order
                 order.StatusOfOrderID = cancelledStatus.ID;
-                order.CancelledBy = command.CancelledBy;
+                order.CancelledBy = cancelledBy;
                 order.CancelledDate = now;
 
                 if (!string.IsNullOrEmpty(command.CancelNote))
@@ -60,7 +64,7 @@ namespace MilkTea.Application.UseCases.Orders
                 // Cancel all order details
                 var detailsCancelled = await _vOrderRepository.CancelOrderDetailsAsync(
                     order.ID,
-                    command.CancelledBy,
+                    cancelledBy,
                     now);
 
                 if (!detailsCancelled)

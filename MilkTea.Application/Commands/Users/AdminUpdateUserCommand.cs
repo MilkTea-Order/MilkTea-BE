@@ -1,9 +1,8 @@
-﻿namespace MilkTea.Application.Commands.Users
+namespace MilkTea.Application.Commands.Users
 {
     public class AdminUpdateUserCommand
     {
         public int UserID { get; set; }
-        public int AdminID { get; set; }
 
         public string? FullName { get; set; }
         public int? GenderID { get; set; }

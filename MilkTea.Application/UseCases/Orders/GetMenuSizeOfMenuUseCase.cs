@@ -1,4 +1,5 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.DTOs.Orders;
+using MilkTea.Application.Queries.Orders;
 using MilkTea.Application.Results.Orders;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories.Orders;
@@ -8,25 +9,46 @@ using MilkTea.Shared.Domain.Constants;
 namespace MilkTea.Application.UseCases.Orders
 {
     public class GetMenuSizeOfMenuUseCase(IStatusRepository statusRepository,
-                                            IMenuRepository menuRepository)
+                                            IMenuRepository menuRepository,
+                                            IPriceListRepository priceListRepository)
     {
         private readonly IStatusRepository _vStatusRepository = statusRepository;
-        private readonly IMenuRepository _vMenuRepository = menuRepository;
+        private readonly IMenuRepository _menuRepository = menuRepository;
+        private readonly IPriceListRepository _priceListRepository = priceListRepository;
 
-        public async Task<GetMenuSizeOfMenuResult> Execute(GetMenuSizeOfMenuCommand command)
+        public async Task<GetMenuSizeOfMenuResult> Execute(GetMenuSizeOfMenuQuery query)
         {
             GetMenuSizeOfMenuResult result = new();
             // Set time
             result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
 
             //Check MenuID
-            if (command.MenuID is <= 0) return SendMessageError(result, ErrorCode.E0036, "MenuID");
+            if (query.MenuId is <= 0) return SendMessageError(result, ErrorCode.E0036, "MenuID");
 
             // Check xem còn bán hay không 
-            var menu = await _vMenuRepository.GetMenuByIDAndAvaliableAsync(command.MenuID);
+            var menu = await _menuRepository.GetMenuByIDAndAvaliableAsync(query.MenuId);
             if (menu == null) return SendMessageError(result, ErrorCode.E0040, "MenuID");
 
-            result.MenuSize = await _vMenuRepository.GetMenuSizeWithPriceByMenuAsync(command.MenuID);
+            var activePriceList = await _priceListRepository.GetActivePriceListAsync();
+            if (activePriceList == null)
+            {
+                result.MenuSize = new List<MenuSizePriceDto>();
+                return result;
+            }
+
+            // Chỉ lấy những menu size còn được bán (có trong active price list)
+            var menuSizes = await _menuRepository.GetMenuSizesAvailableByMenuAsync(query.MenuId);
+            var prices = await _priceListRepository.GetPricesForMenuAsync(activePriceList.ID, query.MenuId);
+            
+            result.MenuSize = menuSizes.Select(ms => new MenuSizePriceDto
+            {
+                SizeId = ms.SizeID,
+                SizeName = ms.Size?.Name,
+                RankIndex = ms.Size?.RankIndex ?? 0,
+                Price = prices.TryGetValue(ms.SizeID, out var price) ? price : 0m,
+                CurrencyName = activePriceList.Currency?.Name,
+                CurrencyCode = activePriceList.Currency?.Code
+            }).ToList();
             return result;
         }
 

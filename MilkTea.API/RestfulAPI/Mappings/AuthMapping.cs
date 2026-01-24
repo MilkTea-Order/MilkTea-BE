@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Results.Users;
 using MilkTea.Shared.Domain.Constants;
@@ -22,6 +22,10 @@ namespace MilkTea.API.RestfulAPI.Mappings
                         DateLogin = (DateTime)s.ResultData.GetMeta(MetaKey.DATE_LOGIN)!
                     })
                 );
+
+            CreateMap<RefreshAccessTokenResult, RefreshAccessTokenResponseDto>()
+                .ForMember(d => d.AccessToken, o => o.MapFrom(s => s.AccessToken))
+                .ForMember(d => d.ExpiresAt, o => o.MapFrom(s => s.AccessTokenExpiresAt));
         }
     }
 }

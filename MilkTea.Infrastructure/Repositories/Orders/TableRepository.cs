@@ -1,40 +1,32 @@
 using Microsoft.EntityFrameworkCore;
 using MilkTea.Domain.Constants.Enums;
+using MilkTea.Domain.Entities.Orders;
 using MilkTea.Domain.Respositories.Orders;
 using MilkTea.Infrastructure.Persistence;
-using MilkTea.Shared.Extensions;
 
 namespace MilkTea.Infrastructure.Repositories.Orders
 {
     public class TableRepository(AppDbContext context) : ITableRepository
     {
         private readonly AppDbContext _vContext = context;
-        public async Task<List<Dictionary<string, object?>>> GetTablesByStatusAsync(int? statusID)
+        public async Task<List<DinnerTable>> GetTablesByStatusAsync(int? statusId)
         {
-            var query =
-                from t in _vContext.DinnerTable
-                join st in _vContext.StatusOfDinnerTable
-                    on t.StatusOfDinnerTableID equals st.ID into sts
-                from st in sts.DefaultIfEmpty()
-                select new
-                {
-                    tableID = t.ID,
-                    tableCode = t.Code,
-                    tableName = t.Name,
-                    numberOfSeat = t.NumberOfSeats,
-                    tableNote = t.Note,
-                    statusID = t.StatusOfDinnerTableID,
-                    statusName = st != null ? st.Name : "Không rõ"
-                };
+            var query = _vContext.DinnerTable
+                .AsNoTracking()
+                .Include(x => x.StatusOfDinnerTable)
+                .AsQueryable();
 
-            if (statusID.HasValue)
+            if (statusId.HasValue)
             {
-                query = query.Where(x => x.statusID == statusID.Value);
+                query = query.Where(x => x.StatusOfDinnerTableID == statusId.Value);
             }
-            return (await query.AsNoTracking().ToListAsync()).ToDictList();
+
+            return await query
+                .OrderBy(x => x.Name)
+                .ToListAsync();
         }
 
-        public async Task<List<Domain.Entities.Orders.DinnerTable>> GetTableEmpty()
+        public async Task<List<DinnerTable>> GetTableEmpty()
         {
             var query =
                 from dt in _vContext.DinnerTable

@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace MilkTea.Application.Commands.Users
 {
     public class EmployeeUpdateProfileCommand
     {
-        public int UserID { get; set; }
-
         public string? FullName { get; set; } = null!;
         public int? GenderID { get; set; }
         public DateTime? BirthDay { get; set; }

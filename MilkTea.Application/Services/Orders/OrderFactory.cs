@@ -1,4 +1,4 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Commands.Orders;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Domain.Entities.Orders;
 using MilkTea.Domain.Respositories.Configs;
@@ -28,7 +28,9 @@ namespace MilkTea.Application.Services.Orders
 
         public async Task<Order> CreateOrder(
             CreateOrderCommand command,
-            StatusOfOrder pendingStatus)
+            StatusOfOrder pendingStatus,
+            int createdBy,
+            int orderedBy)
         {
             var now = DateTime.UtcNow;
             var codePrefixDefinition = await _vDenifitionRepository.GetCodePrefixBill();
@@ -40,17 +42,17 @@ namespace MilkTea.Application.Services.Orders
             var order = new Order
             {
                 DinnerTableID = command.DinnerTableID,
-                OrderBy = command.OrderedBy,
+                OrderBy = orderedBy,
                 OrderDate = now,
-                CreatedBy = command.CreatedBy,
+                CreatedBy = createdBy,
                 CreatedDate = now,
                 StatusOfOrderID = pendingStatus.ID,
-                BillNo = $"{codePrefixDefinition.Value}{now:yyyyMMdd}{command.CreatedBy}{countOrder + 1}"
+                BillNo = $"{codePrefixDefinition.Value}{now:yyyyMMdd}{createdBy}{countOrder + 1}"
             };
             if (command.Note is not null)
             {
                 order.Note = command.Note;
-                order.AddNoteBy = command.CreatedBy;
+                order.AddNoteBy = createdBy;
                 order.AddNoteDate = now;
             }
             return await _vOrderRepository.CreateOrderAsync(order);

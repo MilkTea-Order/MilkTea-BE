@@ -1,4 +1,6 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.DTOs.Orders;
+using MilkTea.Application.Ports.Identity;
+using MilkTea.Application.Queries.Orders;
 using MilkTea.Application.Results.Orders;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories.Orders;
@@ -7,24 +9,35 @@ namespace MilkTea.Application.UseCases.Orders
 {
     public class GetOrdersByOrderByAndStatusUseCase(
                                         IOrderRepository orderRepository,
-                                        IStatusOfOrderRepository statusOfOrderRepository)
+                                        IStatusOfOrderRepository statusOfOrderRepository,
+                                        ICurrentUser currentUser)
     {
         private readonly IOrderRepository _vOrderRepository = orderRepository;
         private readonly IStatusOfOrderRepository _vStatusOfOrderRepository = statusOfOrderRepository;
-        public async Task<GetOrdersByOrderByAndStatusResult> Execute(GetOrdersByOrderByAndStatusCommand command)
+        private readonly ICurrentUser _currentUser = currentUser;
+
+        public async Task<GetOrdersByOrderByAndStatusResult> Execute(GetOrdersByOrderByAndStatusQuery query)
         {
             GetOrdersByOrderByAndStatusResult result = new();
-            if (command.OrderBy <= 0)
-            {
-                return SendMessageError(result, ErrorCode.E0036, nameof(command.OrderBy));
-            }
             // Validate status ID if provided
-            if (command.StatusId.HasValue)
+            if (query.StatusId.HasValue)
             {
-                bool statusExists = await _vStatusOfOrderRepository.ExistsAsync(command.StatusId.Value);
-                if (!statusExists) return SendMessageError(result, ErrorCode.E0036, nameof(command.StatusId));
+                bool statusExists = await _vStatusOfOrderRepository.ExistsAsync(query.StatusId.Value);
+                if (!statusExists) return SendMessageError(result, ErrorCode.E0036, nameof(query.StatusId));
             }
-            result.Orders = await _vOrderRepository.GetOrdersByOrderByAndStatusIDAsync(command.OrderBy, command.StatusId);
+            var orders = await _vOrderRepository.GetOrdersByOrderByAndStatusIDAsync(_currentUser.UserId, query.StatusId);
+            result.Orders = orders.Select(static o => new OrderDto
+            {
+                OrderId = o.ID,
+                DinnerTableId = o.DinnerTableID,
+                OrderDate = o.OrderDate,
+                OrderBy = o.OrderBy,
+                CreatedDate = o.CreatedDate,
+                CreatedBy = o.CreatedBy,
+                StatusId = o.StatusOfOrderID,
+                Note = o.Note,
+                TotalAmount = o.TotalAmount ?? 0m
+            }).ToList();
 
             return result;
         }

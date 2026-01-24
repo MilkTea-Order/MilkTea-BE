@@ -1,5 +1,6 @@
-﻿using MilkTea.Application.Commands.Users;
+using MilkTea.Application.Commands.Users;
 using MilkTea.Application.Results.Users;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Users;
@@ -11,12 +12,14 @@ namespace MilkTea.Application.UseCases.Users
                             IUserRepository userRepository,
                             IEmployeeRepository employeeRepository,
                             IStatusRepository statusRepository,
-                            IUnitOfWork unitOfWork)
+                            IUnitOfWork unitOfWork,
+                            ICurrentUser currentUser)
     {
         private readonly IUserRepository _vUserRepository = userRepository;
         private readonly IEmployeeRepository _vEmployeeRepository = employeeRepository;
         private readonly IStatusRepository _vStatusRepository = statusRepository;
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<AdminUpdateUserResult> Execute(AdminUpdateUserCommand command)
         {
@@ -102,10 +105,10 @@ namespace MilkTea.Application.UseCases.Users
             if (command.BankQRCode != null)
                 employee.BankQRCode = command.BankQRCode;
 
-            employee.LastUpdatedBy = command.AdminID;
+            employee.LastUpdatedBy = _currentUser.UserId;
             employee.LastUpdatedDate = DateTime.UtcNow;
 
-            user.LastUpdatedBy = command.AdminID;
+            user.LastUpdatedBy = _currentUser.UserId;
             user.LastUpdatedDate = DateTime.UtcNow;
 
             _vEmployeeRepository.Update(employee);

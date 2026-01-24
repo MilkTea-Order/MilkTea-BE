@@ -1,4 +1,5 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.DTOs.Orders;
+using MilkTea.Application.Queries.Orders;
 using MilkTea.Application.Results.Orders;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories.Orders;
@@ -12,18 +13,28 @@ namespace MilkTea.Application.UseCases.Orders
                                         IMenuRepository menuRepository)
     {
         private readonly IStatusRepository _vStatusRepository = statusRepository;
-        private readonly IMenuRepository _vMenuRepository = menuRepository;
-        public async Task<GetMenuItemsOfGroupResult> Execute(GetMenuItemsAvaliableOfGroupCommand command)
+        private readonly IMenuRepository _menuRepository = menuRepository;
+        public async Task<GetMenuItemsOfGroupResult> Execute(GetMenuItemsAvailableOfGroupQuery query)
         {
             GetMenuItemsOfGroupResult result = new();
             result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
             // Check GroupMenuID
-            if (command.GroupID <= 0) return SendMessageError(result, ErrorCode.E0036, "GroupID");
-            var groupMenu = await _vMenuRepository.GetMenuGroupByIDAndAvaliableAsync(command.GroupID);
+            if (query.GroupId <= 0) return SendMessageError(result, ErrorCode.E0036, "GroupID");
+            var groupMenu = await _menuRepository.GetMenuGroupByIDAndAvaliableAsync(query.GroupId);
             if (groupMenu == null) return SendMessageError(result, ErrorCode.E0036, "GroupID");
 
             //Get Menu Items
-            result.Menus = await _vMenuRepository.GetMenuItemsAvaliableOfGroupByStatusAsync(command.GroupID);
+            var menus = await _menuRepository.GetMenusAvailableOfGroupAsync(query.GroupId);
+            result.Menus = menus.Select(m => new MenuItemDto
+            {
+                MenuId = m.ID,
+                MenuCode = m.Code,
+                MenuName = m.Name,
+                MenuGroupId = m.MenuGroupID,
+                MenuGroupName = m.MenuGroup?.Name,
+                StatusId = m.StatusID,
+                StatusName = m.Status?.Name ?? "Không rõ"
+            }).ToList();
             return result;
         }
         private GetMenuItemsOfGroupResult SendMessageError(

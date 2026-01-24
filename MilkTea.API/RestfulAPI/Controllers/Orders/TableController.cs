@@ -1,7 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Queries.Orders;
 using MilkTea.Application.UseCases.Orders;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Orders
@@ -15,7 +15,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet]
         public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
         {
-            var vData = await getTableByStatusUseCase.Execute(new GetTableByStatusCommand { statusID = statusID });
+            var vData = await getTableByStatusUseCase.Execute(new GetTableByStatusQuery { StatusId = statusID });
             if (vData.ResultData.HasData)
             {
                 return SendError(vData.ResultData);
@@ -27,7 +27,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         public async Task<ResponseDto> GetTableEmpty()
         {
             var vData = await getTableEmptyUseCase.Execute();
-            var result = _mapper.Map<List<GetTableEmptyResponseDto>>(vData);
+            // Temporary mapping; will be replaced with Application DTO -> API Response mapping.
+            var result = _mapper.Map<List<GetTableEmptyResponseDto>>(vData.Tables);
             return SendSuccess(result);
         }
     }

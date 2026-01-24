@@ -1,5 +1,6 @@
-﻿using MilkTea.Application.Commands.Users;
+using MilkTea.Application.Commands.Users;
 using MilkTea.Application.Results.Users;
+using MilkTea.Application.Ports.Identity;
 using MilkTea.Domain.Constants.Errors;
 using MilkTea.Domain.Respositories;
 using MilkTea.Domain.Respositories.Users;
@@ -9,10 +10,12 @@ using MilkTea.Shared.Utils;
 namespace MilkTea.Application.UseCases.Users
 {
     public class UpdatePasswordUseCase(IUnitOfWork unitOfWork,
-                                        IUserRepository userRepository)
+                                        IUserRepository userRepository,
+                                        ICurrentUser currentUser)
     {
         private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
         private readonly IUserRepository _vUserRepository = userRepository;
+        private readonly ICurrentUser _currentUser = currentUser;
 
         public async Task<UpdatePasswordResult> Execute(UpdatePasswordCommand command)
         {
@@ -21,7 +24,8 @@ namespace MilkTea.Application.UseCases.Users
             result.ResultData.AddMeta(MetaKey.DATE_LOGIN, DateTime.UtcNow);
 
             // Check exist user
-            var vUser = await _vUserRepository.GetUserByUserID(command.UserId);
+            var userId = _currentUser.UserId;
+            var vUser = await _vUserRepository.GetUserByUserID(userId);
             if (vUser == null) return sendMessageError(result, ErrorCode.E0001, "userName");
 
             // Verify password
@@ -34,7 +38,7 @@ namespace MilkTea.Application.UseCases.Users
 
             // Update password
             var newEncryptedPassword = RC2Helper.EncryptByRC2(command.NewPassword);
-            await _vUserRepository.UpdatePasswordAsync(command.UserId, newEncryptedPassword, command.UserId);
+            await _vUserRepository.UpdatePasswordAsync(userId, newEncryptedPassword, userId);
             await _vUnitOfWork.CommitAsync();
             return result;
         }

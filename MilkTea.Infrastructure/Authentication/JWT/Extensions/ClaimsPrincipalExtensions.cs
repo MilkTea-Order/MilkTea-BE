@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 namespace MilkTea.Infrastructure.Authentication.JWT.Extensions
 {
@@ -6,7 +6,9 @@ namespace MilkTea.Infrastructure.Authentication.JWT.Extensions
     {
         public static string? GetUserId(this ClaimsPrincipal principal)
         {
-            return principal.FindFirst("UserId")?.Value;
+            // Backward compatible claim keys
+            return principal.FindFirst("UserId")?.Value
+                ?? principal.FindFirst("UserID")?.Value;
         }
     }
 }
