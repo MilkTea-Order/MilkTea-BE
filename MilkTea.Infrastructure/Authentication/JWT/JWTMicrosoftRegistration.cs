@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using MilkTea.Application.Ports.Authentication.JWTPort;
+using MilkTea.Application.Ports.Authentication.JWTPorts;
 using System.Text;
 
 namespace MilkTea.Infrastructure.Authentication.JWT
@@ -57,7 +57,7 @@ namespace MilkTea.Infrastructure.Authentication.JWT
                             Console.WriteLine($"[JWT] Token validated successfully for user: {context.Principal?.Identity?.Name}");
                             return Task.CompletedTask;
                         },
-                        // có gửi token nhưng validate thất bại (hết hạn / sai chữ ký / sai issuer/audience / token lỗi)
+                        // c� g?i token nhung validate th?t b?i (h?t h?n / sai ch? k� / sai issuer/audience / token l?i)
                         OnAuthenticationFailed = context =>
                         {
                             Console.WriteLine($"[JWT] Authentication failed: {context.Exception.Message}");
@@ -67,7 +67,7 @@ namespace MilkTea.Infrastructure.Authentication.JWT
                             }
                             return Task.CompletedTask;
                         },
-                        // thường là không gửi token hoặc token không dùng được
+                        // thu?ng l� kh�ng g?i token ho?c token kh�ng d�ng du?c
                         OnChallenge = context =>
                         {
                             Console.WriteLine($"[JWT] OnChallenge triggered: {context.Error} - {context.ErrorDescription}");

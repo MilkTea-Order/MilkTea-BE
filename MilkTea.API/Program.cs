@@ -1,7 +1,7 @@
 using Microsoft.OpenApi.Models;
 using MilkTea.API.RestfulAPI.Middlewares;
-using MilkTea.Application.UseCases;
-using MilkTea.Application.Ports.Identity;
+using MilkTea.Application;
+using MilkTea.Application.Ports.Users;
 using MilkTea.API.RestfulAPI.Common;
 using MilkTea.Infrastructure.Authentication.JWT;
 using MilkTea.Infrastructure.Database;
@@ -25,8 +25,8 @@ builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(bui
 // Add repository services
 builder.Services.AddRepositories();
 
-// Add usecase services
-builder.Services.AddUsecases();
+// Add application services (MediatR)
+builder.Services.AddApplication();
 
 // Add services to the container.
 builder.Services.AddControllers();

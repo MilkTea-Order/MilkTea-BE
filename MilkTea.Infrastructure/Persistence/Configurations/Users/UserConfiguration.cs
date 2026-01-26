@@ -1,44 +1,78 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users
+namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public void Configure(EntityTypeBuilder<User> builder)
     {
-        public void Configure(EntityTypeBuilder<User> builder)
-        {
-            builder.ToTable("users");
+        builder.ToTable("users");
 
-            builder.HasKey(x => x.ID);
-            builder.Property(x => x.ID).HasColumnName("ID");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id)
+            .HasColumnName("ID")
+            .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.EmployeesID).HasColumnName("EmployeesID").IsRequired();
-            builder.Property(x => x.UserName).HasColumnName("UserName").IsRequired();
-            builder.Property(x => x.Password).HasColumnName("Password").IsRequired();
-            builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy");
-            builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate");
-            builder.Property(x => x.StoppedBy).HasColumnName("StoppedBy");
-            builder.Property(x => x.StoppedDate).HasColumnName("StoppedDate");
-            builder.Property(x => x.LastUpdatedBy).HasColumnName("LastUpdatedBy");
-            builder.Property(x => x.LastUpdatedDate).HasColumnName("LastUpdatedDate");
-            builder.Property(x => x.PasswordResetBy).HasColumnName("Password_ResetBy");
-            builder.Property(x => x.PasswordResetDate).HasColumnName("Password_ResetDate");
-            builder.Property(x => x.StatusID).HasColumnName("StatusID").IsRequired();
+        builder.Property(x => x.EmployeesID).HasColumnName("EmployeesID").IsRequired();
+        builder.Property(x => x.UserName).HasColumnName("UserName").IsRequired();
+        builder.Property(x => x.Password).HasColumnName("Password").IsRequired();
+        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
+        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
+        builder.Property(x => x.StoppedBy).HasColumnName("StoppedBy");
+        builder.Property(x => x.StoppedDate).HasColumnName("StoppedDate");
+        builder.Property(x => x.UpdatedBy).HasColumnName("LastUpdatedBy");
+        builder.Property(x => x.UpdatedDate).HasColumnName("LastUpdatedDate");
+        builder.Property(x => x.PasswordResetBy).HasColumnName("Password_ResetBy");
+        builder.Property(x => x.PasswordResetDate).HasColumnName("Password_ResetDate");
 
-            // Relationships
-            builder.HasOne<Employee>(u => u.Employee)
-                .WithOne(e => e.User)
-                .HasForeignKey<User>(u => u.EmployeesID)
-                .OnDelete(DeleteBehavior.Restrict);
+        // Map enum to existing StatusID column
+        builder.Property(x => x.Status)
+            .HasColumnName("StatusID")
+            .HasConversion<int>()
+            .IsRequired();
 
-            builder.HasIndex(u => u.EmployeesID)
-                .IsUnique();
+        // Relationships
+        builder.HasOne(u => u.Employee)
+            .WithOne(e => e.User)
+            .HasForeignKey<User>(u => u.EmployeesID)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne<Status>(u => u.Status)
-                .WithMany()
-                .HasForeignKey(u => u.StatusID)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+        builder.HasIndex(u => u.EmployeesID).IsUnique();
+
+        //builder.HasMany(typeof(RefreshToken), "_refreshTokens")
+        //    .WithOne("User")
+        //    .HasForeignKey("UserId")
+        //    .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(u => u.RefreshTokens)
+                .WithOne(rt => rt.User)
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(u => u.RefreshTokens)
+            .HasField("_vRefreshTokens")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Ignore(x => x.DomainEvents);
+
+        builder.HasMany(u => u.UserRoles)
+            .WithOne()
+            .HasForeignKey(ur => ur.UserID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(u => u.UserRoles)
+            .HasField("_vUserRoles")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(u => u.UserPermissions)
+            .WithOne()
+            .HasForeignKey(up => up.UserID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(u => u.UserPermissions)
+            .HasField("_vUserPermissions")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

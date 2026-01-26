@@ -69,6 +69,7 @@ namespace MilkTea.Application.DTOs.Orders
         public int? StatusId { get; set; }
         public string? StatusName { get; set; }
         public string? Note { get; set; }
+        public string? Img { get; set; }
     }
 
     public sealed class OrderStatusDto

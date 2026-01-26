@@ -1,19 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users
+namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+
+public class GenderConfiguration : IEntityTypeConfiguration<Gender>
 {
-    public class GenderConfiguration : IEntityTypeConfiguration<Gender>
+    public void Configure(EntityTypeBuilder<Gender> builder)
     {
-        public void Configure(EntityTypeBuilder<Gender> builder)
-        {
-            builder.ToTable("gender");
+        builder.ToTable("gender");
 
-            builder.HasKey(x => x.ID);
-            builder.Property(x => x.ID).HasColumnName("ID");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).HasColumnName("ID");
 
-            builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
-        }
+        builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
     }
 }

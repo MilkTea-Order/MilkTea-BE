@@ -1,4 +1,4 @@
-﻿namespace MilkTea.Application.Ports.Time
+namespace MilkTea.Application.Ports.Time
 {
     public interface IDateTimeServicePort
     {

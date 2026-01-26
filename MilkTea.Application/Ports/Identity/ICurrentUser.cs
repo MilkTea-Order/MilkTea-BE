@@ -1,4 +1,4 @@
-namespace MilkTea.Application.Ports.Identity
+namespace MilkTea.Application.Ports.Users
 {
     public interface ICurrentUser
     {

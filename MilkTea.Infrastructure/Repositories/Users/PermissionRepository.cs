@@ -1,51 +1,70 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Respositories.Users;
+using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Users.Entities;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
-using MilkTea.Shared.Extensions;
 
+namespace MilkTea.Infrastructure.Repositories.Identity;
 
-namespace MilkTea.Infrastructure.Repositories.Users
+/// <summary>
+/// Repository implementation for permission operations.
+/// </summary>
+public class PermissionRepository(AppDbContext context) : IPermissionRepository
 {
-    public class PermissionRepository(AppDbContext context) : IPermissionRepository
+    private readonly AppDbContext _vContext = context;
+
+    /// <inheritdoc/>
+    public async Task<List<(PermissionDetail PermissionDetail, Permission Permission)>> GetPermissionsByUserIdAsync(int userId)
     {
-        private readonly AppDbContext _vContext = context;
-        public async Task<List<Dictionary<string, object?>>> GetPermissionsByUserId(int userId)
-        {
-            // Get permissions of user by user's role
-            var row = await (
-                from p in _vContext.Permission
-                join pd in _vContext.PermissionDetail
-                        on p.ID equals pd.PermissionID
-                join rd in _vContext.RoleDetail
-                        on pd.ID equals rd.PermissionDetailID
-                join usr in _vContext.UserAndRole
-                        on rd.RoleID equals usr.RoleID
-                where usr.UserID == userId
-                select new
-                {
-                    p.Name,
-                    pd
-                }).ToListAsync();
+        var query = from pd in _vContext.PermissionDetails
+                    join p in _vContext.Permissions on pd.PermissionID equals p.Id
+                    where _vContext.UserPermissions.Any(up => up.UserID == userId && up.PermissionDetailID == pd.Id)
+                       || _vContext.UserRoles
+                           .Where(ur => ur.UserID == userId)
+                           .Join(_vContext.RoleDetails,
+                               ur => ur.RoleID,
+                               rd => rd.RoleID,
+                               (ur, rd) => rd.PermissionDetailID)
+                           .Contains(pd.Id)
+                    select new { PermissionDetail = pd, Permission = p };
 
-            var vRows1Dict = row.ToDictList();
-            // Get permissions of user by user's direct assigned permissions
-            var row2 = await (
-                from p in _vContext.Permission
-                join pd in _vContext.PermissionDetail
-                        on p.ID equals pd.PermissionID
-                join upd in _vContext.UserAndPermissionDetail
-                        on pd.ID equals upd.PermissionDetailID
-                where upd.UserID == userId
-                select new
-                {
-                    p.Name,
-                    pd
-                }).ToListAsync();
-            // Merge two list and remove duplicates
-            vRows1Dict.AddRange(row2.ToDictList());
-            return vRows1Dict.Distinct().ToList();
-        }
+        var results = await query
+            .AsNoTracking()
+            .Distinct()
+            .ToListAsync();
 
+        return results
+            .Select(r => (r.PermissionDetail, r.Permission))
+            .ToList();
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Permission>> GetAllAsync()
+    {
+        return await _vContext.Permissions
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<PermissionGroup>> GetPermissionGroupsAsync()
+    {
+        return await _vContext.PermissionGroups
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Dictionary<int, Permission>> GetPermissionsByIdsAsync(IEnumerable<int> permissionIds)
+    {
+        var ids = permissionIds.ToList();
+        if (ids.Count == 0)
+            return new Dictionary<int, Permission>();
+
+        var permissions = await _vContext.Permissions
+            .AsNoTracking()
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync();
+
+        return permissions.ToDictionary(p => p.Id);
     }
 }
-

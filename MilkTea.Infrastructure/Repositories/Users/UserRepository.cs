@@ -1,63 +1,59 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Entities.Users;
-using MilkTea.Domain.Respositories.Users;
+using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Users.Entities;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
-using MilkTea.Shared.Extensions;
 
-namespace MilkTea.Infrastructure.Repositories.Users
+namespace MilkTea.Infrastructure.Repositories.Identity;
+
+/// <summary>
+/// Repository implementation for user operations.
+/// </summary>
+public class UserRepository(AppDbContext context) : IUserRepository
 {
-    public class UserRepository(AppDbContext context) : IUserRepository
+    private readonly AppDbContext _context = context;
+
+    /// <inheritdoc/>
+    public async Task<User?> GetByIdAsync(int id)
     {
-        private readonly AppDbContext _vContext = context;
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
 
-        public async Task<User?> GetByIdAsync(int userId)
-        {
-            return await _vContext.Users.FirstOrDefaultAsync(x => x.ID == userId);
-        }
+    /// <inheritdoc/>
+    public async Task<User?> GetByUserNameAsync(string userName)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Include(u => u.UserRoles)
+            .Include(u => u.UserPermissions)
+            .FirstOrDefaultAsync(u => u.UserName == userName);
+    }
 
-        public async Task<User?> GetUserByUserID(int userId, int? excludeId = null)
-        {
-            return await _vContext.Users.AsNoTracking().FirstOrDefaultAsync(x =>
+    /// <inheritdoc/>
+    public async Task<User?> GetWithEmployeeAsync(int userId)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Include(u => u.Employee)
+                .ThenInclude(e => e!.Gender)
+            .Include(u => u.Employee)
+                .ThenInclude(e => e!.Position)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
 
-                (x.ID == userId) && (excludeId == null || x.ID != excludeId)
-              );
-        }
+    /// <inheritdoc/>
+    public async Task<bool> UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        return await _context.SaveChangesAsync() > 0;
+    }
 
-        public async Task<User?> GetUserByUserName(string userName, int? excludeId = null)
-        {
-            return await _vContext.Users.AsNoTracking().FirstOrDefaultAsync(x =>
-
-             (userName.IsNullOrWhiteSpace() || x.UserName == userName)
-
-             && (excludeId == null || x.ID != excludeId)
-             );
-        }
-
-        public async Task<User> UpdatePasswordAsync(int userId, string newPassword, int? updateByUserId = null)
-        {
-            var user = await _vContext.Users.FirstOrDefaultAsync(x => x.ID == userId);
-            if (user == null) throw new Exception($"User {userId} not found");
-            user.Password = newPassword;
-            user.PasswordResetBy = updateByUserId;
-            user.PasswordResetDate = DateTime.UtcNow;
-            user.LastUpdatedBy = updateByUserId;
-            user.LastUpdatedDate = DateTime.UtcNow;
-            return user;
-        }
-
-        public async Task<User?> GetUserWithEmployeeAsync(int userId)
-        {
-            return await _vContext.Users
-                .AsNoTracking()
-                .Include(u => u.Employee)
-                    .ThenInclude(e => e!.Gender)
-                .Include(u => u.Employee)
-                    .ThenInclude(e => e!.Position)
-                .Include(u => u.Employee)
-                    .ThenInclude(e => e!.Status)
-                .Include(u => u.Status)
-                .FirstOrDefaultAsync(x => x.ID == userId);
-        }
-
+    /// <inheritdoc/>
+    public async Task<User> CreateAsync(User user)
+    {
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        return user;
     }
 }

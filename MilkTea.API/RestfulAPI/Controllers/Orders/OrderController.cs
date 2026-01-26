@@ -1,29 +1,22 @@
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Commands.Orders;
-using MilkTea.Application.Queries.Orders;
-using MilkTea.Application.UseCases.Orders;
+using MilkTea.Application.Features.Orders.Commands;
+using MilkTea.Application.Features.Orders.Queries;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Orders
 {
     [ApiController]
     [Route("api/orders")]
-    public class OrderController(CreateOrderUseCase createOrderUseCase,
-                                GetOrdersByOrderByAndStatusUseCase getOrdersByOrderByAndStatusUseCase,
-                                GetOrderDetailByIDAndStatusUseCase getOrderDetailByIDAndStatusUseCase,
-                                CancelOrderUseCase cancelOrderUseCase,
-                                CancelOrderDetailsUseCase cancelOrderDetailsUseCase,
+    public class OrderController(ISender sender,
                                 IMapper mapper) : BaseController
     {
-        private readonly CreateOrderUseCase _vCreateOrderUseCase = createOrderUseCase;
-        private readonly GetOrdersByOrderByAndStatusUseCase _vGetOrdersByOrderByAndStatusUseCase = getOrdersByOrderByAndStatusUseCase;
-        private readonly GetOrderDetailByIDAndStatusUseCase _vGetOrderDetailByIDAndStatusUseCase = getOrderDetailByIDAndStatusUseCase;
-        private readonly CancelOrderUseCase _vCancelOrderUseCase = cancelOrderUseCase;
-        private readonly CancelOrderDetailsUseCase _vCancelOrderDetailsUseCase = cancelOrderDetailsUseCase;
+        private readonly ISender _sender = sender;
         private readonly IMapper _vMapper = mapper;
+
         [Authorize]
         [HttpPost]
         public async Task<ResponseDto> CreateOrder([FromBody] CreateOrderRequestDto request)
@@ -43,7 +36,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                     Note = i.Note
                 }).ToList()
             };
-            var result = await _vCreateOrderUseCase.Execute(command);
+            var result = await _sender.Send(command);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
@@ -56,10 +49,12 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet]
         public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int? statusId)
         {
-            var result = await _vGetOrdersByOrderByAndStatusUseCase.Execute(new GetOrdersByOrderByAndStatusQuery
+            var query = new GetOrdersByOrderByAndStatusQuery
             {
                 StatusId = statusId
-            });
+            };
+
+            var result = await _sender.Send(query);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
@@ -71,12 +66,13 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         [HttpGet("{orderId:int}")]
         public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool? isCancelled)
         {
-
-            var result = await _vGetOrderDetailByIDAndStatusUseCase.Execute(new GetOrderDetailByIdAndStatusQuery
+            var query = new GetOrderDetailByIdAndStatusQuery
             {
                 OrderId = orderId,
                 IsCancelled = isCancelled
-            });
+            };
+
+            var result = await _sender.Send(query);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
@@ -94,7 +90,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 CancelNote = request.CancelNote
             };
 
-            var result = await _vCancelOrderUseCase.Execute(command);
+            var result = await _sender.Send(command);
 
             if (result.ResultData.HasData)
             {
@@ -116,7 +112,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 OrderDetailIDs = request.OrderDetailIDs,
             };
 
-            var result = await _vCancelOrderDetailsUseCase.Execute(command);
+            var result = await _sender.Send(command);
 
             if (result.ResultData.HasData)
             {

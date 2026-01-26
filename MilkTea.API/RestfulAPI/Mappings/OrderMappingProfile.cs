@@ -1,7 +1,7 @@
 using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
+using MilkTea.Application.Features.Orders.Results;
 using AppOrders = MilkTea.Application.DTOs.Orders;
-using MilkTea.Application.Results.Orders;
 
 namespace MilkTea.API.RestfulAPI.Mappings
 {
@@ -125,8 +125,8 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.TableNote, o => o.MapFrom(s => s.Note))
                 .ForMember(d => d.StatusID, o => o.MapFrom(s => s.StatusId))
                 .ForMember(d => d.StatusName, o => o.MapFrom(s => s.StatusName))
-                .ForMember(d => d.UsingImg, o => o.Ignore())
-                .ForMember(d => d.EmptyImg, o => o.Ignore());
+                .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.Img));
+
         }
     }
 }

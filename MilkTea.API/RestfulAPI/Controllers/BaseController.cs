@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
@@ -23,6 +23,14 @@ namespace MilkTea.API.RestfulAPI.Controllers
                 return ResultsReturned.NotFound();
             }
             var vErrorDtl = error.GetData();
+            var meta = error.GetMetaData();
+            if (meta != null && meta.Count > 0)
+            {
+                meta = new Dictionary<string, object>(meta);
+                meta.Remove(MetaKey.LOG_DATA);
+                if (meta.Count > 0)
+                    vErrorDtl["meta"] = meta;
+            }
             var vLog = error.GetMeta(MetaKey.LOG_DATA);
             if (vLog != null)
             {

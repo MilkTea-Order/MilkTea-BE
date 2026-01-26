@@ -1,4 +1,4 @@
-﻿namespace MilkTea.Infrastructure.Authentication.JWT
+namespace MilkTea.Infrastructure.Authentication.JWT
 {
     public class JWTOptionDto
     {

@@ -1,6 +1,6 @@
-﻿using MilkTea.Application.Commands.Orders;
+using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Models.Errors;
-using MilkTea.Domain.Entities.Orders;
+using MilkTea.Domain.Catalog.Entities;
 
 namespace MilkTea.Application.Models.Orders
 {
@@ -12,7 +12,7 @@ namespace MilkTea.Application.Models.Orders
 
         public Size? Size { get; private set; }
         public decimal? Price { get; private set; }
-        public List<MenuAndMaterial>? Recipe { get; private set; }
+        public List<Domain.Inventory.Entities.MenuMaterialRecipe>? Recipe { get; private set; }
 
         public ValidationError? Error { get; private set; }
 
@@ -23,7 +23,7 @@ namespace MilkTea.Application.Models.Orders
             Menu menu,
             Size size,
             decimal price,
-            List<MenuAndMaterial> recipe)
+            List<Domain.Inventory.Entities.MenuMaterialRecipe> recipe)
         {
             Menu = menu;
             Size = size;

@@ -1,10 +1,10 @@
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Commands.Users;
-using MilkTea.Application.UseCases.Users;
+using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Shared.Domain.Constants;
 
 
@@ -12,43 +12,49 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(LoginWithUserNameUseCase loginUseCase,
-                                LogoutUseCase logoutUseCase,
-                                RefreshAccessTokenUseCase refreshAccessTokenUseCase,
+    public class AuthController(ISender sender,
                                 IMapper mapper) : BaseController
     {
-        private readonly LoginWithUserNameUseCase _vLoginUseCase = loginUseCase;
-        private readonly LogoutUseCase _vLogoutUseCase = logoutUseCase;
-        private readonly RefreshAccessTokenUseCase _vRefreshAccessTokenUseCase = refreshAccessTokenUseCase;
+        private readonly ISender _vSender = sender;
         private readonly IMapper _vMapper = mapper;
 
         [HttpPost("login")]
         public async Task<ResponseDto> Login(LoginRequestDto request)
         {
-            var vData = await _vLoginUseCase.Execute(new LoginCommand { Password = request.Password, UserName = request.Username });
-            if (vData.ResultData.HasData)
+            var command = new LoginCommand
             {
-                return SendError(vData.ResultData);
+                Password = request.Password,
+                UserName = request.Username
+            };
+
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
             }
-            var vResponse = _vMapper.Map<LoginResponseDto>(vData);
-            return SendSuccess(vResponse);
+
+            var response = _vMapper.Map<LoginResponseDto>(result);
+            return SendSuccess(response);
         }
 
         [Authorize]
         [HttpPost("logout")]
         public async Task<ResponseDto> Logout([FromBody] LogoutRequestDto request)
         {
-            var vData = await _vLogoutUseCase.Execute(new LogoutCommand
+            var command = new LogoutCommand
             {
                 RefreshToken = request.RefreshToken
-            });
+            };
 
-            if (vData.ResultData.HasData)
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
 
-            if (vData.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
+            if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
             {
                 return SendTokenError();
             }
@@ -59,23 +65,24 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
         public async Task<ResponseDto> RefreshAccessToken(
             [FromBody] RefreshAccessTokenRequestDto request)
         {
-
-            var vData = await _vRefreshAccessTokenUseCase.Execute(new RefreshAccessTokenCommand
+            var command = new RefreshAccessTokenCommand
             {
                 RefreshToken = request.RefreshToken
-            });
+            };
 
-            if (vData.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
             {
                 return SendTokenError();
             }
 
-            if (vData.ResultData.HasData)
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
 
-            var response = _vMapper.Map<RefreshAccessTokenResponseDto>(vData);
+            var response = _vMapper.Map<RefreshAccessTokenResponseDto>(result);
 
             return SendSuccess(response);
         }

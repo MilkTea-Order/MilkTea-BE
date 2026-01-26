@@ -1,30 +1,27 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users
+namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
-    public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+    public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        public void Configure(EntityTypeBuilder<RefreshToken> builder)
-        {
-            builder.ToTable("refreshtokens");
+        builder.ToTable("refreshtokens");
 
-            builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).HasColumnName("ID");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id)
+            .HasColumnName("Id")
+            .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.UserId).HasColumnName("UserID").IsRequired();
-            builder.Property(x => x.Token).HasColumnName("Token").IsRequired().HasMaxLength(500);
-            builder.Property(x => x.ExpiryDate).HasColumnName("ExpiryDate").IsRequired();
-            builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate");
-            builder.Property(x => x.LastUpdatedDate).HasColumnName("LastUpdatedDate");
-            builder.Property(x => x.IsRevoked).HasColumnName("IsRevoked").IsRequired();
-
-            // Relationships
-            builder.HasOne<User>(rt => rt.User)
-                .WithMany()
-                .HasForeignKey(rt => rt.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+        builder.Property(x => x.UserId).HasColumnName("UserId").IsRequired();
+        builder.Property(x => x.Token).HasColumnName("Token").IsRequired();
+        builder.Property(x => x.ExpiryDate).HasColumnName("ExpiryDate").IsRequired();
+        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
+        builder.Property(x => x.UpdatedDate).HasColumnName("LastUpdatedDate");
+        builder.Property(x => x.IsRevoked).HasColumnName("IsRevoked").IsRequired();
+        builder.Ignore(x => x.CreatedBy);
+        builder.Ignore(x => x.UpdatedBy);
     }
 }

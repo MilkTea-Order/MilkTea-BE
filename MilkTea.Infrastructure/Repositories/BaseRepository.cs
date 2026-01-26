@@ -1,4 +1,4 @@
-﻿namespace MilkTea.Infrastructure.Repositories
+namespace MilkTea.Infrastructure.Repositories
 {
     public class BaseRepository
     {

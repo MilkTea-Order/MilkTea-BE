@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MilkTea.Shared.Utils;
-using static MilkTea.Domain.Configurations.App.AppConfig;
+// AppConfig removed - use IConfiguration directly
 
 namespace MilkTea.Infrastructure.Database.MySQL
 {
@@ -28,18 +28,18 @@ namespace MilkTea.Infrastructure.Database.MySQL
                 }
 
                 // Get DatabaseConfig section from appsettings.json
-                var dbConfig = configToUse.GetSection(DatabaseConfig.Section);
+                var dbConfig = configToUse.GetSection("DatabaseConfig");
                 if (!dbConfig.Exists())
                 {
                     LogHelper.Write(vCallFrom + ":\nDatabaseConfig section not found in appsettings.json");
                     return "";
                 }
 
-                string? vServer = dbConfig[DatabaseConfig.Server];
-                string? vPort = dbConfig[DatabaseConfig.Port];
-                string? vUsername = dbConfig[DatabaseConfig.Username];
-                string? vPassword = dbConfig[DatabaseConfig.Password];
-                string? vDatabase = dbConfig[DatabaseConfig.Database];
+                string? vServer = dbConfig["Server"];
+                string? vPort = dbConfig["Port"];
+                string? vUsername = dbConfig["Username"];
+                string? vPassword = dbConfig["Password"];
+                string? vDatabase = dbConfig["Database"];
                 if (string.IsNullOrEmpty(vServer) || string.IsNullOrEmpty(vUsername) ||
                     string.IsNullOrEmpty(vPassword) || string.IsNullOrEmpty(vDatabase) || string.IsNullOrEmpty(vPort))
                 {
@@ -47,8 +47,8 @@ namespace MilkTea.Infrastructure.Database.MySQL
                     return "";
                 }
 
-                //// Thử giải mã RSA (nếu là chuỗi đã mã hóa, sẽ có format đặc biệt)
-                //// Nếu giải mã thành công, dùng giá trị đã giải mã; nếu không, dùng giá trị gốc
+                //// Th? gi?i m� RSA (n?u l� chu?i d� m� h�a, s? c� format d?c bi?t)
+                //// N?u gi?i m� th�nh c�ng, d�ng gi� tr? d� gi?i m�; n?u kh�ng, d�ng gi� tr? g?c
                 //try
                 //{
                 //    vServer = Definitions.RSA.Decrypt(vCallFrom, Definitions.Parameters.RSA_PrivateKey, vServer);
@@ -59,7 +59,7 @@ namespace MilkTea.Infrastructure.Database.MySQL
                 //}
                 //catch
                 //{
-                //    // Nếu giải mã thất bại, có thể giá trị chưa được mã hóa, dùng trực tiếp
+                //    // N?u gi?i m� th?t b?i, c� th? gi� tr? chua du?c m� h�a, d�ng tr?c ti?p
                 //}
 
                 if (string.IsNullOrEmpty(vServer) || string.IsNullOrEmpty(vUsername) ||

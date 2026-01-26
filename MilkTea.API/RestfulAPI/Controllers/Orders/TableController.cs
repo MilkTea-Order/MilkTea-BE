@@ -1,35 +1,39 @@
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Queries.Orders;
-using MilkTea.Application.UseCases.Orders;
+using MilkTea.Application.Features.TableManagement.Queries;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Orders
 {
     [ApiController]
     [Route("api/tables")]
-    public class TableController(GetTableByStatusUseCase getTableByStatusUseCase, GetTableEmptyUseCase getTableEmptyUseCase, IMapper mapper) : BaseController
+    public class TableController(ISender sender, IMapper mapper) : BaseController
     {
+        private readonly ISender _sender = sender;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
         public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
         {
-            var vData = await getTableByStatusUseCase.Execute(new GetTableByStatusQuery { StatusId = statusID });
-            if (vData.ResultData.HasData)
+            var query = new GetTableByStatusQuery { StatusId = statusID };
+            var result = await _sender.Send(query);
+
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
-            return SendSuccess(vData.Tables);
+            return SendSuccess(result.Tables);
         }
 
         [HttpGet("empty")]
         public async Task<ResponseDto> GetTableEmpty()
         {
-            var vData = await getTableEmptyUseCase.Execute();
-            // Temporary mapping; will be replaced with Application DTO -> API Response mapping.
-            var result = _mapper.Map<List<GetTableEmptyResponseDto>>(vData.Tables);
-            return SendSuccess(result);
+            var query = new GetTableEmptyQuery();
+            var result = await _sender.Send(query);
+
+            var response = _mapper.Map<List<GetTableEmptyResponseDto>>(result.Tables);
+            return SendSuccess(response);
         }
     }
 }

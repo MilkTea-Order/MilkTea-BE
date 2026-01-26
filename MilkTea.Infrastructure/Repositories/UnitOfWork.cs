@@ -1,53 +1,55 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using MilkTea.Domain.Respositories;
+using Microsoft.EntityFrameworkCore.Storage;
+using MilkTea.Domain.Orders.Repositories;
+using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories
+namespace MilkTea.Infrastructure.Repositories;
+
+public class UnitOfWork(AppDbContext context, IOrderRepository orders) : IUnitOfWork
 {
-    public class UnitOfWork(AppDbContext context) : IUnitOfWork
+    private readonly AppDbContext _context = context;
+    private IDbContextTransaction? _transaction;
+
+    public IOrderRepository Orders { get; } = orders;
+
+    public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        private readonly AppDbContext _context = context;
-        private IDbContextTransaction? _transaction;
+        _transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+    }
 
-        public async Task BeginTransactionAsync()
+    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _transaction = await _context.Database.BeginTransactionAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            if (_transaction != null)
+                await _transaction.CommitAsync(cancellationToken);
         }
-
-        public async Task CommitAsync()
+        catch
         {
-            try
-            {
-                await _context.SaveChangesAsync();
-
-                if (_transaction != null)
-                {
-                    await _transaction.CommitAsync();
-                }
-            }
-            catch
-            {
-                await RollbackAsync();
-                throw;
-            }
-            finally
-            {
-                if (_transaction != null)
-                {
-                    await _transaction.DisposeAsync();
-                    _transaction = null;
-                }
-            }
+            await RollbackTransactionAsync(cancellationToken);
+            throw;
         }
-
-        public async Task RollbackAsync()
+        finally
         {
             if (_transaction != null)
             {
-                await _transaction.RollbackAsync();
                 await _transaction.DisposeAsync();
                 _transaction = null;
             }
         }
     }
+
+    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (_transaction != null)
+        {
+            await _transaction.RollbackAsync(cancellationToken);
+            await _transaction.DisposeAsync();
+            _transaction = null;
+        }
+    }
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        => _context.SaveChangesAsync(cancellationToken);
 }

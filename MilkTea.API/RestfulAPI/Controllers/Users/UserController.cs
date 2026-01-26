@@ -1,40 +1,38 @@
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Commands.Users;
-using MilkTea.Application.Queries.Users;
-using MilkTea.Application.UseCases.Users;
+using MilkTea.Application.Features.Users.Commands;
+using MilkTea.Application.Features.Users.Queries;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Users
 {
     [ApiController]
     [Route("api/user")]
     public class UserController(
-                    UpdatePasswordUseCase updatePasswordUseCase,
-                    EmployeeUpdateProfileUseCase employeeUpdateProfileUseCase,
-                    GetUserProfileUseCase getUserProfileUseCase,
+                    ISender sender,
                     IMapper mapper) : BaseController
     {
-        private readonly UpdatePasswordUseCase _vUpdatePasswordUseCase = updatePasswordUseCase;
-        private readonly EmployeeUpdateProfileUseCase _vEmployeeUpdateProfileUseCase = employeeUpdateProfileUseCase;
-        private readonly GetUserProfileUseCase _vGetUserProfileUseCase = getUserProfileUseCase;
+        private readonly ISender _sender = sender;
         private readonly IMapper _vMapper = mapper;
 
         [Authorize]
         [HttpPatch("update-password")]
         public async Task<ResponseDto> UpdatePassword(UpdatePasswordRequestDto request)
         {
-            var vData = await _vUpdatePasswordUseCase.Execute(new UpdatePasswordCommand
+            var command = new UpdatePasswordCommand
             {
                 Password = request.Password,
                 NewPassword = request.NewPassword
-            });
+            };
 
-            if (vData.ResultData.HasData)
+            var result = await _sender.Send(command);
+
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
 
             return SendSuccess();
@@ -46,10 +44,10 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         {
             if (!ModelState.IsValid)
             {
-
                 return SendError(ModelState);
             }
-            var result = await _vEmployeeUpdateProfileUseCase.Execute(new EmployeeUpdateProfileCommand
+
+            var command = new EmployeeUpdateProfileCommand
             {
                 FullName = request.FullName,
                 GenderID = request.GenderID,
@@ -62,7 +60,9 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
                 BankAccountName = request.BankAccountName,
                 BankAccountNumber = request.BankAccountNumber,
                 BankQRCode = request.BankQRCode
-            });
+            };
+
+            var result = await _sender.Send(command);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
             return SendSuccess();
@@ -72,7 +72,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         [HttpGet("me")]
         public async Task<ResponseDto> GetMe()
         {
-            var result = await _vGetUserProfileUseCase.Execute(new GetUserProfileQuery());
+            var query = new GetUserProfileQuery();
+            var result = await _sender.Send(query);
 
             if (result.ResultData.HasData)
             {

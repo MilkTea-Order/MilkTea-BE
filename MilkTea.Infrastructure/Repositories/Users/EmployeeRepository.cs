@@ -1,34 +1,53 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Entities.Users;
-using MilkTea.Domain.Respositories.Users;
+using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Users.Entities;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories.Users
+namespace MilkTea.Infrastructure.Repositories.Identity;
+
+/// <summary>
+/// Repository implementation for employee operations.
+/// </summary>
+public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
 {
-    public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
+    private readonly AppDbContext _context = context;
+
+    /// <inheritdoc/>
+    public async Task<EmployeeProfile?> GetByIdAsync(int id)
     {
-        private readonly AppDbContext _context = context;
+        return await _context.Employees
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id);
+    }
 
-        public async Task<Employee?> GetByIdAsync(int employeeId)
-        {
-            return await _context.Employees.FirstOrDefaultAsync(x => x.ID == employeeId);
-        }
+    /// <inheritdoc/>
+    public async Task<List<EmployeeProfile>> GetAllAsync()
+    {
+        return await _context.Employees
+            .AsNoTracking()
+            .ToListAsync();
+    }
 
-        public void Update(Employee employee)
-        {
-            _context.Employees.Update(employee);
-        }
+    /// <inheritdoc/>
+    public async Task<bool> UpdateAsync(EmployeeProfile employee)
+    {
+        _context.Employees.Update(employee);
+        return await _context.SaveChangesAsync() > 0;
+    }
 
-        public async Task<bool> IsEmailExistAsync(string email, int excludeEmployeeId)
-        {
-            return await _context.Employees
-                .AnyAsync(e => e.Email == email && e.ID != excludeEmployeeId);
-        }
+    /// <inheritdoc/>
+    public async Task<bool> IsEmailExistAsync(string email, int excludeEmployeeId)
+    {
+        return await _context.Employees
+            .AsNoTracking()
+            .AnyAsync(e => e.Email == email && e.Id != excludeEmployeeId);
+    }
 
-        public async Task<bool> IsCellPhoneExistAsync(string cellPhone, int excludeEmployeeId)
-        {
-            return await _context.Employees
-                .AnyAsync(e => e.CellPhone == cellPhone && e.ID != excludeEmployeeId);
-        }
+    /// <inheritdoc/>
+    public async Task<bool> IsCellPhoneExistAsync(string cellPhone, int excludeEmployeeId)
+    {
+        return await _context.Employees
+            .AsNoTracking()
+            .AnyAsync(e => e.CellPhone == cellPhone && e.Id != excludeEmployeeId);
     }
 }

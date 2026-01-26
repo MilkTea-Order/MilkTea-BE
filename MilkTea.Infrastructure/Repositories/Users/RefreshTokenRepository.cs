@@ -1,70 +1,71 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Entities.Users;
-using MilkTea.Domain.Respositories.Users;
+using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Users.Entities;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories.Users
+namespace MilkTea.Infrastructure.Repositories.Identity;
+
+/// <summary>
+/// Repository implementation for refresh token operations.
+/// </summary>
+public class RefreshTokenRepository(AppDbContext context) : IRefreshTokenRepository
 {
-    public class RefreshTokenRepository(AppDbContext context) : IRefreshTokenRepository
+    private readonly AppDbContext _context = context;
+
+    /// <inheritdoc/>
+    public async Task<RefreshToken?> GetByTokenAsync(string token)
     {
-        private readonly AppDbContext _vContext = context;
-        public async Task StoreRefreshTokenAsync(RefreshToken token)
+        return await _context.RefreshTokens
+            .AsNoTracking()
+            .FirstOrDefaultAsync(rt => rt.Token == token);
+    }
+
+    /// <inheritdoc/>
+    public async Task<RefreshToken?> GetValidTokenByTokenAsync(string token)
+    {
+        return await _context.RefreshTokens
+            .AsNoTracking()
+            .FirstOrDefaultAsync(rt => rt.Token == token 
+                && !rt.IsRevoked 
+                && rt.ExpiryDate > DateTime.UtcNow);
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<RefreshToken>> GetActiveTokensByUserIdAsync(int userId)
+    {
+        return await _context.RefreshTokens
+            .AsNoTracking()
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiryDate > DateTime.UtcNow)
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<RefreshToken> CreateAsync(RefreshToken refreshToken)
+    {
+        await _context.RefreshTokens.AddAsync(refreshToken);
+        await _context.SaveChangesAsync();
+        return refreshToken;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateAsync(RefreshToken refreshToken)
+    {
+        _context.RefreshTokens.Update(refreshToken);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> RevokeAllUserTokensAsync(int userId)
+    {
+        var tokens = await _context.RefreshTokens
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked)
+            .ToListAsync();
+
+        foreach (var token in tokens)
         {
-            await _vContext.RefreshTokens.AddAsync(token);
+            token.Revoke(userId);
         }
 
-        public async Task<RefreshToken?> GetByTokenAsync(string token)
-        {
-            return await _vContext.RefreshTokens
-                .FirstOrDefaultAsync(t => t.Token == token);
-        }
-
-        public async Task<RefreshToken?> GetValidTokenByTokenAsync(string token)
-        {
-            var now = DateTime.UtcNow;
-            return await _vContext.RefreshTokens
-                .FirstOrDefaultAsync(t =>
-                    t.Token == token
-                    && !t.IsRevoked
-                    && t.ExpiryDate > now);
-        }
-        public async Task<RefreshToken?> GetTokenAndRevokeAsync(string token)
-        {
-            var now = DateTime.UtcNow;
-
-            var refreshToken = await _vContext.RefreshTokens
-                .FirstOrDefaultAsync(t => t.Token == token);
-
-            if (refreshToken == null) return null;
-
-            if (!refreshToken.IsRevoked)
-            {
-                refreshToken.IsRevoked = true;
-                refreshToken.LastUpdatedDate = now;
-            }
-            return refreshToken;
-        }
-
-        public async Task RevokeAsync(RefreshToken token)
-        {
-            token.IsRevoked = true;
-            token.LastUpdatedDate = DateTime.UtcNow;
-            await Task.CompletedTask;
-        }
-
-        public async Task RevokeAllByUserAsync(int userId)
-        {
-            var tokens = _vContext.RefreshTokens
-                .Where(t => t.UserId == userId && !t.IsRevoked)
-                .ToList();
-
-            foreach (var token in tokens)
-            {
-                token.IsRevoked = true;
-                token.LastUpdatedDate = DateTime.UtcNow;
-            }
-
-            await Task.CompletedTask;
-        }
+        return await _context.SaveChangesAsync() > 0;
     }
 }

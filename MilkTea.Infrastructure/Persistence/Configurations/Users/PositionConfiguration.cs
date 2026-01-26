@@ -1,19 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users
+namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+
+public class PositionConfiguration : IEntityTypeConfiguration<Position>
 {
-    public class PositionConfiguration : IEntityTypeConfiguration<Position>
+    public void Configure(EntityTypeBuilder<Position> builder)
     {
-        public void Configure(EntityTypeBuilder<Position> builder)
-        {
-            builder.ToTable("position");
+        builder.ToTable("position");
 
-            builder.HasKey(x => x.ID);
-            builder.Property(x => x.ID).HasColumnName("ID");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).HasColumnName("ID");
 
-            builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
-        }
+        builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
+        builder.Property(x => x.Note).HasColumnName("Note");
     }
 }

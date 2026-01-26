@@ -1,32 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users
+namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+
+public class UserAndPermissionDetailConfiguration : IEntityTypeConfiguration<UserAndPermissionDetail>
 {
-    public class UserAndPermissionDetailConfiguration : IEntityTypeConfiguration<UserAndPermissionDetail>
+    public void Configure(EntityTypeBuilder<UserAndPermissionDetail> builder)
     {
-        public void Configure(EntityTypeBuilder<UserAndPermissionDetail> builder)
-        {
-            builder.ToTable("userandpermissiondetail");
+        builder.ToTable("userandpermissiondetail");
 
-            builder.HasKey(x => new { x.UserID, x.PermissionDetailID });
-            builder.Property(x => x.UserID).HasColumnName("UserID");
-            builder.Property(x => x.PermissionDetailID).HasColumnName("PermissionDetailID");
+        builder.HasKey(x => new { x.UserID, x.PermissionDetailID });
 
-            builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-            builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-
-            // Relationships
-            builder.HasOne<User>(up => up.User)
-                .WithMany()
-                .HasForeignKey(up => up.UserID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne<PermissionDetail>(up => up.PermissionDetail)
-                .WithMany()
-                .HasForeignKey(up => up.PermissionDetailID)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+        builder.Property(x => x.UserID).HasColumnName("UserID").IsRequired();
+        builder.Property(x => x.PermissionDetailID).HasColumnName("PermissionDetailID").IsRequired();
+        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
+        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
     }
 }

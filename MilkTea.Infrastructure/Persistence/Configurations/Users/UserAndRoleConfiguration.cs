@@ -1,32 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Entities.Users;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users
+namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+
+public class UserAndRoleConfiguration : IEntityTypeConfiguration<UserAndRole>
 {
-    public class UserAndRoleConfiguration : IEntityTypeConfiguration<UserAndRole>
+    public void Configure(EntityTypeBuilder<UserAndRole> builder)
     {
-        public void Configure(EntityTypeBuilder<UserAndRole> builder)
-        {
-            builder.ToTable("userandrole");
-
-            builder.HasKey(x => new { x.UserID, x.RoleID });
-            builder.Property(x => x.UserID).HasColumnName("UserID");
-            builder.Property(x => x.RoleID).HasColumnName("RoleID");
-
-            builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-            builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-
-            // Relationships
-            builder.HasOne<User>(ur => ur.User)
-                .WithMany()
-                .HasForeignKey(ur => ur.UserID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne<Role>(ur => ur.Role)
-                .WithMany()
-                .HasForeignKey(ur => ur.RoleID)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+        builder.ToTable("userandrole");
+        builder.HasKey(x => new { x.UserID, x.RoleID });
+        builder.Property(x => x.UserID).HasColumnName("UserID").IsRequired();
+        builder.Property(x => x.RoleID).HasColumnName("RoleID").IsRequired();
+        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
+        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
     }
 }

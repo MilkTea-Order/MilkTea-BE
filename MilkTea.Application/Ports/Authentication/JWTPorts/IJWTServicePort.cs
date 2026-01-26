@@ -1,4 +1,4 @@
-﻿namespace MilkTea.Application.Ports.Authentication.JWTPort
+namespace MilkTea.Application.Ports.Authentication.JWTPorts
 {
     public interface IJWTServicePort
     {

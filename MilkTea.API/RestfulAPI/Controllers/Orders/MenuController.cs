@@ -1,73 +1,79 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Queries.Orders;
-using MilkTea.Application.UseCases.Orders;
+using MilkTea.Application.Features.Catalog.Queries;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Orders
 {
     [ApiController]
     [Route("api/menus")]
-    public class MenuController(GetGroupMenuUseCase getGroupMenuUseCase,
-                                GetMenuItemsOfGroupUseCase getItemsOfGroupMenuUseCase,
-                                GetMenuSizeOfMenuUseCase getMenuSizeOfMenuUseCase,
-                                GetGroupMenuAvaliableUseCase getGroupMenuAvaliableUseCase,
-                                GetMenuItemsAvaliableOfGroupUseCase getMenuItemsAvaliableOfGroupUseCase) : BaseController
+    public class MenuController(ISender sender) : BaseController
     {
+        private readonly ISender _sender = sender;
+
         [HttpGet("groups")]
         public async Task<ResponseDto> GetGroupMenu([FromQuery] int? statusID, [FromQuery] int? itemStatus)
         {
-            var vData = await getGroupMenuUseCase.Execute(new GetGroupMenuQuery { StatusId = statusID, ItemStatusId = itemStatus });
-            if (vData.ResultData.HasData)
+            var query = new GetGroupMenuQuery { StatusId = statusID, ItemStatusId = itemStatus };
+            var result = await _sender.Send(query);
+            
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
-            return SendSuccess(vData.GroupMenu);
+            return SendSuccess(result.GroupMenu);
         }
 
         [HttpGet("groups/avaliable")]
         public async Task<ResponseDto> GetGroupMenuAvaliable()
         {
-            var vData = await getGroupMenuAvaliableUseCase.Execute();
-            if (vData.ResultData.HasData)
+            var query = new GetGroupMenuAvailableQuery();
+            var result = await _sender.Send(query);
+            
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
-            return SendSuccess(vData.GroupMenu);
+            return SendSuccess(result.GroupMenu);
         }
-
 
         [HttpGet("groups/{groupID:int}/items")]
         public async Task<ResponseDto> GetMenuItemOfGroup([FromRoute] int groupID, [FromQuery] int? menuItemStatus)
         {
-            var vData = await getItemsOfGroupMenuUseCase.Execute(new GetMenuItemsOfGroupQuery { GroupId = groupID, MenuStatusId = menuItemStatus });
-            if (vData.ResultData.HasData)
+            var query = new GetMenuItemsOfGroupQuery { GroupId = groupID, MenuStatusId = menuItemStatus };
+            var result = await _sender.Send(query);
+            
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
-            return SendSuccess(vData.Menus);
+            return SendSuccess(result.Menus);
         }
 
         [HttpGet("groups/{groupID:int}/items/avaliable")]
         public async Task<ResponseDto> GetMenuItemAvaliableOfGroup([FromRoute] int groupID)
         {
-            var vData = await getMenuItemsAvaliableOfGroupUseCase.Execute(new GetMenuItemsAvailableOfGroupQuery { GroupId = groupID });
-            if (vData.ResultData.HasData)
+            var query = new GetMenuItemsAvailableOfGroupQuery { GroupId = groupID };
+            var result = await _sender.Send(query);
+            
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
-            return SendSuccess(vData.Menus);
+            return SendSuccess(result.Menus);
         }
-
 
         [HttpGet("{menuID:int}/sizes")]
         public async Task<ResponseDto> GetMenuSizeOfMenu([FromRoute] int menuID)
         {
-            var vData = await getMenuSizeOfMenuUseCase.Execute(new GetMenuSizeOfMenuQuery { MenuId = menuID });
-            if (vData.ResultData.HasData)
+            var query = new GetMenuSizeOfMenuQuery { MenuId = menuID };
+            var result = await _sender.Send(query);
+            
+            if (result.ResultData.HasData)
             {
-                return SendError(vData.ResultData);
+                return SendError(result.ResultData);
             }
-            return SendSuccess(vData.MenuSize);
+            return SendSuccess(result.MenuSize);
         }
     }
 }

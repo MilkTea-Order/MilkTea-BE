@@ -1,0 +1,10 @@
+using MediatR;
+using MilkTea.Application.Features.Orders.Results;
+
+namespace MilkTea.Application.Features.Orders.Commands;
+
+public class CancelOrderDetailsCommand : IRequest<CancelOrderDetailsResult>
+{
+    public int OrderID { get; set; }
+    public List<int> OrderDetailIDs { get; set; } = new();
+}
