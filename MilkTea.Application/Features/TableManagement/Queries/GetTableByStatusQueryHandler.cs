@@ -2,14 +2,14 @@ using MediatR;
 using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.TableManagement.Results;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.TableManagement.Queries;
 
 public sealed class GetTableByStatusQueryHandler(
-    IDinnerTableRepository dinnerTableRepository) : IRequestHandler<GetTableByStatusQuery, GetTableByStatusResult>
+    IUnitOfWork unitOfWork) : IRequestHandler<GetTableByStatusQuery, GetTableByStatusResult>
 {
     public async Task<GetTableByStatusResult> Handle(GetTableByStatusQuery query, CancellationToken cancellationToken)
     {
@@ -28,11 +28,11 @@ public sealed class GetTableByStatusQueryHandler(
                 return SendError(result, ErrorCode.E0001, "StatusID");
 
             var status = (DinnerTableStatus)query.StatusId.Value;
-            tables = await dinnerTableRepository.GetByStatusAsync(status);
+            tables = await unitOfWork.DinnerTables.GetByStatusAsync(status);
         }
         else
         {
-            tables = await dinnerTableRepository.GetAllAsync();
+            tables = await unitOfWork.DinnerTables.GetAllAsync();
         }
         
         result.Tables = tables.Select(t => new DinnerTableDto

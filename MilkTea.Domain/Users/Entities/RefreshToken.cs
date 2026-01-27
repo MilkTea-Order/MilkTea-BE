@@ -3,25 +3,29 @@ using MilkTea.Domain.SharedKernel.Abstractions;
 namespace MilkTea.Domain.Users.Entities;
 
 /// <summary>
-/// Refresh token entity for JWT authentication.
-/// Child entity of User aggregate.
+/// Child entity of User aggregate. Cannot be created or revoked outside User aggregate.
 /// </summary>
 public sealed class RefreshToken : Entity<int>
 {
     public int UserId { get; private set; }
-    public User? User { get; private set; }
-
     public string Token { get; private set; } = default!;
     public DateTime ExpiryDate { get; private set; }
     public bool IsRevoked { get; private set; }
+    
+    public bool IsExpired => DateTime.UtcNow >= ExpiryDate;
+    public bool IsValid => !IsRevoked && !IsExpired;
 
-    // For EF Core
+    // EF Core requires parameterless constructor
     private RefreshToken() { }
 
-    internal static RefreshToken Create(int userId, string token, DateTime expiryDate)
+    /// <summary>
+    /// Internal factory method. Only User aggregate can create RefreshToken.
+    /// </summary>
+    internal static RefreshToken Create(int userId, string token, DateTime expiryDate, int createdBy)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
         if (expiryDate <= DateTime.UtcNow)
             throw new ArgumentException("Expiry date must be in the future.", nameof(expiryDate));
@@ -34,15 +38,15 @@ public sealed class RefreshToken : Entity<int>
             Token = token,
             ExpiryDate = expiryDate,
             IsRevoked = false,
-            CreatedBy = userId,
+            CreatedBy = createdBy,
             CreatedDate = now
         };
     }
 
-    public bool IsExpired => DateTime.UtcNow >= ExpiryDate;
-    public bool IsValid => !IsRevoked && !IsExpired;
-
-    public void Revoke(int revokedBy)
+    /// <summary>
+    /// Internal method. Only User aggregate can revoke RefreshToken.
+    /// </summary>
+    internal void Revoke(int revokedBy)
     {
         if (IsRevoked)
             throw new InvalidOperationException("Refresh token is already revoked.");
@@ -50,6 +54,7 @@ public sealed class RefreshToken : Entity<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(revokedBy);
 
         IsRevoked = true;
+        UpdatedBy = revokedBy;
         UpdatedDate = DateTime.UtcNow;
     }
 }

@@ -15,13 +15,36 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
             .HasColumnName("Id")
             .ValueGeneratedOnAdd();
 
-        builder.Property(x => x.UserId).HasColumnName("UserId").IsRequired();
-        builder.Property(x => x.Token).HasColumnName("Token").IsRequired();
-        builder.Property(x => x.ExpiryDate).HasColumnName("ExpiryDate").IsRequired();
-        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(x => x.UpdatedDate).HasColumnName("LastUpdatedDate");
-        builder.Property(x => x.IsRevoked).HasColumnName("IsRevoked").IsRequired();
+        builder.Property(x => x.UserId)
+            .HasColumnName("UserId")
+            .IsRequired();
+
+        builder.Property(x => x.Token)
+            .HasColumnName("Token")
+            .IsRequired();
+
+        builder.Property(x => x.ExpiryDate)
+            .HasColumnName("ExpiryDate")
+            .IsRequired();
+
+        builder.Property(x => x.IsRevoked)
+            .HasColumnName("IsRevoked")
+            .IsRequired();
+
+        // Audit fields
+        builder.Property(x => x.CreatedDate)
+            .HasColumnName("CreatedDate")
+            .IsRequired();
+
+        builder.Property(x => x.UpdatedDate)
+            .HasColumnName("LastUpdatedDate");
+
+        // Ignore some fields 
         builder.Ignore(x => x.CreatedBy);
         builder.Ignore(x => x.UpdatedBy);
+
+        // Ignore computed properties - these are calculated and not stored in the database
+        builder.Ignore(x => x.IsExpired);
+        builder.Ignore(x => x.IsValid);
     }
 }

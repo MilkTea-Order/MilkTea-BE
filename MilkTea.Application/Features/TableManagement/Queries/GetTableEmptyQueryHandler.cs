@@ -1,17 +1,17 @@
 using MediatR;
 using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.TableManagement.Results;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.SharedKernel.Repositories;
 
 namespace MilkTea.Application.Features.TableManagement.Queries;
 
 public sealed class GetTableEmptyQueryHandler(
-    IDinnerTableRepository dinnerTableRepository) : IRequestHandler<GetTableEmptyQuery, GetTableEmptyResult>
+    IUnitOfWork unitOfWork) : IRequestHandler<GetTableEmptyQuery, GetTableEmptyResult>
 {
     public async Task<GetTableEmptyResult> Handle(GetTableEmptyQuery query, CancellationToken cancellationToken)
     {
         var result = new GetTableEmptyResult();
-        var tables = await dinnerTableRepository.GetEmptyTablesAsync();
+        var tables = await unitOfWork.DinnerTables.GetEmptyTablesAsync();
 
         result.Tables = tables.Select(t => new DinnerTableDto
         {

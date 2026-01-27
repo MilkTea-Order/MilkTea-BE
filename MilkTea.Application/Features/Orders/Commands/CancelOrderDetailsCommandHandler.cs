@@ -3,14 +3,12 @@ using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 
 namespace MilkTea.Application.Features.Orders.Commands;
 
 public sealed class CancelOrderDetailsCommandHandler(
     IUnitOfWork unitOfWork,
-    IOrderRepository orderRepository,
     ICurrentUser currentUser) : IRequestHandler<CancelOrderDetailsCommand, CancelOrderDetailsResult>
 {
     public async Task<CancelOrderDetailsResult> Handle(CancelOrderDetailsCommand command, CancellationToken cancellationToken)
@@ -18,7 +16,7 @@ public sealed class CancelOrderDetailsCommandHandler(
         var result = new CancelOrderDetailsResult();
 
         // Validate order exists
-        var order = await orderRepository.GetOrderByIdAsync(command.OrderID);
+        var order = await unitOfWork.Orders.GetOrderByIdAsync(command.OrderID);
         if (order is null)
             return SendError(result, ErrorCode.E0001, nameof(command.OrderID));
 
@@ -31,7 +29,7 @@ public sealed class CancelOrderDetailsCommandHandler(
             return result;
 
         // Validate order detail IDs belong to this order
-        var validOrderDetailIds = await orderRepository.GetOrderItemIdsByOrderIdAsync(command.OrderID);
+        var validOrderDetailIds = await unitOfWork.Orders.GetOrderItemIdsByOrderIdAsync(command.OrderID);
         var invalidDetailIds = command.OrderDetailIDs
             .Where(id => !validOrderDetailIds.Contains(id))
             .ToList();
@@ -43,7 +41,7 @@ public sealed class CancelOrderDetailsCommandHandler(
         var alreadyCancelledIds = new List<int>();
         foreach (var detailId in command.OrderDetailIDs)
         {
-            var isCancelled = await orderRepository.IsOrderItemCancelledAsync(detailId);
+            var isCancelled = await unitOfWork.Orders.IsOrderItemCancelledAsync(detailId);
             if (isCancelled)
             {
                 alreadyCancelledIds.Add(detailId);
@@ -72,7 +70,7 @@ public sealed class CancelOrderDetailsCommandHandler(
                 return SendError(result, ErrorCode.E0027, "Cancel Order Details");
             }
 
-            await orderRepository.UpdateAsync(order);
+            await unitOfWork.Orders.UpdateAsync(order);
             await unitOfWork.CommitTransactionAsync();
 
             result.OrderID = order.Id;

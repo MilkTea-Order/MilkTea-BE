@@ -1,7 +1,8 @@
-namespace MilkTea.Domain.Users.Entities;
+namespace MilkTea.Infrastructure.Persistence.Entities;
 
 /// <summary>
-/// Junction entity linking users directly to permission details.
+/// Persistence-only junction entity for User-PermissionDetail many-to-many relationship.
+/// This is NOT a domain entity and exists only for EF Core mapping.
 /// </summary>
 public class UserAndPermissionDetail
 {

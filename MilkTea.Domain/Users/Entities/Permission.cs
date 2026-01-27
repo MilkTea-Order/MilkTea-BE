@@ -13,6 +13,4 @@ public class Permission : EntityId<int>
     public string Code { get; set; } = null!;
     public int PermissionGroupID { get; set; }
     public string? Note { get; set; }
-
-
 }

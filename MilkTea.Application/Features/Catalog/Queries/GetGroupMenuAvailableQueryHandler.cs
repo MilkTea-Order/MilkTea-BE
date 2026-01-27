@@ -1,22 +1,22 @@
 using MediatR;
 using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.Catalog.Results;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetGroupMenuAvailableQueryHandler(
-    IMenuRepository menuRepository) : IRequestHandler<GetGroupMenuAvailableQuery, GetGroupMenuResult>
+    IUnitOfWork unitOfWork) : IRequestHandler<GetGroupMenuAvailableQuery, GetGroupMenuResult>
 {
     public async Task<GetGroupMenuResult> Handle(GetGroupMenuAvailableQuery query, CancellationToken cancellationToken)
     {
         var result = new GetGroupMenuResult();
         result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
 
-        var groups = await menuRepository.GetMenuGroupsAvailableAsync();
+        var groups = await unitOfWork.Menus.GetMenuGroupsAvailableAsync();
         var groupIds = groups.Select(g => g.Id).ToList();
-        var quantityMap = await menuRepository.GetMenuCountsByGroupIdsAsync(groupIds);
+        var quantityMap = await unitOfWork.Menus.GetMenuCountsByGroupIdsAsync(groupIds);
 
         result.GroupMenu = groups.Select(g => new MenuGroupDto
         {

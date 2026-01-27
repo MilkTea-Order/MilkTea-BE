@@ -6,8 +6,11 @@ namespace MilkTea.Domain.Users.Entities;
 /// <summary>
 /// Role entity for user authorization.
 /// </summary>
-public class Role : Entity<int>
+public class Role : Aggregate<int>
 {
+    private readonly List<RoleDetail> _vRoleDetails = new();
+    public IReadOnlyList<RoleDetail> RoleDetails => _vRoleDetails.AsReadOnly();
+
     public string Name { get; set; } = null!;
     public string? Note { get; set; }
 
@@ -15,9 +18,4 @@ public class Role : Entity<int>
     /// Role status. Maps to StatusID column.
     /// </summary>
     public CommonStatus Status { get; set; }
-
-
-    // Navigation
-    private readonly List<RoleDetail> _vRoleDetails = new();
-    public IReadOnlyList<RoleDetail> RoleDetails => _vRoleDetails.AsReadOnly();
 }

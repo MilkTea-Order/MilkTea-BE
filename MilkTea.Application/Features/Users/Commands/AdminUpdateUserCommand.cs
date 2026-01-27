@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using MilkTea.Application.Features.Users.Results;
 
@@ -37,4 +38,14 @@ public class AdminUpdateUserCommand : IRequest<AdminUpdateUserResult>
     public string? BankAccountName { get; set; }
     public string? BankAccountNumber { get; set; }
     public byte[]? BankQRCode { get; set; }
+}
+
+public sealed class AdminUpdateUserCommandValidator : AbstractValidator<AdminUpdateUserCommand>
+{
+    public AdminUpdateUserCommandValidator()
+    {
+        RuleFor(x => x.UserID)
+            .GreaterThan(0)
+            .WithMessage("UserID phải lớn hơn 0");
+    }
 }

@@ -3,12 +3,12 @@ using MilkTea.Application.DTOs.Users;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Users.Repositories;
+using MilkTea.Domain.SharedKernel.Repositories;
 
 namespace MilkTea.Application.Features.Users.Queries;
 
 public sealed class GetUserProfileQueryHandler(
-    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
     ICurrentUser currentUser) : IRequestHandler<GetUserProfileQuery, GetUserProfileResult>
 {
     public async Task<GetUserProfileResult> Handle(GetUserProfileQuery query, CancellationToken cancellationToken)
@@ -16,41 +16,48 @@ public sealed class GetUserProfileQueryHandler(
         var result = new GetUserProfileResult();
         var userId = currentUser.UserId;
 
-        var user = await userRepository.GetWithEmployeeAsync(userId);
-        if (user is null || user.Employee is null)
+        var user = await unitOfWork.Users.GetByIdAsync(userId);
+        if (user is null)
         {
             result.ResultData.Add(ErrorCode.E0001, nameof(userId));
+            return result;
+        }
+
+        var employee = await unitOfWork.Employees.GetByIdAsync(user.EmployeeID);
+        if (employee is null)
+        {
+            result.ResultData.Add(ErrorCode.E0001, "Employee");
             return result;
         }
 
         result.User = new UserProfileDto
         {
             UserId = user.Id,
-            UserName = user.UserName,
-            EmployeeId = user.Employee.Id,
-            EmployeeCode = user.Employee.Code,
-            FullName = user.Employee.FullName,
-            GenderId = user.Employee.GenderID,
-            GenderName = user.Employee.Gender?.Name,
-            BirthDay = user.Employee.BirthDay,
-            IdentityCode = user.Employee.IdentityCode,
-            Email = user.Employee.Email,
-            Address = user.Employee.Address,
-            CellPhone = user.Employee.CellPhone,
-            PositionId = user.Employee.PositionID,
-            PositionName = user.Employee.Position?.Name,
-            StatusId = (int)user.Employee.Status,
-            StatusName = user.Employee.Status.ToString(),
-            StartWorkingDate = user.Employee.StartWorkingDate,
-            EndWorkingDate = user.Employee.EndWorkingDate,
-            BankName = user.Employee.BankName,
-            BankAccountName = user.Employee.BankAccountName,
-            BankAccountNumber = user.Employee.BankAccountNumber,
-            BankQrCodeBase64 = user.Employee.BankQRCode == null
+            UserName = user.UserName.value,
+            EmployeeId = employee.Id,
+            EmployeeCode = employee.Code,
+            FullName = employee.FullName,
+            GenderId = employee.GenderID,
+            GenderName = employee.Gender?.Name,
+            BirthDay = employee.BirthDay?.Value,
+            IdentityCode = employee.IdentityCode,
+            Email = employee.Email?.Value,
+            Address = employee.Address,
+            CellPhone = employee.CellPhone?.Value,
+            PositionId = employee.PositionID,
+            PositionName = employee.Position?.Name,
+            StatusId = (int)employee.Status,
+            StatusName = employee.Status.ToString(),
+            StartWorkingDate = employee.StartWorkingDate,
+            EndWorkingDate = employee.EndWorkingDate,
+            BankName = employee.BankAccount?.BankName,
+            BankAccountName = employee.BankAccount?.AccountName,
+            BankAccountNumber = employee.BankAccount?.AccountNumber,
+            BankQrCodeBase64 = employee.BankAccount?.QrCode == null
                 ? null
-                : $"data:image/png;base64,{Convert.ToBase64String(user.Employee.BankQRCode)}",
-            CreatedDate = user.Employee.CreatedDate,
-            LastUpdatedDate = user.Employee.LastUpdatedDate
+                : $"data:image/png;base64,{Convert.ToBase64String(employee.BankAccount.QrCode)}",
+            CreatedDate = employee.CreatedDate,
+            LastUpdatedDate = employee.LastUpdatedDate
         };
 
         return result;

@@ -1,36 +1,29 @@
-using MilkTea.Domain.Users.Enums;
 using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Users.Enums;
+using MilkTea.Domain.Users.ValueObject;
 
 namespace MilkTea.Domain.Users.Entities;
 
-/// <summary>
-/// User entity (Aggregate Root).
-/// </summary>
 public sealed class User : Aggregate<int>
 {
-    public int EmployeesID { get; private set; }
-    public string UserName { get; private set; } = null!;
-    public string Password { get; private set; } = null!;
+    private readonly List<RefreshToken> _vRefreshTokens = new();
+    public IReadOnlyCollection<RefreshToken> RefreshTokens => _vRefreshTokens.AsReadOnly();
+    public int EmployeeID { get; private set; }
+
+    public UserName UserName { get; private set; } = default!;
+    public Password Password { get; private set; } = default!;
 
     public UserStatus Status { get; private set; }
 
     public int? StoppedBy { get; private set; }
     public DateTime? StoppedDate { get; private set; }
+
     public int? PasswordResetBy { get; private set; }
     public DateTime? PasswordResetDate { get; private set; }
 
+    public bool IsActive => Status == UserStatus.Active;
 
-    public EmployeeProfile? Employee { get; private set; }
-    private readonly List<RefreshToken> _vRefreshTokens = new();
-    public IReadOnlyList<RefreshToken> RefreshTokens => _vRefreshTokens.AsReadOnly();
-    
-    private readonly List<UserAndRole> _vUserRoles = new();
-    public IReadOnlyList<UserAndRole> UserRoles => _vUserRoles.AsReadOnly();
-    
-    private readonly List<UserAndPermissionDetail> _vUserPermissions = new();
-    public IReadOnlyList<UserAndPermissionDetail> UserPermissions => _vUserPermissions.AsReadOnly();
 
-    // For EF Core
     private User() { }
 
     public static User Create(
@@ -48,16 +41,16 @@ public sealed class User : Aggregate<int>
 
         return new User
         {
-            EmployeesID = employeesId,
-            UserName = userName,
-            Password = passwordHash,
+            EmployeeID = employeesId,
+            UserName = UserName.Of(userName),
+            Password = Password.Of(passwordHash),
             Status = UserStatus.Active,
             CreatedBy = createdBy,
             CreatedDate = now
         };
     }
 
-    public bool IsActive => Status == UserStatus.Active;
+
 
     public void Deactivate(int stoppedBy)
     {
@@ -65,6 +58,9 @@ public sealed class User : Aggregate<int>
             throw new InvalidOperationException("User is already inactive.");
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(stoppedBy);
+
+        // Revoke all active refresh tokens when deactivating user
+        RevokeAllRefreshTokens(stoppedBy);
 
         Status = UserStatus.Inactive;
         StoppedBy = stoppedBy;
@@ -90,10 +86,11 @@ public sealed class User : Aggregate<int>
         ArgumentException.ThrowIfNullOrWhiteSpace(newPasswordHash);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
-        if (Password == newPasswordHash)
+        var newPassword = Password.Of(newPasswordHash);
+        if (Password.value == newPassword.value)
             throw new InvalidOperationException("New password must be different from current password.");
 
-        Password = newPasswordHash;
+        Password = newPassword;
         PasswordResetBy = updatedBy;
         PasswordResetDate = DateTime.UtcNow;
         Touch(updatedBy);
@@ -104,10 +101,11 @@ public sealed class User : Aggregate<int>
         ArgumentException.ThrowIfNullOrWhiteSpace(newUserName);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
-        if (UserName == newUserName)
+        var newUserNameValue = UserName.Of(newUserName);
+        if (UserName.value == newUserNameValue.value)
             throw new InvalidOperationException("New username must be different from current username.");
 
-        UserName = newUserName;
+        UserName = newUserNameValue;
         Touch(updatedBy);
     }
 
@@ -115,7 +113,7 @@ public sealed class User : Aggregate<int>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
 
-        var refreshToken = RefreshToken.Create(Id, token, expiryDate);
+        var refreshToken = RefreshToken.Create(Id, token, expiryDate, CreatedBy);
         _vRefreshTokens.Add(refreshToken);
         return refreshToken;
     }
@@ -140,20 +138,6 @@ public sealed class User : Aggregate<int>
         {
             token.Revoke(revokedBy);
         }
-    }
-
-
-    /// <summary>
-    /// Gets all Role IDs that this user has.
-    /// </summary>
-    /// <returns>Collection of Role IDs assigned to this user.</returns>
-    public IReadOnlyList<int> GetRoleIds()
-    {
-        return _vUserRoles
-            .Select(ur => ur.RoleID)
-            .Distinct()
-            .ToList()
-            .AsReadOnly();
     }
 
     private void Touch(int updatedBy)

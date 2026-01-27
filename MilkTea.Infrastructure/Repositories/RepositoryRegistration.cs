@@ -22,7 +22,6 @@ public static class RepositoryRegistration
     {
         // Identity repositories
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IGenderRepository, GenderRepository>();

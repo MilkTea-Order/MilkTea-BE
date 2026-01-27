@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.Middlewares;
 using MilkTea.Application;
 using MilkTea.Application.Ports.Users;
-using MilkTea.API.RestfulAPI.Common;
 using MilkTea.Infrastructure.Authentication.JWT;
 using MilkTea.Infrastructure.Database;
 using MilkTea.Infrastructure.Database.MySQL;
@@ -31,11 +32,14 @@ builder.Services.AddApplication();
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Disable automatic 400 response for invalid ModelState
-//builder.Services.Configure<ApiBehaviorOptions>(options =>
-//{
-//    options.SuppressModelStateInvalidFilter = true;
-//});
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    // Don't short-circuit with 400 before hitting controller/MediatR
+    options.SuppressModelStateInvalidFilter = true;
+
+    // Don't auto-treat non-nullable reference types as [Required]
+    //options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

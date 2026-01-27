@@ -4,7 +4,6 @@ using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.Users.Enums;
-using MilkTea.Domain.Users.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
@@ -12,8 +11,6 @@ namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class AdminUpdateUserCommandHandler(
     IUnitOfWork unitOfWork,
-    IUserRepository userRepository,
-    IEmployeeRepository employeeRepository,
     ICurrentUser currentUser) : IRequestHandler<AdminUpdateUserCommand, AdminUpdateUserResult>
 {
     public async Task<AdminUpdateUserResult> Handle(AdminUpdateUserCommand command, CancellationToken cancellationToken)
@@ -24,11 +21,12 @@ public sealed class AdminUpdateUserCommandHandler(
         if (command.UserID <= 0)
             return SendError(result, ErrorCode.E0036, "UserID");
 
-        var user = await userRepository.GetByIdAsync(command.UserID);
+        // Load entities with tracking for updates
+        var user = await unitOfWork.Users.GetByIdForUpdateAsync(command.UserID);
         if (user is null)
             return SendError(result, ErrorCode.E0001, "User");
 
-        var employee = await employeeRepository.GetByIdAsync(user.EmployeesID);
+        var employee = await unitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID);
         if (employee is null)
             return SendError(result, ErrorCode.E0001, "Employee");
 
@@ -50,80 +48,58 @@ public sealed class AdminUpdateUserCommandHandler(
                     user.Deactivate(updatedBy);
             }
 
-            // Update employee fields
+            // Update employee fields using domain methods
             if (!string.IsNullOrWhiteSpace(command.FullName))
-                employee.FullName = command.FullName;
+                employee.UpdateFullName(command.FullName, updatedBy);
 
             if (command.GenderID.HasValue)
-                employee.GenderID = command.GenderID.Value;
+                employee.UpdateGender(command.GenderID.Value, updatedBy);
 
             if (!string.IsNullOrWhiteSpace(command.BirthDay))
-                employee.BirthDay = command.BirthDay;
+                employee.UpdateBirthDay(command.BirthDay, updatedBy);
 
             if (!string.IsNullOrWhiteSpace(command.IdentityCode))
-                employee.IdentityCode = command.IdentityCode;
+                employee.UpdateIdentityCode(command.IdentityCode, updatedBy);
 
             if (!string.IsNullOrWhiteSpace(command.Email))
-                employee.Email = command.Email;
+                employee.UpdateEmail(command.Email, updatedBy);
 
             if (!string.IsNullOrWhiteSpace(command.Address))
-                employee.Address = command.Address;
+                employee.UpdateAddress(command.Address, updatedBy);
 
             if (!string.IsNullOrWhiteSpace(command.CellPhone))
-                employee.CellPhone = command.CellPhone;
+                employee.UpdateCellPhone(command.CellPhone, updatedBy);
 
             if (command.PositionID.HasValue)
-                employee.PositionID = command.PositionID.Value;
+                employee.UpdatePosition(command.PositionID.Value, updatedBy);
 
-            if (command.StartWorkingDate.HasValue)
-                employee.StartWorkingDate = command.StartWorkingDate;
+            if (command.StartWorkingDate.HasValue || command.EndWorkingDate.HasValue)
+                employee.UpdateWorkingDates(command.StartWorkingDate, command.EndWorkingDate, updatedBy);
 
-            if (command.EndWorkingDate.HasValue)
-                employee.EndWorkingDate = command.EndWorkingDate;
+            if (command.SalaryByHour.HasValue || command.CalcSalaryByMinutes.HasValue)
+                employee.UpdateSalary(command.SalaryByHour, command.CalcSalaryByMinutes, updatedBy);
 
-            if (command.SalaryByHour.HasValue)
-                employee.SalaryByHour = command.SalaryByHour;
+            if (command.ShiftFrom.HasValue || command.ShiftTo.HasValue)
+                employee.UpdateShift(command.ShiftFrom, command.ShiftTo, updatedBy);
 
-            if (command.CalcSalaryByMinutes.HasValue)
-                employee.CalcSalaryByMinutes = command.CalcSalaryByMinutes;
+            if (command.IsBreakTime.HasValue || command.BreakTimeFrom.HasValue || command.BreakTimeTo.HasValue)
+                employee.UpdateBreakTime(command.IsBreakTime, command.BreakTimeFrom, command.BreakTimeTo, updatedBy);
 
-            if (command.ShiftFrom.HasValue)
-                employee.ShiftFrom = command.ShiftFrom;
-
-            if (command.ShiftTo.HasValue)
-                employee.ShiftTo = command.ShiftTo;
-
-            if (command.IsBreakTime.HasValue)
-                employee.IsBreakTime = command.IsBreakTime;
-
-            if (command.BreakTimeFrom.HasValue)
-                employee.BreakTimeFrom = command.BreakTimeFrom;
-
-            if (command.BreakTimeTo.HasValue)
-                employee.BreakTimeTo = command.BreakTimeTo;
-
-            if (!string.IsNullOrWhiteSpace(command.BankName))
-                employee.BankName = command.BankName;
-
-            if (!string.IsNullOrWhiteSpace(command.BankAccountName))
-                employee.BankAccountName = command.BankAccountName;
-
-            if (!string.IsNullOrWhiteSpace(command.BankAccountNumber))
-                employee.BankAccountNumber = command.BankAccountNumber;
-
-            if (command.BankQRCode != null)
-                employee.BankQRCode = command.BankQRCode;
-
-            // Update audit fields
-            employee.LastUpdatedBy = updatedBy;
-            employee.LastUpdatedDate = DateTime.UtcNow;
-
-            await employeeRepository.UpdateAsync(employee);
-            if (command.StatusID.HasValue)
+            // Update BankAccount if any field is provided
+            if (!string.IsNullOrWhiteSpace(command.BankName) ||
+                !string.IsNullOrWhiteSpace(command.BankAccountName) ||
+                !string.IsNullOrWhiteSpace(command.BankAccountNumber) ||
+                command.BankQRCode != null)
             {
-                await userRepository.UpdateAsync(user);
+                employee.UpdateBankAccount(
+                    command.BankAccountNumber,
+                    command.BankAccountName,
+                    command.BankName,
+                    command.BankQRCode,
+                    updatedBy);
             }
 
+            // Commit transaction (SaveChangesAsync is called inside CommitTransactionAsync)
             await unitOfWork.CommitTransactionAsync();
 
             return result;

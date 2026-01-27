@@ -1,16 +1,14 @@
 using MediatR;
 using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.Catalog.Results;
-using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Pricing.Repositories;
+using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetMenuSizeOfMenuQueryHandler(
-    IMenuRepository menuRepository,
-    IPriceListRepository priceListRepository) : IRequestHandler<GetMenuSizeOfMenuQuery, GetMenuSizeOfMenuResult>
+    IUnitOfWork unitOfWork) : IRequestHandler<GetMenuSizeOfMenuQuery, GetMenuSizeOfMenuResult>
 {
     public async Task<GetMenuSizeOfMenuResult> Handle(GetMenuSizeOfMenuQuery query, CancellationToken cancellationToken)
     {
@@ -21,11 +19,11 @@ public sealed class GetMenuSizeOfMenuQueryHandler(
             return SendError(result, ErrorCode.E0036, "MenuID");
 
         // Check menu is available
-        var menu = await menuRepository.GetMenuByIDAndAvaliableAsync(query.MenuId);
+        var menu = await unitOfWork.Menus.GetMenuByIDAndAvaliableAsync(query.MenuId);
         if (menu is null)
             return SendError(result, ErrorCode.E0040, "MenuID");
 
-        var activePriceList = await priceListRepository.GetActivePriceListAsync();
+        var activePriceList = await unitOfWork.PriceLists.GetActivePriceListAsync();
         if (activePriceList is null)
         {
             result.MenuSize = new List<MenuSizePriceDto>();
@@ -33,8 +31,8 @@ public sealed class GetMenuSizeOfMenuQueryHandler(
         }
 
         // Get menu sizes available
-        var menuSizes = await menuRepository.GetMenuSizesAvailableByMenuAsync(query.MenuId);
-        var prices = await priceListRepository.GetPricesForMenuAsync(activePriceList.Id, query.MenuId);
+        var menuSizes = await unitOfWork.Menus.GetMenuSizesAvailableByMenuAsync(query.MenuId);
+        var prices = await unitOfWork.PriceLists.GetPricesForMenuAsync(activePriceList.Id, query.MenuId);
 
         result.MenuSize = menuSizes.Select(ms => new MenuSizePriceDto
         {

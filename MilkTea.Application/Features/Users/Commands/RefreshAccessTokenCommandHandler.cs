@@ -2,13 +2,13 @@ using MediatR;
 using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Application.Features.Users.Results;
-using MilkTea.Domain.Users.Repositories;
+using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class RefreshAccessTokenCommandHandler(
-    IRefreshTokenRepository refreshTokenRepository,
+    IUnitOfWork unitOfWork,
     IJWTServicePort jwtServicePort) : IRequestHandler<RefreshAccessTokenCommand, RefreshAccessTokenResult>
 {
     public async Task<RefreshAccessTokenResult> Handle(RefreshAccessTokenCommand command, CancellationToken cancellationToken)
@@ -21,8 +21,8 @@ public sealed class RefreshAccessTokenCommandHandler(
             return result;
         }
 
-        // Get valid refresh token
-        var refreshToken = await refreshTokenRepository.GetValidTokenByTokenAsync(command.RefreshToken);
+        // Get valid refresh token through User aggregate repository
+        var refreshToken = await unitOfWork.Users.GetValidRefreshTokenByTokenAsync(command.RefreshToken);
         if (refreshToken is null)
         {
             // Token không tồn tại / đã revoke / hết hạn / không thuộc user

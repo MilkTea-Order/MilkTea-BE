@@ -1,9 +1,7 @@
 using MediatR;
-using MilkTea.Application.Features.Users.Commands;
-using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Users.Results;
+using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Users.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 using SixLabors.ImageSharp;
@@ -13,9 +11,6 @@ namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class EmployeeUpdateProfileCommandHandler(
     IUnitOfWork unitOfWork,
-    IUserRepository userRepository,
-    IEmployeeRepository employeeRepository,
-    IGenderRepository genderRepository,
     ICurrentUser currentUser) : IRequestHandler<EmployeeUpdateProfileCommand, EmployeeUpdateProfileResult>
 {
     public async Task<EmployeeUpdateProfileResult> Handle(EmployeeUpdateProfileCommand command, CancellationToken cancellationToken)
@@ -24,57 +19,86 @@ public sealed class EmployeeUpdateProfileCommandHandler(
         result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
         var userId = currentUser.UserId;
 
-        var user = await userRepository.GetByIdAsync(userId);
+        // Load entities (read-only for validation)
+        var user = await unitOfWork.Users.GetByIdAsync(userId);
         if (user is null)
             return SendError(result, ErrorCode.E0001, "User");
 
-        var employee = await employeeRepository.GetByIdAsync(user.EmployeesID);
+        var employee = await unitOfWork.Employees.GetByIdAsync(user.EmployeeID);
         if (employee is null)
             return SendError(result, ErrorCode.E0001, "Employee");
 
         // Validate email uniqueness
-        if (!string.IsNullOrWhiteSpace(command.Email) && command.Email != employee.Email)
+        if (!string.IsNullOrWhiteSpace(command.Email))
         {
-            var isEmailExist = await employeeRepository.IsEmailExistAsync(command.Email, employee.Id);
-            if (isEmailExist)
-                return SendError(result, ErrorCode.E0002, "Email");
+            var currentEmail = employee.Email?.Value;
+            if (command.Email != currentEmail)
+            {
+                var isEmailExist = await unitOfWork.Employees.IsEmailExistAsync(command.Email, employee.Id);
+                if (isEmailExist)
+                    return SendError(result, ErrorCode.E0002, "Email");
+            }
         }
 
         // Validate phone uniqueness
-        if (!string.IsNullOrWhiteSpace(command.CellPhone) && command.CellPhone != employee.CellPhone)
+        if (!string.IsNullOrWhiteSpace(command.CellPhone))
         {
-            var isPhoneExist = await employeeRepository.IsCellPhoneExistAsync(command.CellPhone, employee.Id);
-            if (isPhoneExist)
-                return SendError(result, ErrorCode.E0002, "CellPhone");
+            var currentPhone = employee.CellPhone?.Value;
+            if (command.CellPhone != currentPhone)
+            {
+                var isPhoneExist = await unitOfWork.Employees.IsCellPhoneExistAsync(command.CellPhone, employee.Id);
+                if (isPhoneExist)
+                    return SendError(result, ErrorCode.E0002, "CellPhone");
+            }
+        }
+
+        // Validate and prepare data before transaction
+        byte[]? qrCodeBytes = null;
+        if (command.BankQRCode != null)
+        {
+            if (command.BankQRCode.Length == 0 || command.BankQRCode.Length > 5 * 1024 * 1024)
+                return SendError(result, ErrorCode.E0036, nameof(command.BankQRCode));
+
+            try
+            {
+                using var inputStream = command.BankQRCode.OpenReadStream();
+                using var image = Image.Load(inputStream);
+                using var pngStream = new MemoryStream();
+                image.Save(pngStream, new PngEncoder());
+                qrCodeBytes = pngStream.ToArray();
+            }
+            catch
+            {
+                return SendError(result, ErrorCode.E0036, nameof(command.BankQRCode));
+            }
         }
 
         await unitOfWork.BeginTransactionAsync();
         try
         {
-            // Update fields
+            // Load employee with tracking for update
+            var employeeForUpdate = await unitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID);
+            if (employeeForUpdate is null)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                return SendError(result, ErrorCode.E0001, "Employee");
+            }
+
+            // Update fields using domain methods
             if (!string.IsNullOrWhiteSpace(command.FullName))
-                employee.FullName = command.FullName.Trim();
+                employeeForUpdate.UpdateFullName(command.FullName.Trim(), userId);
 
             if (!string.IsNullOrWhiteSpace(command.IdentityCode))
-                employee.IdentityCode = command.IdentityCode.Trim();
+                employeeForUpdate.UpdateIdentityCode(command.IdentityCode.Trim(), userId);
 
             if (!string.IsNullOrWhiteSpace(command.Email))
-                employee.Email = command.Email.Trim();
+                employeeForUpdate.UpdateEmail(command.Email.Trim(), userId);
 
             if (!string.IsNullOrWhiteSpace(command.Address))
-                employee.Address = command.Address.Trim();
+                employeeForUpdate.UpdateAddress(command.Address.Trim(), userId);
 
             if (!string.IsNullOrWhiteSpace(command.CellPhone))
-                employee.CellPhone = command.CellPhone.Trim();
-
-            if (!string.IsNullOrWhiteSpace(command.BankName))
-                employee.BankName = command.BankName.Trim();
-
-            if (!string.IsNullOrWhiteSpace(command.BankAccountName))
-                employee.BankAccountName = command.BankAccountName.Trim();
-
-            if (!string.IsNullOrWhiteSpace(command.BankAccountNumber))
-                employee.BankAccountNumber = command.BankAccountNumber.Trim();
+                employeeForUpdate.UpdateCellPhone(command.CellPhone.Trim(), userId);
 
             // Validate and update GenderID
             if (command.GenderID.HasValue)
@@ -85,14 +109,14 @@ public sealed class EmployeeUpdateProfileCommandHandler(
                     return SendError(result, ErrorCode.E0036, nameof(command.GenderID));
                 }
 
-                var isExist = await genderRepository.ExistsGenderAsync(command.GenderID.Value);
+                var isExist = await unitOfWork.Genders.ExistsGenderAsync(command.GenderID.Value);
                 if (!isExist)
                 {
                     await unitOfWork.RollbackTransactionAsync();
                     return SendError(result, ErrorCode.E0001, "GenderID");
                 }
 
-                employee.GenderID = command.GenderID.Value;
+                employeeForUpdate.UpdateGender(command.GenderID.Value, userId);
             }
 
             // Validate and update BirthDay
@@ -107,38 +131,24 @@ public sealed class EmployeeUpdateProfileCommandHandler(
                     return SendError(result, ErrorCode.E0036, nameof(command.BirthDay));
                 }
 
-                employee.BirthDay = birthDay.ToString("dd/MM/yyyy");
+                employeeForUpdate.UpdateBirthDay(birthDay.ToString("dd/MM/yyyy"), userId);
             }
 
-            // Validate and update BankQRCode
-            if (command.BankQRCode != null)
+            // Update BankAccount if any field is provided
+            if (!string.IsNullOrWhiteSpace(command.BankName) ||
+                !string.IsNullOrWhiteSpace(command.BankAccountName) ||
+                !string.IsNullOrWhiteSpace(command.BankAccountNumber) ||
+                qrCodeBytes != null)
             {
-                if (command.BankQRCode.Length == 0 || command.BankQRCode.Length > 5 * 1024 * 1024)
-                {
-                    await unitOfWork.RollbackTransactionAsync();
-                    return SendError(result, ErrorCode.E0036, nameof(command.BankQRCode));
-                }
-
-                try
-                {
-                    using var inputStream = command.BankQRCode.OpenReadStream();
-                    using var image = Image.Load(inputStream);
-                    using var pngStream = new MemoryStream();
-                    image.Save(pngStream, new PngEncoder());
-                    employee.BankQRCode = pngStream.ToArray();
-                }
-                catch
-                {
-                    await unitOfWork.RollbackTransactionAsync();
-                    return SendError(result, ErrorCode.E0036, nameof(command.BankQRCode));
-                }
+                employeeForUpdate.UpdateBankAccount(
+                    command.BankAccountNumber?.Trim(),
+                    command.BankAccountName?.Trim(),
+                    command.BankName?.Trim(),
+                    qrCodeBytes,
+                    userId);
             }
 
-            // Update audit fields
-            employee.LastUpdatedBy = userId;
-            employee.LastUpdatedDate = DateTime.UtcNow;
-
-            await employeeRepository.UpdateAsync(employee);
+            // Commit transaction (SaveChangesAsync is called inside CommitTransactionAsync)
             await unitOfWork.CommitTransactionAsync();
 
             return result;

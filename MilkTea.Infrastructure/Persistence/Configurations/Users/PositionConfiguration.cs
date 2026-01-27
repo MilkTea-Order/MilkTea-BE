@@ -11,8 +11,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
         builder.ToTable("position");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).HasColumnName("ID");
-
+        builder.Property(x => x.Id).HasColumnName("ID").IsRequired();
         builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
         builder.Property(x => x.Note).HasColumnName("Note");
     }

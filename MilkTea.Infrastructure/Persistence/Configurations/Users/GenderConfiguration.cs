@@ -11,7 +11,7 @@ public class GenderConfiguration : IEntityTypeConfiguration<Gender>
         builder.ToTable("gender");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).HasColumnName("ID");
+        builder.Property(x => x.Id).HasColumnName("ID").IsRequired();
 
         builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
     }

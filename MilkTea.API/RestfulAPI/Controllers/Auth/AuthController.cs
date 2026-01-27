@@ -19,7 +19,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
         private readonly IMapper _vMapper = mapper;
 
         [HttpPost("login")]
-        public async Task<ResponseDto> Login(LoginRequestDto request)
+        public async Task<ResponseDto> Login([FromBody] LoginRequestDto request)
         {
             var command = new LoginCommand
             {

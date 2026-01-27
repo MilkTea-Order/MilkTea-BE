@@ -5,6 +5,7 @@ using MilkTea.Domain.Users.Entities;
 using MilkTea.Domain.Inventory.Entities;
 using MilkTea.Domain.Orders.Entities;
 using MilkTea.Domain.Pricing.Entities;
+using MilkTea.Infrastructure.Persistence.Entities;
 
 namespace MilkTea.Infrastructure.Persistence;
 
@@ -42,7 +43,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     // ===== Users =====
     public DbSet<User> Users { get; set; }
-    public DbSet<EmployeeProfile> Employees { get; set; }
+    public DbSet<Employee> Employees { get; set; }
     public DbSet<Gender> Genders { get; set; }
     public DbSet<Position> Positions { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -52,6 +53,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PermissionDetail> PermissionDetails { get; set; }
     public DbSet<PermissionGroup> PermissionGroups { get; set; }
     public DbSet<PermissionGroupType> PermissionGroupTypes { get; set; }
+    // Persistence-only junction tables (not domain entities)
     public DbSet<UserAndRole> UserRoles { get; set; }
     public DbSet<UserAndPermissionDetail> UserPermissions { get; set; }
 

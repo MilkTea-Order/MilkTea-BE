@@ -1,8 +1,6 @@
 using MediatR;
-using MilkTea.Application.Features.Users.Commands;
-using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Application.Features.Users.Results;
-using MilkTea.Domain.Users.Repositories;
+using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
@@ -12,8 +10,6 @@ namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class LoginCommandHandler(
     IUnitOfWork unitOfWork,
-    IUserRepository userRepository,
-    IPermissionRepository permissionRepository,
     IJWTServicePort jwtServicePort) : IRequestHandler<LoginCommand, LoginWithUserNameResult>
 {
     public async Task<LoginWithUserNameResult> Handle(LoginCommand command, CancellationToken cancellationToken)
@@ -21,17 +17,13 @@ public sealed class LoginCommandHandler(
         var result = new LoginWithUserNameResult();
         result.ResultData.AddMeta(MetaKey.DATE_LOGIN, DateTime.UtcNow);
 
-        // Validate username
-        if (string.IsNullOrWhiteSpace(command.UserName))
-            return SendError(result, ErrorCode.E0001, "Username");
-
         // Get user
-        var user = await userRepository.GetByUserNameAsync(command.UserName);
+        var user = await unitOfWork.Users.GetByUserNameAsync(command.UserName);
         if (user is null)
             return SendError(result, ErrorCode.E0001, "Username");
 
         // Verify password
-        if (!RC2Helper.VerifyPasswordRC2(user.Password, command.Password))
+        if (!RC2Helper.VerifyPasswordRC2(user.Password.value, command.Password))
             return SendError(result, ErrorCode.E0001, "Password");
 
         // Check user is active (using domain property)
@@ -43,7 +35,7 @@ public sealed class LoginCommandHandler(
         {
             result.UserId = user.Id;
 
-            var permissions = await permissionRepository.GetPermissionsByUserIdAsync(user.Id);
+            var permissions = await unitOfWork.Permissions.GetPermissionsByUserIdAsync(user.Id);
 
             result.Permissions = permissions.Select(p => new Dictionary<string, object?>
             {
@@ -66,10 +58,15 @@ public sealed class LoginCommandHandler(
             var (refreshToken, refreshTokenExpiresAt) = jwtServicePort.CreateJwtRefreshToken();
             result.RefreshToken = refreshToken;
 
-            // Save refresh token using domain method
-            user.AddRefreshToken(refreshToken, refreshTokenExpiresAt);
-            await userRepository.UpdateAsync(user);
+            // Load user with tracking for update
+            var userForUpdate = await unitOfWork.Users.GetByUserNameForUpdateAsync(command.UserName);
+            if (userForUpdate is null)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                return SendError(result, ErrorCode.E0001, "Username");
+            }
 
+            userForUpdate.AddRefreshToken(refreshToken, refreshTokenExpiresAt);
             await unitOfWork.CommitTransactionAsync();
 
             return result;

@@ -32,7 +32,6 @@ public static class DependencyInjection
 
         // Identity
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         // TODO: Add remaining repository registrations as needed
         // services.AddScoped<IPriceListRepository, PriceListRepository>();

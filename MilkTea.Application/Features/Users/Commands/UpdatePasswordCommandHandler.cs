@@ -4,7 +4,6 @@ using MilkTea.Application.Models.Errors;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Users.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Utils;
 
@@ -12,7 +11,6 @@ namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class UpdatePasswordCommandHandler(
     IUnitOfWork unitOfWork,
-    IUserRepository userRepository,
     ICurrentUser currentUser) : IRequestHandler<UpdatePasswordCommand, UpdatePasswordResult>
 {
     public async Task<UpdatePasswordResult> Handle(UpdatePasswordCommand command, CancellationToken cancellationToken)
@@ -20,29 +18,37 @@ public sealed class UpdatePasswordCommandHandler(
         var result = new UpdatePasswordResult();
         var userId = currentUser.UserId;
 
-        // Validate user exists
-        var user = await userRepository.GetByIdAsync(userId);
+        // Load user (read-only for validation)
+        var user = await unitOfWork.Users.GetByIdAsync(userId);
         if (user is null)
             return SendError(result, ErrorCode.E0001, nameof(command));
 
         // Verify current password
-        if (!RC2Helper.VerifyPasswordRC2(user.Password, command.Password))
+        if (!RC2Helper.VerifyPasswordRC2(user.Password.value, command.Password))
             return SendError(result, ErrorCode.E0001, "password");
 
         // Validate new password is different
-        if (RC2Helper.VerifyPasswordRC2(user.Password, command.NewPassword))
+        if (RC2Helper.VerifyPasswordRC2(user.Password.value, command.NewPassword))
             return SendError(result, ErrorCode.E0012, "newPassword");
 
         await unitOfWork.BeginTransactionAsync();
         try
         {
+            // Load user with tracking for update
+            var userForUpdate = await unitOfWork.Users.GetByIdForUpdateAsync(userId);
+            if (userForUpdate is null)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                return SendError(result, ErrorCode.E0001, nameof(command));
+            }
+
             // Encrypt new password
             var newPasswordHash = RC2Helper.EncryptByRC2(command.NewPassword);
             
             // Update password using domain method
-            user.UpdatePassword(newPasswordHash, userId);
+            userForUpdate.UpdatePassword(newPasswordHash, userId);
 
-            await userRepository.UpdateAsync(user);
+            // Commit transaction (SaveChangesAsync is called inside CommitTransactionAsync)
             await unitOfWork.CommitTransactionAsync();
 
             return result;

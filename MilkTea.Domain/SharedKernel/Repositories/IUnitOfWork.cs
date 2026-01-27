@@ -1,10 +1,31 @@
+using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Configuration.Repositories;
+using MilkTea.Domain.Inventory.Repositories;
+using MilkTea.Domain.Orders.Repositories;
+using MilkTea.Domain.Pricing.Repositories;
+using MilkTea.Domain.Users.Repositories;
+
 namespace MilkTea.Domain.SharedKernel.Repositories;
 
 /// <summary>
-/// Unit of Work pattern interface for managing transactions.
+/// Unit of Work pattern interface for managing transactions and providing access to repositories.
 /// </summary>
 public interface IUnitOfWork
 {
+    IUserRepository Users { get; }
+    IEmployeeRepository Employees { get; }
+    IPermissionRepository Permissions { get; }
+    IGenderRepository Genders { get; }
+    IOrderRepository Orders { get; }
+    IMenuRepository Menus { get; }
+    ISizeRepository Sizes { get; }
+    IDinnerTableRepository DinnerTables { get; }
+    ITableRepository Tables { get; }
+    IDefinitionRepository Definitions { get; }
+    IPriceListRepository PriceLists { get; }
+    IWarehouseRepository Warehouses { get; }
+
+
     /// <summary>
     /// Saves all changes made in the current transaction.
     /// </summary>

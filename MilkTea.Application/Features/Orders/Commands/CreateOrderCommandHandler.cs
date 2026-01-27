@@ -4,14 +4,9 @@ using MilkTea.Application.Models.Errors;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Orders.Results;
-using MilkTea.Domain.Catalog.Repositories;
-using MilkTea.Domain.Configuration.Repositories;
-using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Entities;
-using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.Pricing.Enums;
-using MilkTea.Domain.Pricing.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.SharedKernel.Repositories;
 
@@ -19,14 +14,7 @@ namespace MilkTea.Application.Features.Orders.Commands;
 
 public sealed class CreateOrderCommandHandler(
     IUnitOfWork unitOfWork,
-    IOrderRepository orderRepository,
-    ICurrentUser currentUser,
-    IDinnerTableRepository dinnerTableRepository,
-    IMenuRepository menuRepository,
-    IPriceListRepository priceListRepository,
-    ISizeRepository sizeRepository,
-    IWarehouseRepository warehouseRepository,
-    IDefinitionRepository definitionRepository) : IRequestHandler<CreateOrderCommand, CreateOrderResult>
+    ICurrentUser currentUser) : IRequestHandler<CreateOrderCommand, CreateOrderResult>
 {
     private const int PriceListId = (int)PriceListStatus.Active;
 
@@ -55,12 +43,12 @@ public sealed class CreateOrderCommandHandler(
         try
         {
             var now = DateTime.UtcNow;
-            var codePrefix = await definitionRepository.GetCodePrefixBill()
+            var codePrefix = await unitOfWork.Definitions.GetCodePrefixBill()
                 ?? throw new InvalidOperationException("Not exist code prefix for bill. Need create code prefix for bill.");
             if (string.IsNullOrWhiteSpace(codePrefix.Value))
                 throw new InvalidOperationException("Code prefix Value for bill is missing.");
 
-            var count = await orderRepository.GetTotalOrdersCountInDateAsync(now.Date);
+            var count = await unitOfWork.Orders.GetTotalOrdersCountInDateAsync(now.Date);
             var billNo = BillNo.Create(codePrefix.Value!, now, createdBy, count + 1);
 
             var order = Order.Create(
@@ -89,7 +77,7 @@ public sealed class CreateOrderCommandHandler(
 
             order.FinalizeAndPublishCreated();
 
-            await orderRepository.AddAsync(order, cancellationToken);
+            await unitOfWork.Orders.AddAsync(order, cancellationToken);
             await unitOfWork.CommitTransactionAsync(cancellationToken);
 
             result.OrderDate = order.OrderDate;
@@ -145,7 +133,7 @@ public sealed class CreateOrderCommandHandler(
 
     private async Task<ValidationError?> ValidateRequest(CreateOrderCommand command, CancellationToken ct)
     {
-        if (await dinnerTableRepository.GetByIdAsync(command.DinnerTableID) == null)
+        if (await unitOfWork.DinnerTables.GetByIdAsync(command.DinnerTableID) == null)
             return ValidationError.InvalidData(nameof(command.DinnerTableID));
 
         if (command.OrderedBy.HasValue && command.OrderedBy.Value <= 0)
@@ -161,19 +149,19 @@ public sealed class CreateOrderCommandHandler(
     {
         var v = new OrderItemValidation(item);
 
-        var menu = await menuRepository.GetMenuByIDAndAvaliableAsync(item.MenuID);
+        var menu = await unitOfWork.Menus.GetMenuByIDAndAvaliableAsync(item.MenuID);
         if (menu == null) return v.SetError(ValidationError.InvalidData(nameof(item.MenuID)));
 
-        var price = await priceListRepository.GetPriceAsync(PriceListId, item.MenuID, item.SizeID);
+        var price = await unitOfWork.PriceLists.GetPriceAsync(PriceListId, item.MenuID, item.SizeID);
         if (price == null) return v.SetError(ValidationError.InvalidData(nameof(item.SizeID)));
 
         if (item.Quantity <= 0) return v.SetError(ValidationError.InvalidData(nameof(item.Quantity)));
 
-        var recipe = await warehouseRepository.GetRecipeAsync(item.MenuID, item.SizeID);
+        var recipe = await unitOfWork.Warehouses.GetRecipeAsync(item.MenuID, item.SizeID);
         if (recipe == null || recipe.Count == 0)
             return v.SetError(ValidationError.NotExist(nameof(item.SizeID), nameof(item.MenuID)));
 
-        var size = await sizeRepository.GetByIdAsync(item.SizeID);
+        var size = await unitOfWork.Sizes.GetByIdAsync(item.SizeID);
         return v.SetSuccess(menu, size!, price.Value, recipe);
     }
 
@@ -194,8 +182,8 @@ public sealed class CreateOrderCommandHandler(
             }
         }
 
-        var stock = await warehouseRepository.GetMaterialStockAsync(required.Keys.ToList());
-        var materials = await warehouseRepository.GetMaterialsAsync(required.Keys.ToList());
+        var stock = await unitOfWork.Warehouses.GetMaterialStockAsync(required.Keys.ToList());
+        var materials = await unitOfWork.Warehouses.GetMaterialsAsync(required.Keys.ToList());
 
         var insufficient = required
             .Where(r => stock.GetValueOrDefault(r.Key, 0) < r.Value)
