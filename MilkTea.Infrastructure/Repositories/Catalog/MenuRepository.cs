@@ -1,8 +1,7 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Domain.Catalog.Entities;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
-using MilkTea.Domain.Pricing.Enums;
 using MilkTea.Domain.SharedKernel.Enums;
 using MilkTea.Infrastructure.Persistence;
 
@@ -13,78 +12,64 @@ namespace MilkTea.Infrastructure.Repositories.Catalog;
 /// </summary>
 public sealed class MenuRepository(AppDbContext context) : IMenuRepository
 {
-    private readonly AppDbContext _context = context;
-
+    private readonly AppDbContext _vContext = context;
     /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetAllMenuGroupsAsync()
+    public async Task<List<MenuGroup>> GetAllMenuGroupsAsync(CancellationToken cancellationToken)
     {
-        return await _context.MenuGroups
+        return await _vContext.MenuGroups
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
-
     /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetActiveMenuGroupsAsync()
+    public async Task<List<MenuGroup>> GetAlllActiveMenuGroupsAsync(CancellationToken cancellationToken)
     {
-        return await _context.MenuGroups
+        return await _vContext.MenuGroups
             .AsNoTracking()
             .Where(mg => mg.Status == CommonStatus.Active)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
+    }
+
+    #region Relationship
+    /// <inheritdoc/>
+    public async Task<MenuGroup?> GetByIdWithMenuAsync(int groupId, CancellationToken cancellationToken)
+    {
+        return await _vContext.MenuGroups
+                        .AsNoTracking()
+                        .Include(mg => mg.Menus)
+                        .Where(mg => mg.Id == groupId)
+                        .FirstOrDefaultAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<List<Menu>> GetMenuItemsByGroupIdAsync(int groupId)
+    public async Task<MenuGroup?> GetByIdWithMenuAsync(
+                                                    int groupId,
+                                                    int? menuStatusId,
+                                                    CancellationToken cancellationToken)
     {
-        return await _context.Menus
+        var query = _vContext.MenuGroups
+                                .AsNoTracking()
+                                .Where(mg => mg.Id == groupId);
+
+        if (menuStatusId.HasValue)
+        {
+            query = query
+                .Include(mg => mg.Menus.Where(m => m.Status == (MenuStatus)menuStatusId.Value))
+                .Where(mg => mg.Menus.Any(m => m.Status == (MenuStatus)menuStatusId.Value));
+        }
+        else
+        {
+            query = query.Include(mg => mg.Menus);
+        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<MenuGroup>> GetByStatusWithMenuAsync(
+    int? statusId, int? itemStatusId, CancellationToken cancellationToken)
+    {
+        var query = _vContext.MenuGroups
             .AsNoTracking()
-            .Include(m => m.MenuGroup)
-            .Where(m => m.MenuGroupID == groupId)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<Menu>> GetActiveMenuItemsByGroupIdAsync(int groupId)
-    {
-        return await _context.Menus
-            .AsNoTracking()
-            .Include(m => m.MenuGroup)
-            .Where(m => m.MenuGroupID == groupId && m.Status == MenuStatus.Active)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<MenuSize>> GetMenuSizesByMenuIdAsync(int menuId)
-    {
-        return await _context.MenuSizes
-            .AsNoTracking()
-            .Include(ms => ms.Size)
-            .Where(ms => ms.MenuID == menuId)
-            .OrderBy(ms => ms.Size != null ? ms.Size.RankIndex : 0)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<Menu?> GetMenuByIdAsync(int menuId)
-    {
-        return await _context.Menus
-            .AsNoTracking()
-            .Include(m => m.MenuGroup)
-            .FirstOrDefaultAsync(m => m.Id == menuId);
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<Size>> GetAllSizesAsync()
-    {
-        return await _context.Sizes
-            .AsNoTracking()
-            .OrderBy(s => s.RankIndex)
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetMenuGroupsByStatusAsync(int? statusId, int? itemStatusId)
-    {
-        var query = _context.MenuGroups.AsNoTracking();
+            .AsSplitQuery();
 
         if (statusId.HasValue)
         {
@@ -95,73 +80,38 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
         if (itemStatusId.HasValue)
         {
             var menuStatus = (MenuStatus)itemStatusId.Value;
-            query = query.Where(mg => mg.Menus.Any(m => m.Status == menuStatus));
+
+            query = query
+                .Where(mg => mg.Menus.Any(m => m.Status == menuStatus))
+                .Include(mg => mg.Menus.Where(m => m.Status == menuStatus));
         }
-
-        return await query.ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetMenuGroupsAvailableAsync()
-    {
-        return await _context.MenuGroups
-            .AsNoTracking()
-            .Where(mg => mg.Status == CommonStatus.Active 
-                && mg.Menus.Any(m => m.Status == MenuStatus.Active))
-            .ToListAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task<Dictionary<int, int>> GetMenuCountsByGroupIdsAsync(List<int> groupIds)
-    {
-        return await _context.Menus
-            .AsNoTracking()
-            .Where(m => groupIds.Contains(m.MenuGroupID))
-            .GroupBy(m => m.MenuGroupID)
-            .Select(g => new { GroupId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.GroupId, x => x.Count);
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<Menu>> GetMenusOfGroupByStatusAsync(int groupId, int? menuStatusId)
-    {
-        var query = _context.Menus
-            .AsNoTracking()
-            .Include(m => m.MenuGroup)
-            .Where(m => m.MenuGroupID == groupId);
-
-        if (menuStatusId.HasValue)
+        else
         {
-            var menuStatus = (MenuStatus)menuStatusId.Value;
-            query = query.Where(m => m.Status == menuStatus);
+            query = query.Include(mg => mg.Menus);
         }
 
-        return await query.ToListAsync();
+        return await query.ToListAsync(cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<List<MenuSize>> GetMenuSizesAvailableByMenuAsync(int menuId)
+    public async Task<MenuGroup?> GetByMenuIdWithRelationshipsAsync(int menuId, CancellationToken cancellationToken)
     {
-        return await _context.MenuSizes
-            .AsNoTracking()
-            .Include(ms => ms.Size)
-            .Where(ms => ms.MenuID == menuId 
-                && ms.Menu != null 
-                && ms.Menu.Status == MenuStatus.Active)
-            .OrderBy(ms => ms.Size != null ? ms.Size.RankIndex : 0)
-            .ToListAsync();
-    }
+        var groupId = await _vContext.Menus
+                                .AsNoTracking()
+                                .Where(m => m.Id == menuId)
+                                .Select(m => m.MenuGroupID)
+                                .FirstOrDefaultAsync(cancellationToken);
 
-    /// <inheritdoc/>
-    public async Task<Menu?> GetMenuByIDAndAvaliableAsync(int menuId)
-    {
-        return await _context.Menus
+        if (groupId <= 0) return null;
+
+        return await _vContext.MenuGroups
             .AsNoTracking()
-            .Include(m => m.MenuGroup)
-            .Where(m => m.Id == menuId 
-                && m.Status == MenuStatus.Active
-                && m.MenuGroup != null
-                && m.MenuGroup.Status == CommonStatus.Active)
-            .FirstOrDefaultAsync();
+            .AsSplitQuery()
+            .Include(g => g.Menus.Where(m => m.Id == menuId))
+            .ThenInclude(m => m.MenuSizes)
+            .FirstOrDefaultAsync(g => g.Id == groupId, cancellationToken);
     }
+    #endregion Relationship 
+
 }
+

@@ -15,11 +15,10 @@ public interface IUnitOfWork
     IUserRepository Users { get; }
     IEmployeeRepository Employees { get; }
     IPermissionRepository Permissions { get; }
-    IGenderRepository Genders { get; }
+    IRoleRepository Roles { get; }
     IOrderRepository Orders { get; }
     IMenuRepository Menus { get; }
     ISizeRepository Sizes { get; }
-    IDinnerTableRepository DinnerTables { get; }
     ITableRepository Tables { get; }
     IDefinitionRepository Definitions { get; }
     IPriceListRepository PriceLists { get; }

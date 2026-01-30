@@ -1,12 +1,9 @@
-﻿using MilkTea.Shared.Extensions;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-namespace MilkTea.Shared.Utils
+namespace Shared.Utils
 {
     public class RC2Helper
     {
-        private readonly static string key = "Password@!";
-        private readonly static string iv = "0937410899@";
         public static string CreateHashValue(String plaintext, int n)
         {
             byte[] buf, result;
@@ -17,10 +14,9 @@ namespace MilkTea.Shared.Utils
             }
             return BitConverter.ToString(result).Substring(0, n);
         }
-        public static string EncryptByRC2(String plaintext, String? Key = null, String? IV = null)
+        public static string EncryptByRC2(String plaintext, String Key, String IV)
         {
-            Key ??= RC2Helper.key;
-            IV ??= RC2Helper.iv;
+
 
             int size = plaintext.Length;
             //tạo 1 thể hiện cho RC2
@@ -55,10 +51,9 @@ namespace MilkTea.Shared.Utils
                 return kq;
             }
         }
-        private static string DecryptByRC2(String encryptedtext, String? Key = null, String? IV = null)
+        public static string DecryptByRC2(String encryptedtext, String Key, String IV)
         {
-            Key ??= RC2Helper.key;
-            IV ??= RC2Helper.iv;
+
             //lay kich thuoc
             int i = 0;
             while (encryptedtext[i] != ' ')
@@ -97,31 +92,6 @@ namespace MilkTea.Shared.Utils
                 DecryptCrypto.Close();
                 memDecrypt.Close();
                 return kq;
-            }
-        }
-        public static bool VerifyPasswordRC2(
-            string encryptedText,
-            string plainText,
-            string? key = null,
-            string? iv = null)
-        {
-            if (encryptedText.IsNullOrWhiteSpace() || plainText.IsNullOrWhiteSpace())
-                return false;
-
-            key ??= RC2Helper.key;
-            iv ??= RC2Helper.iv;
-
-            try
-            {
-                var decrypted = DecryptByRC2(encryptedText, key, iv);
-                return CryptographicOperations.FixedTimeEquals(
-                    Encoding.UTF8.GetBytes(decrypted),
-                    Encoding.UTF8.GetBytes(plainText)
-                );
-            }
-            catch
-            {
-                return false;
             }
         }
     }

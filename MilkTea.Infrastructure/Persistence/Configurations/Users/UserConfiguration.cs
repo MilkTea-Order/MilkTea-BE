@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Users.Entities;
-using MilkTea.Domain.Users.ValueObject;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -19,16 +18,14 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.EmployeeID)
             .HasColumnName("EmployeesID")
             .IsRequired();
+        builder.HasIndex(u => u.EmployeeID).IsUnique();
 
-        // Map UserName Value Object as Complex Property
         builder.ComplexProperty(x => x.UserName, un =>
         {
             un.Property(u => u.value)
                 .HasColumnName("UserName")
                 .IsRequired();
         });
-
-        // Map Password Value Object as Complex Property
         builder.ComplexProperty(x => x.Password, p =>
         {
             p.Property(pw => pw.value)
@@ -52,9 +49,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasConversion<int>()
             .IsRequired();
 
-        // Cross-aggregate reference to Employee (no navigation in User aggregate)
-        builder.HasIndex(u => u.EmployeeID).IsUnique();
-
         // Child entity: RefreshToken
         builder.HasMany(u => u.RefreshTokens)
             .WithOne()
@@ -65,6 +59,23 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasField("_vRefreshTokens")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Ignore(x => x.DomainEvents);
+        // Child entity: UserAndRole
+        builder.HasMany(u => u.UserRoles)
+            .WithOne()
+            .HasForeignKey(ur => ur.UserID)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(u => u.UserRoles)
+            .HasField("_vUserRoles")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        // Child entity: UserAndPermissionDetail
+        builder.HasMany(u => u.UserPermissions)
+                .WithOne()
+                .HasForeignKey(up => up.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(u => u.UserPermissions)
+            .HasField("_vUserPermissions")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

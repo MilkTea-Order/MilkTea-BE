@@ -3,38 +3,25 @@ using MilkTea.Domain.Users.Entities;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories.Identity;
+namespace MilkTea.Infrastructure.Repositories.Users;
 
-/// <summary>
-/// Entity Framework Core implementation of <see cref="IUserRepository"/>.
-/// Provides read-only query operations for User aggregate using EF Core.
-/// Following DDD principles, write operations are handled through UnitOfWork pattern.
-/// </summary>
+
 public class UserRepository(AppDbContext context) : IUserRepository
 {
-    private readonly AppDbContext _context = context;
+    private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Uses AsNoTracking() for read-only queries to improve performance.
-    /// Entity is not tracked by EF Core change tracker.
-    /// </remarks>
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Users
+        return await _vContext.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Searches by UserName value object's internal value property.
-    /// Uses AsNoTracking() for read-only queries.
-    /// Entity is not tracked by EF Core change tracker.
-    /// </remarks>
     public async Task<User?> GetByUserNameAsync(string userName)
     {
-        return await _context.Users
+        return await _vContext.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.UserName.value == userName);
     }
@@ -45,10 +32,11 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// Entity is tracked by EF Core change tracker for updates.
     /// Use this method when you need to modify and save the entity.
     /// </remarks>
-    public async Task<User?> GetByIdForUpdateAsync(int id)
+    public async Task<User?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Users
-            .FirstOrDefaultAsync(u => u.Id == id);
+        return await _vContext.Users
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -57,10 +45,10 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// Entity is tracked by EF Core change tracker for updates.
     /// Use this method when you need to modify and save the entity.
     /// </remarks>
-    public async Task<User?> GetByUserNameForUpdateAsync(string userName)
+    public async Task<User?> GetByUserNameForUpdateAsync(string userName, CancellationToken cancellationToken = default)
     {
-        return await _context.Users
-            .FirstOrDefaultAsync(u => u.UserName.value == userName);
+        return await _vContext.Users
+            .FirstOrDefaultAsync(u => u.UserName.value == userName, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -71,7 +59,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// </remarks>
     public async Task<RefreshToken?> GetRefreshTokenByTokenAsync(string token)
     {
-        return await _context.RefreshTokens
+        return await _vContext.RefreshTokens
             .AsNoTracking()
             .FirstOrDefaultAsync(rt => rt.Token == token);
     }
@@ -82,14 +70,14 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// A token is valid if not revoked and not expired.
     /// Uses AsNoTracking() for read-only queries.
     /// </remarks>
-    public async Task<RefreshToken?> GetValidRefreshTokenByTokenAsync(string token)
+    public async Task<RefreshToken?> GetValidRefreshTokenByTokenAsync(string token, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
-        return await _context.RefreshTokens
+        return await _vContext.RefreshTokens
             .AsNoTracking()
-            .FirstOrDefaultAsync(rt => rt.Token == token 
-                && !rt.IsRevoked 
-                && rt.ExpiryDate > now);
+            .FirstOrDefaultAsync(rt => rt.Token == token
+                && !rt.IsRevoked
+                && rt.ExpiryDate > now, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -101,7 +89,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task<List<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(int userId)
     {
         var now = DateTime.UtcNow;
-        return await _context.RefreshTokens
+        return await _vContext.RefreshTokens
             .AsNoTracking()
             .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiryDate > now)
             .ToListAsync();

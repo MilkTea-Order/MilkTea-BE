@@ -1,6 +1,6 @@
 using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.DTOs.Users;
+using MilkTea.Application.Models.Users;
 
 namespace MilkTea.API.RestfulAPI.Mappings
 {
@@ -11,7 +11,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
     {
         public UserMappingProfile()
         {
-            CreateMap<UserProfileDto, GetUserProfileResponseDto>()
+            CreateMap<UserProfile, GetUserProfileResponseDto>()
                 .ForMember(d => d.UserId, o => o.MapFrom(s => s.UserId))
                 .ForMember(d => d.UserName, o => o.MapFrom(s => s.UserName ?? string.Empty))
                 .ForMember(d => d.EmployeeId, o => o.MapFrom(s => s.EmployeeId))

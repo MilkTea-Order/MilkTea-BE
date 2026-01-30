@@ -1,10 +1,8 @@
 using MediatR;
-using MilkTea.Application.Features.Orders.Commands;
+using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Errors;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
-using MilkTea.Application.Features.Orders.Results;
-using MilkTea.Domain.Orders.Entities;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.Pricing.Enums;
 using MilkTea.Domain.SharedKernel.Constants;
@@ -51,7 +49,7 @@ public sealed class CreateOrderCommandHandler(
             var count = await unitOfWork.Orders.GetTotalOrdersCountInDateAsync(now.Date);
             var billNo = BillNo.Create(codePrefix.Value!, now, createdBy, count + 1);
 
-            var order = Order.Create(
+            var order = Domain.Orders.Entities.Order.Create(
                 billNo: billNo,
                 dinnerTableId: command.DinnerTableID,
                 orderBy: orderedBy,
@@ -60,7 +58,7 @@ public sealed class CreateOrderCommandHandler(
 
             foreach (var v in validatedItems)
             {
-                var menuItem = MenuItem.Of(
+                var menuItem = Domain.Orders.ValueObjects.MenuItem.Of(
                     menuId: v.Menu!.Id,
                     sizeId: v.Item!.SizeID,
                     price: v.Price!.Value,
@@ -133,7 +131,7 @@ public sealed class CreateOrderCommandHandler(
 
     private async Task<ValidationError?> ValidateRequest(CreateOrderCommand command, CancellationToken ct)
     {
-        if (await unitOfWork.DinnerTables.GetByIdAsync(command.DinnerTableID) == null)
+        if (await unitOfWork.Tables.GetByIdAsync(command.DinnerTableID) == null)
             return ValidationError.InvalidData(nameof(command.DinnerTableID));
 
         if (command.OrderedBy.HasValue && command.OrderedBy.Value <= 0)
@@ -149,7 +147,9 @@ public sealed class CreateOrderCommandHandler(
     {
         var v = new OrderItemValidation(item);
 
-        var menu = await unitOfWork.Menus.GetMenuByIDAndAvaliableAsync(item.MenuID);
+        var menuGroup = await unitOfWork.Menus.GetByMenuIdWithRelationshipsAsync(item.MenuID, ct);
+        if (menuGroup == null) return v.SetError(ValidationError.InvalidData(nameof(item.MenuID)));
+        var menu = menuGroup.Menus.FirstOrDefault();
         if (menu == null) return v.SetError(ValidationError.InvalidData(nameof(item.MenuID)));
 
         var price = await unitOfWork.PriceLists.GetPriceAsync(PriceListId, item.MenuID, item.SizeID);

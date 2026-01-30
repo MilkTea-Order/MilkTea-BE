@@ -30,5 +30,5 @@ public interface IPriceListRepository
     /// <summary>
     /// Gets prices for a menu item (all sizes).
     /// </summary>
-    Task<Dictionary<int, decimal>> GetPricesForMenuAsync(int priceListId, int menuId);
+    Task<Dictionary<int, decimal>> GetPricesForMenuAsync(int priceListId, int menuId, CancellationToken cancellationToken);
 }

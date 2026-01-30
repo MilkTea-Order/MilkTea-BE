@@ -5,7 +5,7 @@ namespace MilkTea.Domain.Users.Entities;
 /// <summary>
 /// Gender entity.
 /// </summary>
-public class Gender : Entity<int>
+public class Gender : EntityId<int>
 {
     public string Name { get; set; } = null!;
 }

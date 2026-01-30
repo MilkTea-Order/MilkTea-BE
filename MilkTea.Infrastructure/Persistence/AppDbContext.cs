@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MilkTea.Domain.Catalog.Entities;
 using MilkTea.Domain.Configuration.Entities;
-using MilkTea.Domain.Users.Entities;
 using MilkTea.Domain.Inventory.Entities;
 using MilkTea.Domain.Orders.Entities;
 using MilkTea.Domain.Pricing.Entities;
-using MilkTea.Infrastructure.Persistence.Entities;
+using MilkTea.Domain.Users.Entities;
 
 namespace MilkTea.Infrastructure.Persistence;
 
@@ -25,7 +24,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<KindOfHotpot> KindOfHotpots { get; set; }
 
     // ===== Tables (Catalog) =====
-    public DbSet<DinnerTable> DinnerTables { get; set; }
+    public DbSet<TableEntity> Tables { get; set; }
 
     // ===== Pricing =====
     public DbSet<Currency> Currencies { get; set; }
@@ -66,7 +65,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         // Apply configurations from the new namespaces only
         // Filter to only include configurations from the new module-based folders
         modelBuilder.ApplyConfigurationsFromAssembly(
@@ -77,7 +76,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 type.Namespace.Contains(".Configurations.TableManagement") ||
                 type.Namespace.Contains(".Configurations.Pricing") ||
                 type.Namespace.Contains(".Configurations.Inventory") ||
-                type.Namespace.Contains(".Configurations.Identity") ||
+                type.Namespace.Contains(".Configurations.Users") ||
                 type.Namespace.Contains(".Configurations.Configuration")
             )
         );

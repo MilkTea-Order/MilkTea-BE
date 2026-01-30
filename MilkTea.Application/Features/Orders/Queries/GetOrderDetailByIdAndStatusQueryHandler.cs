@@ -1,6 +1,6 @@
 using MediatR;
-using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Application.Models.Orders;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.SharedKernel.Repositories;
 
@@ -25,7 +25,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             return SendError(result, ErrorCode.E0001, nameof(query.OrderId));
         }
 
-        result.Order = new OrderDetailDto
+        result.Order = new OrderDetail
         {
             OrderId = order.Id,
             DinnerTableId = order.DinnerTableId,
@@ -38,7 +38,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             TotalAmount = order.TotalAmount,
             OrderDetails = order.OrderItems
                 .Where(item => query.IsCancelled == null || item.IsCancelled == query.IsCancelled)
-                .Select(item => new OrderLineDto
+                .Select(item => new OrderLine
                 {
                     Id = item.Id,
                     OrderId = order.Id,

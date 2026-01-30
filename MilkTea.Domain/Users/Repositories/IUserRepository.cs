@@ -12,7 +12,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="id">The user ID to search for.</param>
     /// <returns>The user if found, otherwise null.</returns>
-    Task<User?> GetByIdAsync(int id);
+    Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a user by their unique identifier with change tracking enabled.
@@ -20,7 +20,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="id">The user ID to search for.</param>
     /// <returns>The tracked user if found, otherwise null.</returns>
-    Task<User?> GetByIdForUpdateAsync(int id);
+    Task<User?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a user by their username (read-only, not tracked).
@@ -35,7 +35,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="userName">The username to search for.</param>
     /// <returns>The tracked user if found, otherwise null.</returns>
-    Task<User?> GetByUserNameForUpdateAsync(string userName);
+    Task<User?> GetByUserNameForUpdateAsync(string userName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a refresh token by its token value.
@@ -53,7 +53,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="token">The refresh token string to search for.</param>
     /// <returns>The valid refresh token with its user if found, otherwise null.</returns>
-    Task<RefreshToken?> GetValidRefreshTokenByTokenAsync(string token);
+    Task<RefreshToken?> GetValidRefreshTokenByTokenAsync(string token, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets all active (non-revoked and non-expired) refresh tokens for a specific user.

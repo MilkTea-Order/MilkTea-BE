@@ -10,35 +10,31 @@ using MilkTea.Infrastructure.Persistence;
 
 namespace MilkTea.Infrastructure.Repositories;
 
-/// <summary>
-/// Unit of Work implementation that manages database transactions and provides access to repositories.
-/// </summary>
+
 public class UnitOfWork(
     AppDbContext context,
     IUserRepository users,
     IEmployeeRepository employees,
     IPermissionRepository permissions,
-    IGenderRepository genders,
+    IRoleRepository roles,
     IOrderRepository orders,
     IMenuRepository menus,
     ISizeRepository sizes,
-    IDinnerTableRepository dinnerTables,
     ITableRepository tables,
     IDefinitionRepository definitions,
     IPriceListRepository priceLists,
     IWarehouseRepository warehouses) : IUnitOfWork
 {
-    private readonly AppDbContext _context = context;
-    private IDbContextTransaction? _transaction;
+    private readonly AppDbContext _vContext = context;
+    private IDbContextTransaction? _vTransaction;
 
     public IUserRepository Users { get; } = users;
     public IEmployeeRepository Employees { get; } = employees;
     public IPermissionRepository Permissions { get; } = permissions;
-    public IGenderRepository Genders { get; } = genders;
+    public IRoleRepository Roles { get; } = roles;
     public IOrderRepository Orders { get; } = orders;
     public IMenuRepository Menus { get; } = menus;
     public ISizeRepository Sizes { get; } = sizes;
-    public IDinnerTableRepository DinnerTables { get; } = dinnerTables;
     public ITableRepository Tables { get; } = tables;
     public IDefinitionRepository Definitions { get; } = definitions;
     public IPriceListRepository PriceLists { get; } = priceLists;
@@ -46,16 +42,16 @@ public class UnitOfWork(
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        _transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        _vTransaction = await _vContext.Database.BeginTransactionAsync(cancellationToken);
     }
 
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            await _context.SaveChangesAsync(cancellationToken);
-            if (_transaction != null)
-                await _transaction.CommitAsync(cancellationToken);
+            await _vContext.SaveChangesAsync(cancellationToken);
+            if (_vTransaction != null)
+                await _vTransaction.CommitAsync(cancellationToken);
         }
         catch
         {
@@ -64,25 +60,25 @@ public class UnitOfWork(
         }
         finally
         {
-            if (_transaction != null)
+            if (_vTransaction != null)
             {
-                await _transaction.DisposeAsync();
-                _transaction = null;
+                await _vTransaction.DisposeAsync();
+                _vTransaction = null;
             }
         }
     }
 
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (_transaction != null)
+        if (_vTransaction != null)
         {
             Console.WriteLine("Rolling back transaction...");
-            await _transaction.RollbackAsync(cancellationToken);
-            await _transaction.DisposeAsync();
-            _transaction = null;
+            await _vTransaction.RollbackAsync(cancellationToken);
+            await _vTransaction.DisposeAsync();
+            _vTransaction = null;
         }
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => _context.SaveChangesAsync(cancellationToken);
+        => _vContext.SaveChangesAsync(cancellationToken);
 }

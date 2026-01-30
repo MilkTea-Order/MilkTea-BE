@@ -12,8 +12,6 @@ public class KindOfHotpotConfiguration : IEntityTypeConfiguration<KindOfHotpot>
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");
-
         builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
-        builder.Property(x => x.Note).HasColumnName("Note");
     }
 }

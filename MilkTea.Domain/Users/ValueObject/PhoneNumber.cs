@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+using MilkTea.Domain.SharedKernel.Constants;
+using System.Text.RegularExpressions;
 
 namespace MilkTea.Domain.Users.ValueObject;
 
@@ -14,14 +15,14 @@ public sealed record PhoneNumber(string Value)
     public static PhoneNumber Of(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Phone number is required.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "cellphone");
 
         value = value.Trim()
                      .Replace(" ", "")
                      .Replace("-", "");
 
         if (!PhoneRegex.IsMatch(value))
-            throw new ArgumentException("Invalid phone number.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "cellphone");
 
         return new PhoneNumber(value);
     }

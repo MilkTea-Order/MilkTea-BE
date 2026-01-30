@@ -16,4 +16,10 @@ public interface ISizeRepository
     /// Gets all sizes.
     /// </summary>
     Task<List<Size>> GetAllAsync();
+
+
+    /// <summary>
+    /// Get sizes by their IDs.
+    /// </summary>
+    Task<IReadOnlyDictionary<int, Size>> GetByIdsAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default);
 }

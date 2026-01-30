@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
 
 public class EmployeeProfileConfiguration : IEntityTypeConfiguration<Employee>
 {
@@ -37,8 +37,8 @@ public class EmployeeProfileConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy");
         builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate");
-        builder.Property(x => x.LastUpdatedBy).HasColumnName("LastUpdatedBy");
-        builder.Property(x => x.LastUpdatedDate).HasColumnName("LastUpdatedDate");
+        builder.Property(x => x.UpdatedBy).HasColumnName("LastUpdatedBy");
+        builder.Property(x => x.UpdatedDate).HasColumnName("LastUpdatedDate");
 
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")

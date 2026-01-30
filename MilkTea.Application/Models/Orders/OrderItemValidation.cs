@@ -8,9 +8,9 @@ namespace MilkTea.Application.Models.Orders
     {
         public OrderItemCommand Item { get; } = item;
 
-        public Menu? Menu { get; private set; }
+        public Domain.Catalog.Entities.Menu? Menu { get; private set; }
 
-        public Size? Size { get; private set; }
+        public Domain.Catalog.Entities.Size? Size { get; private set; }
         public decimal? Price { get; private set; }
         public List<Domain.Inventory.Entities.MenuMaterialRecipe>? Recipe { get; private set; }
 
@@ -20,8 +20,8 @@ namespace MilkTea.Application.Models.Orders
 
 
         public OrderItemValidation SetSuccess(
-            Menu menu,
-            Size size,
+            Domain.Catalog.Entities.Menu menu,
+            Domain.Catalog.Entities.Size size,
             decimal price,
             List<Domain.Inventory.Entities.MenuMaterialRecipe> recipe)
         {

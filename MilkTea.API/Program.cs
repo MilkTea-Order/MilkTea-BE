@@ -4,10 +4,10 @@ using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.Middlewares;
 using MilkTea.Application;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Infrastructure;
 using MilkTea.Infrastructure.Authentication.JWT;
 using MilkTea.Infrastructure.Database;
 using MilkTea.Infrastructure.Database.MySQL;
-using MilkTea.Infrastructure.Repositories;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,11 +23,12 @@ builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
 // Add connect database service
 builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(builder.Configuration));
 
-// Add repository services
-builder.Services.AddRepositories();
 
 // Add application services (MediatR)
 builder.Services.AddApplication();
+
+// Add Infa
+builder.Services.AddInfrastructure();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -36,9 +37,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     // Don't short-circuit with 400 before hitting controller/MediatR
     options.SuppressModelStateInvalidFilter = true;
-
-    // Don't auto-treat non-nullable reference types as [Required]
-    //options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -117,30 +115,9 @@ builder.Services.AddSwaggerGen(options =>
 #endregion
 
 
+// Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-
-//builder.Services.Configure<ApiBehaviorOptions>(options =>
-//{
-//    options.InvalidModelStateResponseFactory = context =>
-//    {
-//        var errors = context.ModelState
-//            .Where(x => x.Value.Errors.Count > 0)
-//            .ToDictionary(
-//                x => x.Key,
-//                x => x.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-//            );
-
-//        var result = new
-//        {
-//            success = false,
-//            message = "fkejhfkrh",
-//            errors = errors
-//        };
-
-//        return new BadRequestObjectResult(result);
-//    };
-//});
 
 
 var app = builder.Build();
@@ -161,6 +138,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 #endregion
+
 app.UseHttpsRedirection();
 
 app.UseRouting();

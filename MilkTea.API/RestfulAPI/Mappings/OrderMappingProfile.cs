@@ -1,7 +1,8 @@
 using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Results;
-using AppOrders = MilkTea.Application.DTOs.Orders;
+using MilkTea.Application.Models.Catalog;
+using MilkTea.Application.Models.Orders;
 
 namespace MilkTea.API.RestfulAPI.Mappings
 {
@@ -42,7 +43,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.CancelledDate, o => o.MapFrom(s => s.CancelledDate ?? default));
 
             // List orders
-            CreateMap<AppOrders.OrderDto, GetOrdersByOrderByAndStatusResponseDto>()
+            CreateMap<Order, GetOrdersByOrderByAndStatusResponseDto>()
                 .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.DinnerTableID, o => o.MapFrom(s => s.DinnerTableId))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
@@ -57,7 +58,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.OrderDetails, o => o.Ignore());
 
             // Order detail
-            CreateMap<AppOrders.OrderDetailDto, GetOrderDetailByIDAndStatusResponseDto>()
+            CreateMap<Application.Models.Orders.OrderDetail, GetOrderDetailByIDAndStatusResponseDto>()
                 .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.DinnerTableID, o => o.MapFrom(s => s.DinnerTableId))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
@@ -71,7 +72,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.Status, o => o.MapFrom(s => s.Status))
                 .ForMember(d => d.OrderDetails, o => o.MapFrom(s => s.OrderDetails));
 
-            CreateMap<AppOrders.DinnerTableDto, DTOs.Responses.DinnerTableDto>()
+            CreateMap<TableDto, DTOs.Responses.DinnerTableDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
@@ -80,11 +81,11 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.StatusName, o => o.MapFrom(s => s.StatusName))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
-            CreateMap<AppOrders.OrderStatusDto, DTOs.Responses.OrderStatusDto>()
+            CreateMap<Application.Models.Orders.OrderStatus, DTOs.Responses.OrderStatusDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty));
 
-            CreateMap<AppOrders.OrderLineDto, DTOs.Responses.OrderDetailDto>()
+            CreateMap<OrderLine, DTOs.Responses.OrderDetailDto>()
                 .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.MenuID, o => o.MapFrom(s => s.MenuId))
@@ -102,7 +103,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.Menu, o => o.MapFrom(s => s.Menu))
                 .ForMember(d => d.Size, o => o.MapFrom(s => s.Size));
 
-            CreateMap<AppOrders.MenuDto, DTOs.Responses.MenuDto>()
+            CreateMap<Application.Models.Orders.Menu, DTOs.Responses.MenuDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
@@ -111,13 +112,13 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.UnitName, o => o.MapFrom(s => s.UnitName))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
-            CreateMap<AppOrders.SizeDto, DTOs.Responses.SizeDto>()
+            CreateMap<Application.Models.Orders.Size, DTOs.Responses.SizeDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
                 .ForMember(d => d.RankIndex, o => o.MapFrom(s => s.RankIndex ?? 0));
 
             // Tables empty endpoint
-            CreateMap<AppOrders.DinnerTableDto, GetTableEmptyResponseDto>()
+            CreateMap<TableDto, GetTableEmptyResponseDto>()
                 .ForMember(d => d.TableID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.TableCode, o => o.MapFrom(s => s.Code))
                 .ForMember(d => d.TableName, o => o.MapFrom(s => s.Name))

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Infrastructure.Persistence.Entities;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
 
 public class UserAndPermissionDetailConfiguration : IEntityTypeConfiguration<UserAndPermissionDetail>
 {
@@ -15,15 +15,15 @@ public class UserAndPermissionDetailConfiguration : IEntityTypeConfiguration<Use
         builder.Property(x => x.UserID)
             .HasColumnName("UserID")
             .IsRequired();
-        
+
         builder.Property(x => x.PermissionDetailID)
             .HasColumnName("PermissionDetailID")
             .IsRequired();
-        
+
         builder.Property(x => x.CreatedBy)
             .HasColumnName("CreatedBy")
             .IsRequired();
-        
+
         builder.Property(x => x.CreatedDate)
             .HasColumnName("CreatedDate")
             .IsRequired();

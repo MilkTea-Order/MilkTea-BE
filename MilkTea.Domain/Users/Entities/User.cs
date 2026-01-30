@@ -1,13 +1,26 @@
-using MilkTea.Domain.SharedKernel.Abstractions;
+﻿using MilkTea.Domain.SharedKernel.Abstractions;
 using MilkTea.Domain.Users.Enums;
 using MilkTea.Domain.Users.ValueObject;
+
+
 
 namespace MilkTea.Domain.Users.Entities;
 
 public sealed class User : Aggregate<int>
 {
+    // Refresh tokens associated with the user
     private readonly List<RefreshToken> _vRefreshTokens = new();
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _vRefreshTokens.AsReadOnly();
+
+    // Role associated with the user
+    private readonly List<UserAndRole> _vUserRoles = new();
+    public IReadOnlyCollection<UserAndRole> UserRoles => _vUserRoles.AsReadOnly();
+
+    // Permission details associated with the user
+    private readonly List<UserAndPermissionDetail> _vUserPermissions = new();
+    public IReadOnlyCollection<UserAndPermissionDetail> UserPermissions => _vUserPermissions.AsReadOnly();
+
+
     public int EmployeeID { get; private set; }
 
     public UserName UserName { get; private set; } = default!;
@@ -51,6 +64,34 @@ public sealed class User : Aggregate<int>
     }
 
 
+    public void GrantPermission(int permissionDetailId, int grantedBy)
+    {
+        if (_vUserPermissions.Any(x => x.PermissionDetailID == permissionDetailId)) return;
+        _vUserPermissions.Add(UserAndPermissionDetail.Create(this.Id, permissionDetailId, grantedBy));
+        Touch(grantedBy);
+    }
+
+    public void RevokePermission(int permissionDetailId, int revokedBy)
+    {
+        var item = _vUserPermissions.FirstOrDefault(x => x.PermissionDetailID == permissionDetailId);
+        if (item is null) return;
+        _vUserPermissions.Remove(item);
+        Touch(revokedBy);
+    }
+    public void AssignRole(int roleId, int assignedBy)
+    {
+        if (_vUserRoles.Any(ur => ur.RoleID == roleId)) return;
+        _vUserRoles.Add(UserAndRole.Create(this.Id, roleId, assignedBy));
+        Touch(assignedBy);
+    }
+
+    public void RemoveRole(int roleId, int removedBy)
+    {
+        var userRole = _vUserRoles.FirstOrDefault(ur => ur.RoleID == roleId);
+        if (userRole is null) return;
+        _vUserRoles.Remove(userRole);
+        Touch(removedBy);
+    }
 
     public void Deactivate(int stoppedBy)
     {

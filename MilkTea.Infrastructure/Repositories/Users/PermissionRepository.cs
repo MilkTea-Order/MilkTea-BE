@@ -3,7 +3,7 @@ using MilkTea.Domain.Users.Entities;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories.Identity;
+namespace MilkTea.Infrastructure.Repositories.Users;
 
 /// <summary>
 /// Entity Framework Core implementation of <see cref="IPermissionRepository"/>.
@@ -23,7 +23,8 @@ public class PermissionRepository(AppDbContext context) : IPermissionRepository
     /// Uses AsNoTracking() for read-only queries to improve performance.
     /// Returns distinct results to avoid duplicates when user has both direct and role-based permissions.
     /// </remarks>
-    public async Task<List<(PermissionDetail PermissionDetail, Permission Permission)>> GetPermissionsByUserIdAsync(int userId)
+    public async Task<List<(PermissionDetail PermissionDetail, Permission Permission)>> GetPermissionsByUserIdAsync(int userId
+                                                                                                , CancellationToken cancellationToken = default)
     {
         var query = from pd in _context.PermissionDetails
                     join p in _context.Permissions on pd.PermissionID equals p.Id
@@ -40,7 +41,7 @@ public class PermissionRepository(AppDbContext context) : IPermissionRepository
         var results = await query
             .AsNoTracking()
             .Distinct()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return results
             .Select(r => (r.PermissionDetail, r.Permission))

@@ -11,10 +11,5 @@ public class LogoutCommand : IRequest<LogoutResult>
 
 public sealed class LogoutCommandValidator : AbstractValidator<LogoutCommand>
 {
-    public LogoutCommandValidator()
-    {
-        RuleFor(x => x.RefreshToken)
-            .NotEmpty()
-            .WithMessage("RefreshToken không được để trống");
-    }
+    // Refresh token mà không truyền => Error cũng nên logout luôn
 }

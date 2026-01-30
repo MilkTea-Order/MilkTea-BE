@@ -27,11 +27,6 @@ public class PriceListConfiguration : IEntityTypeConfiguration<PriceList>
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
-        builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
-
         // Relationships
         builder.HasOne(pl => pl.Currency)
             .WithMany()
@@ -47,6 +42,9 @@ public class PriceListConfiguration : IEntityTypeConfiguration<PriceList>
             .HasField("_vDetails")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Ignore(x => x.DomainEvents);
+        builder.Ignore(x => x.CreatedBy);
+        builder.Ignore(x => x.CreatedDate);
+        builder.Ignore(x => x.UpdatedBy);
+        builder.Ignore(x => x.UpdatedDate);
     }
 }

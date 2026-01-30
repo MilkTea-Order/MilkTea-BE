@@ -11,12 +11,12 @@ namespace MilkTea.Infrastructure.Repositories.Pricing;
 /// </summary>
 public class PriceListRepository(AppDbContext context) : IPriceListRepository
 {
-    private readonly AppDbContext _context = context;
+    private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
     public async Task<PriceList?> GetByIdAsync(int id)
     {
-        return await _context.PriceLists
+        return await _vContext.PriceLists
             .AsNoTracking()
             .Include(pl => pl.Currency)
             .Include(pl => pl.Details)
@@ -27,7 +27,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     public async Task<PriceList?> GetActivePriceListAsync()
     {
         var now = DateTime.UtcNow;
-        return await _context.PriceLists
+        return await _vContext.PriceLists
             .AsNoTracking()
             .Include(pl => pl.Currency)
             .Include(pl => pl.Details)
@@ -40,7 +40,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     /// <inheritdoc/>
     public async Task<decimal?> GetPriceAsync(int priceListId, int menuId, int sizeId)
     {
-        var detail = await _context.PriceListDetails
+        var detail = await _vContext.PriceListDetails
             .AsNoTracking()
             .FirstOrDefaultAsync(pld => pld.PriceListID == priceListId
                 && pld.MenuID == menuId
@@ -52,19 +52,19 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     /// <inheritdoc/>
     public async Task<List<PriceListDetail>> GetDetailsByPriceListIdAsync(int priceListId)
     {
-        return await _context.PriceListDetails
+        return await _vContext.PriceListDetails
             .AsNoTracking()
             .Where(pld => pld.PriceListID == priceListId)
             .ToListAsync();
     }
 
     /// <inheritdoc/>
-    public async Task<Dictionary<int, decimal>> GetPricesForMenuAsync(int priceListId, int menuId)
+    public async Task<Dictionary<int, decimal>> GetPricesForMenuAsync(int priceListId, int menuId, CancellationToken cancellationToken)
     {
-        var details = await _context.PriceListDetails
+        var details = await _vContext.PriceListDetails
             .AsNoTracking()
             .Where(pld => pld.PriceListID == priceListId && pld.MenuID == menuId)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return details.ToDictionary(d => d.SizeID, d => d.Price);
     }

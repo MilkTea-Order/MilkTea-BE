@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
 
 public class PermissionGroupTypeConfiguration : IEntityTypeConfiguration<PermissionGroupType>
 {

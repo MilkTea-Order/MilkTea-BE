@@ -17,24 +17,29 @@ public class MenuGroupConfiguration : IEntityTypeConfiguration<MenuGroup>
 
         builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
 
-        // Map enum to existing StatusID column
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
-        builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
-
         builder.HasMany(x => x.Menus)
-            .WithOne("MenuGroup")
+            .WithOne()
             .HasForeignKey("MenuGroupID")
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Navigation(x => x.Menus)
             .HasField("_vMenus")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+
+        //builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
+        //builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
+        //builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
+        //builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
+
+        builder.Ignore(x => x.CreatedBy);
+        builder.Ignore(x => x.CreatedDate);
+        builder.Ignore(x => x.UpdatedBy);
+        builder.Ignore(x => x.UpdatedDate);
     }
 }

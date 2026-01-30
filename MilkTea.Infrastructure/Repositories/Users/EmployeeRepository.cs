@@ -3,7 +3,7 @@ using MilkTea.Domain.Users.Entities;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories.Identity;
+namespace MilkTea.Infrastructure.Repositories.Users;
 
 /// <summary>
 /// Entity Framework Core implementation of <see cref="IEmployeeRepository"/>.
@@ -11,68 +11,61 @@ namespace MilkTea.Infrastructure.Repositories.Identity;
 /// </summary>
 public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
 {
-    private readonly AppDbContext _context = context;
+    private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Uses AsNoTracking() for read-only queries to improve performance.
-    /// </remarks>
-    public async Task<Employee?> GetByIdAsync(int id)
+    public async Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Employees
+        return await _vContext.Employees
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Retrieves all employees from the database.
-    /// Uses AsNoTracking() for read-only queries to improve performance.
-    /// Consider adding pagination or filtering if the dataset is large.
-    /// </remarks>
-    public async Task<List<Employee>> GetAllAsync()
+    public async Task<List<Employee>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Employees
+        return await _vContext.Employees
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Checks email uniqueness excluding the specified employee ID.
-    /// Uses AsNoTracking() for read-only queries.
-    /// Compares against Email Value Object's Value property.
-    /// </remarks>
-    public async Task<bool> IsEmailExistAsync(string email, int excludeEmployeeId)
+    public async Task<bool> IsEmailExistAsync(string email, int excludeEmployeeId, CancellationToken cancellationToken = default)
     {
-        return await _context.Employees
-            .AsNoTracking()
-            .AnyAsync(e => !e.Email.IsEmpty && e.Email.Value == email && e.Id != excludeEmployeeId);
+        return await _vContext.Employees
+         .AsNoTracking()
+         .AnyAsync(e =>
+             e.Id != excludeEmployeeId &&
+             e.Email.Value == email,
+             cancellationToken);
     }
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Checks cell phone uniqueness excluding the specified employee ID.
-    /// Uses AsNoTracking() for read-only queries.
-    /// Compares against PhoneNumber Value Object's Value property.
-    /// </remarks>
-    public async Task<bool> IsCellPhoneExistAsync(string cellPhone, int excludeEmployeeId)
+    public async Task<bool> IsCellPhoneExistAsync(string cellPhone, int excludeEmployeeId, CancellationToken cancellationToken = default)
     {
-        return await _context.Employees
+        return await _vContext.Employees
             .AsNoTracking()
-            .AnyAsync(e => !e.CellPhone.IsEmpty && e.CellPhone.Value == cellPhone && e.Id != excludeEmployeeId);
+            .AnyAsync(e =>
+                      e.Id != excludeEmployeeId &&
+                      e.CellPhone.Value == cellPhone,
+                      cancellationToken);
     }
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// Gets an employee by ID with change tracking enabled.
-    /// Entity is tracked by EF Core change tracker for updates.
-    /// Use this method when you need to modify and save the entity.
-    /// </remarks>
-    public async Task<Employee?> GetByIdForUpdateAsync(int id)
+    public async Task<Employee?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Employees
-            .FirstOrDefaultAsync(e => e.Id == id);
+        return await _vContext.Employees
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<Employee?> GetByIdWithGenderAndPositionAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _vContext.Employees
+            .AsNoTracking()
+            .Include(e => e.Gender)
+            .Include(e => e.Position)
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 }

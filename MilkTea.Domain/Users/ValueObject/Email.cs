@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+using MilkTea.Domain.SharedKernel.Constants;
+using System.Text.RegularExpressions;
 
 namespace MilkTea.Domain.Users.ValueObject;
 
@@ -15,12 +16,12 @@ public sealed record Email(string Value)
     public static Email Of(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Email is required.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "email");
 
         value = value.Trim();
 
         if (!EmailRegex.IsMatch(value))
-            throw new ArgumentException("Invalid email format.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "email");
 
         return new Email(value);
     }

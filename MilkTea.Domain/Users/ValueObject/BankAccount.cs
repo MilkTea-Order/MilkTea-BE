@@ -1,3 +1,4 @@
+using MilkTea.Domain.SharedKernel.Constants;
 using System.Text.RegularExpressions;
 
 namespace MilkTea.Domain.Users.ValueObject;
@@ -22,19 +23,35 @@ public sealed record BankAccount(
 
     public static BankAccount Of(string accountNumber, string accountName, string bankName, byte[]? qrCode)
     {
+        bool isHavEmpty = false;
+        string fields = "";
         if (string.IsNullOrWhiteSpace(accountNumber))
-            throw new ArgumentException("Bank account number is required.", nameof(accountNumber));
+        {
+            fields += "bankAccountNumber";
+            isHavEmpty = true;
+        }
+
+        if (string.IsNullOrWhiteSpace(accountName))
+        {
+            if (isHavEmpty)
+                fields += ", ";
+            fields += "bankAccountName";
+            isHavEmpty = true;
+        }
+
+        if (string.IsNullOrWhiteSpace(bankName))
+        {
+            if (isHavEmpty)
+                fields += ", ";
+            fields += "bankName";
+            isHavEmpty = true;
+        }
+        if (isHavEmpty) throw new ArgumentException(ErrorCode.E0001, fields);
 
         accountNumber = accountNumber.Trim();
 
         if (!AccountNumberRegex.IsMatch(accountNumber))
-            throw new ArgumentException("Invalid bank account number.", nameof(accountNumber));
-
-        if (string.IsNullOrWhiteSpace(accountName))
-            throw new ArgumentException("Bank account name is required.", nameof(accountName));
-
-        if (string.IsNullOrWhiteSpace(bankName))
-            throw new ArgumentException("Bank name is required.", nameof(bankName));
+            throw new ArgumentException(ErrorCode.E0036, "bankAccountNumber");
 
         return new BankAccount(
             accountNumber,

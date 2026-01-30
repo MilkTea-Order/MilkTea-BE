@@ -1,35 +1,34 @@
 using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Common.Exceptions;
 using MilkTea.Shared.Domain.Constants;
+using Shared.Abstractions.Exceptions;
 
 namespace MilkTea.API.RestfulAPI.Middlewares
 {
     public class GlobalExceptionMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<GlobalExceptionMiddleware> _logger;
+        private readonly RequestDelegate _vNext;
+        private readonly ILogger<GlobalExceptionMiddleware> _vLogger;
 
         public GlobalExceptionMiddleware(
             RequestDelegate next,
             ILogger<GlobalExceptionMiddleware> logger)
         {
-            _next = next;
-            _logger = logger;
+            _vNext = next;
+            _vLogger = logger;
         }
 
         public async Task Invoke(HttpContext context)
         {
             try
             {
-                await _next(context);
+                await _vNext(context);
             }
             catch (RequestValidationException vex)
             {
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = StatusCodes.Status200OK;
 
-                // format: code/message/description/data
                 var response = new ResponseDto
                 {
                     Code = StatusCodes.Status500InternalServerError,
@@ -42,10 +41,8 @@ namespace MilkTea.API.RestfulAPI.Middlewares
             }
             catch (Exception ex)
             {
-                // 1. Log lỗi (BẮT BUỘC)
-                _logger.LogError(ex, "Unhandled exception");
+                _vLogger.LogError(ex, "Unhandled exception");
 
-                // 2. Trả response chuẩn
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 

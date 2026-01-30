@@ -1,18 +1,22 @@
-using MilkTea.Domain.SharedKernel.Abstractions;
-
 namespace MilkTea.Domain.Catalog.Entities;
-
-/// <summary>
-/// Junction entity for Menu-Size relationship with pricing.
-/// </summary>
-public class MenuSize : Entity<int>
+public sealed class MenuSize
 {
-    public int MenuID { get; set; }
-    public int SizeID { get; set; }
-    public decimal? CostPrice { get; set; }
-    public decimal? SalePrice { get; set; }
+    public int MenuID { get; private set; }
+    public int SizeID { get; private set; }
+    public decimal? CostPrice { get; private set; }
+    public decimal? SalePrice { get; private set; }
 
-    // Navigations
-    public Menu? Menu { get; set; }
-    public Size? Size { get; set; }
+    private MenuSize() { }
+
+    internal static MenuSize Create(int sizeId, decimal? cost, decimal? sale)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sizeId);
+        return new MenuSize { SizeID = sizeId, CostPrice = cost, SalePrice = sale };
+    }
+
+    internal void UpdatePrice(decimal? cost, decimal? sale)
+    {
+        CostPrice = cost;
+        SalePrice = sale;
+    }
 }

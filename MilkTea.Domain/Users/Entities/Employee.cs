@@ -20,11 +20,6 @@ public class Employee : Aggregate<int>
     public DateTime? EndWorkingDate { get; private set; }
     public int PositionID { get; private set; }
 
-    public new int? CreatedBy { get; private set; }
-    public new DateTime? CreatedDate { get; private set; }
-
-    public int? LastUpdatedBy { get; private set; }
-    public DateTime? LastUpdatedDate { get; private set; }
 
     public UserStatus Status { get; private set; }
 
@@ -353,7 +348,6 @@ public class Employee : Aggregate<int>
 
         bool hasUpdate = false;
 
-        // Tái sử dụng các hàm update internal (không gọi Touch)
         if (!string.IsNullOrWhiteSpace(fullName))
         {
             if (UpdateFullNameInternal(fullName))
@@ -394,7 +388,7 @@ public class Employee : Aggregate<int>
 
     private void Touch(int updatedBy)
     {
-        LastUpdatedBy = updatedBy;
-        LastUpdatedDate = DateTime.UtcNow;
+        UpdatedBy = updatedBy;
+        UpdatedDate = DateTime.UtcNow;
     }
 }

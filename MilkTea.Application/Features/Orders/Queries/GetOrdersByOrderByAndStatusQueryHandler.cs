@@ -1,7 +1,7 @@
 using MediatR;
-using MilkTea.Application.DTOs.Orders;
-using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Application.Models.Orders;
+using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Repositories;
 
 namespace MilkTea.Application.Features.Orders.Queries;
@@ -22,7 +22,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
         }
 
         var orders = await unitOfWork.Orders.GetOrdersByOrderByAndStatusAsync(currentUser.UserId, status);
-        result.Orders = orders.Select(o => new OrderDto
+        result.Orders = orders.Select(o => new Order
         {
             OrderId = o.Id,
             DinnerTableId = o.DinnerTableId,

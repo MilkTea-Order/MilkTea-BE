@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Catalog.Entities;
-using MilkTea.Domain.Catalog.Enums;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
@@ -22,26 +21,36 @@ public class MenuConfiguration : IEntityTypeConfiguration<Menu>
         builder.Property(x => x.AvatarPicture).HasColumnName("AvatarPicture");
         builder.Property(x => x.Note).HasColumnName("Note");
         builder.Property(x => x.MenuGroupID).HasColumnName("MenuGroupID").IsRequired();
-        
+
         // Map enum to existing StatusID column
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")
             .HasConversion<int>()
             .IsRequired();
-        
+
         builder.Property(x => x.UnitID).HasColumnName("UnitID").IsRequired();
         builder.Property(x => x.TasteQTy).HasColumnName("TasteQTy");
         builder.Property(x => x.PrintSticker).HasColumnName("PrintSticker");
 
-        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
-        builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
+        builder.HasMany(x => x.MenuSizes)
+                        .WithOne()
+                        .HasForeignKey("MenuID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-        // Relationships
-        builder.HasOne(m => m.MenuGroup)
-            .WithMany()
-            .HasForeignKey(m => m.MenuGroupID)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(x => x.MenuSizes)
+            .HasField("_vMenuSizes")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+
+
+        builder.Ignore(x => x.CreatedBy);
+        builder.Ignore(x => x.CreatedDate);
+        builder.Ignore(x => x.UpdatedBy);
+        builder.Ignore(x => x.UpdatedDate);
+        //builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
+        //builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
+        //builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
+        //builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
+
     }
 }

@@ -1,4 +1,4 @@
-using MilkTea.Application.DTOs.Orders;
+using MilkTea.Application.Models.Catalog;
 using MilkTea.Shared.Domain.Services;
 
 namespace MilkTea.Application.Features.Catalog.Results

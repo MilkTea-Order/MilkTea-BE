@@ -1,6 +1,6 @@
 using MediatR;
-using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.Catalog.Results;
+using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.SharedKernel.Repositories;
@@ -26,20 +26,27 @@ public sealed class GetMenuItemsOfGroupQueryHandler(
             menuStatus = (MenuStatus)query.MenuStatusId.Value;
         }
 
-        var menus = await unitOfWork.Menus.GetMenusOfGroupByStatusAsync(
-            query.GroupId,
-            query.MenuStatusId.HasValue ? (int?)query.MenuStatusId.Value : null);
-        result.Menus = menus.Select(m => new MenuItemDto
-        {
-            MenuId = m.Id,
-            MenuCode = m.Code,
-            MenuName = m.Name,
-            MenuGroupId = m.MenuGroupID,
-            MenuGroupName = m.MenuGroup?.Name,
-            StatusId = (int)m.Status,
-            StatusName = m.Status.ToString()
-        }).ToList();
+        var menus = await unitOfWork.Menus.GetByIdWithMenuAsync(
+                                                        query.GroupId,
+                                                        query.MenuStatusId.HasValue ? (int?)query.MenuStatusId.Value : null, cancellationToken);
 
+        if (menus == null)
+        {
+            result.Menus = new List<MenuItemDto>();
+        }
+        else
+        {
+            result.Menus = menus.Menus.Select(m => new MenuItemDto
+            {
+                MenuId = m.Id,
+                MenuCode = m.Code,
+                MenuName = m.Name,
+                MenuGroupId = m.MenuGroupID,
+                MenuGroupName = menus.Name,
+                StatusId = (int)m.Status,
+                StatusName = m.Status.ToString()
+            }).ToList();
+        }
         return result;
     }
 

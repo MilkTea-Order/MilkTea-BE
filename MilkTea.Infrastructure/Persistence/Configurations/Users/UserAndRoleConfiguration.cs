@@ -1,31 +1,36 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Infrastructure.Persistence.Entities;
+using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Identity;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
 
 public class UserAndRoleConfiguration : IEntityTypeConfiguration<UserAndRole>
 {
     public void Configure(EntityTypeBuilder<UserAndRole> builder)
     {
         builder.ToTable("userandrole");
-        
+
         builder.HasKey(x => new { x.UserID, x.RoleID });
-        
+
         builder.Property(x => x.UserID)
             .HasColumnName("UserID")
             .IsRequired();
-        
+
         builder.Property(x => x.RoleID)
             .HasColumnName("RoleID")
             .IsRequired();
-        
+
         builder.Property(x => x.CreatedBy)
             .HasColumnName("CreatedBy")
             .IsRequired();
-        
+
         builder.Property(x => x.CreatedDate)
             .HasColumnName("CreatedDate")
             .IsRequired();
+
+        builder.HasOne<Role>()
+            .WithMany()
+            .HasForeignKey(x => x.RoleID)
+            .HasPrincipalKey(r => r.Id);
     }
 }

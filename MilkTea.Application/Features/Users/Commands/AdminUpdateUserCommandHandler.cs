@@ -1,10 +1,9 @@
 using MediatR;
-using MilkTea.Application.Features.Users.Commands;
-using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Users.Results;
+using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.Users.Enums;
 using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Enums;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Users.Commands;
@@ -22,11 +21,11 @@ public sealed class AdminUpdateUserCommandHandler(
             return SendError(result, ErrorCode.E0036, "UserID");
 
         // Load entities with tracking for updates
-        var user = await unitOfWork.Users.GetByIdForUpdateAsync(command.UserID);
+        var user = await unitOfWork.Users.GetByIdForUpdateAsync(command.UserID, cancellationToken);
         if (user is null)
             return SendError(result, ErrorCode.E0001, "User");
 
-        var employee = await unitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID);
+        var employee = await unitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID, cancellationToken);
         if (employee is null)
             return SendError(result, ErrorCode.E0001, "Employee");
 

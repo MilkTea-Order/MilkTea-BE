@@ -5,9 +5,8 @@ namespace MilkTea.Domain.Pricing.Entities;
 /// <summary>
 /// Currency entity.
 /// </summary>
-public class Currency : Entity<int>
+public class Currency : EntityId<int>
 {
-    public string Name { get; set; } = null!;
-    public string? Symbol { get; set; }
-    public string? Code { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
 }

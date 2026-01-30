@@ -1,10 +1,10 @@
 using MediatR;
-using MilkTea.Application.DTOs.Orders;
 using MilkTea.Application.Features.Catalog.Results;
+using MilkTea.Application.Models.Catalog;
+using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
-
 namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetMenuItemsAvailableOfGroupQueryHandler(
@@ -18,23 +18,30 @@ public sealed class GetMenuItemsAvailableOfGroupQueryHandler(
         if (query.GroupId <= 0)
             return SendError(result, ErrorCode.E0036, "GroupID");
 
-        var menus = await unitOfWork.Menus.GetActiveMenuItemsByGroupIdAsync(query.GroupId);
-        result.Menus = menus.Select(m => new MenuItemDto
-        {
-            MenuId = m.Id,
-            MenuCode = m.Code,
-            MenuName = m.Name,
-            MenuGroupId = m.MenuGroupID,
-            MenuGroupName = m.MenuGroup?.Name,
-            StatusId = (int)m.Status,
-            StatusName = m.Status.ToString()
-        }).ToList();
+        var menus = await unitOfWork.Menus.GetByIdWithMenuAsync(query.GroupId, (int)MenuStatus.Active, cancellationToken);
 
+        if (menus == null)
+        {
+            result.Menus = new List<MenuItemDto>();
+        }
+        else
+        {
+            result.Menus = menus.Menus.Select(m => new MenuItemDto
+            {
+                MenuId = m.Id,
+                MenuCode = m.Code,
+                MenuName = m.Name,
+                MenuGroupId = m.MenuGroupID,
+                MenuGroupName = menus.Name,
+                StatusId = (int)m.Status,
+                StatusName = m.Status.ToString()
+            }).ToList();
+        }
         return result;
     }
 
     private static GetMenuItemsOfGroupResult SendError(GetMenuItemsOfGroupResult result, string errorCode, params string[] values)
-{
+    {
         if (values is { Length: > 0 })
             result.ResultData.Add(errorCode, values.ToList());
         return result;

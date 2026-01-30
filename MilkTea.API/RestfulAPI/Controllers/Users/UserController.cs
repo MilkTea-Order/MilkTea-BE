@@ -6,6 +6,7 @@ using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Application.Features.Users.Queries;
+using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Users
 {
@@ -15,7 +16,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
                     ISender sender,
                     IMapper mapper) : BaseController
     {
-        private readonly ISender _sender = sender;
+        private readonly ISender _vSender = sender;
         private readonly IMapper _vMapper = mapper;
 
         [Authorize]
@@ -25,10 +26,16 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
             var command = new UpdatePasswordCommand
             {
                 Password = request.Password,
-                NewPassword = request.NewPassword
+                NewPassword = request.NewPassword,
+                ConfirmPassword = request.ConfirmPassword
             };
 
-            var result = await _sender.Send(command);
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
+            {
+                return SendTokenError();
+            }
 
             if (result.ResultData.HasData)
             {
@@ -42,10 +49,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         [HttpPatch("me/update-profile")]
         public async Task<ResponseDto> UpdateProfile([FromForm] EmployeeUpdateProfileRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return SendError(ModelState);
-            }
+
 
             var command = new EmployeeUpdateProfileCommand
             {
@@ -62,9 +66,17 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
                 BankQRCode = request.BankQRCode
             };
 
-            var result = await _sender.Send(command);
+            var result = await _vSender.Send(command);
 
-            if (result.ResultData.HasData) return SendError(result.ResultData);
+            if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
+            {
+                return SendTokenError();
+            }
+
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
             return SendSuccess();
         }
 
@@ -73,7 +85,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         public async Task<ResponseDto> GetMe()
         {
             var query = new GetUserProfileQuery();
-            var result = await _sender.Send(query);
+            var result = await _vSender.Send(query);
 
             if (result.ResultData.HasData)
             {

@@ -12,9 +12,7 @@ public class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");
-
         builder.Property(x => x.Name).HasColumnName("Name").IsRequired();
-        builder.Property(x => x.Symbol).HasColumnName("Symbol");
         builder.Property(x => x.Code).HasColumnName("Code");
     }
 }

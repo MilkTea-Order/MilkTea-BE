@@ -49,21 +49,20 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
 
             var result = await _vSender.Send(command);
 
-            if (result.ResultData.HasData)
-            {
-                return SendError(result.ResultData);
-            }
-
             if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
             {
                 return SendTokenError();
+            }
+
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
             }
             return SendSuccess();
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ResponseDto> RefreshAccessToken(
-            [FromBody] RefreshAccessTokenRequestDto request)
+        public async Task<ResponseDto> RefreshAccessToken([FromBody] RefreshAccessTokenRequestDto request)
         {
             var command = new RefreshAccessTokenCommand
             {

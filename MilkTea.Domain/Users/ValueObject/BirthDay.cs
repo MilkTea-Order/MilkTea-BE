@@ -1,3 +1,4 @@
+using MilkTea.Domain.SharedKernel.Constants;
 using System.Globalization;
 
 namespace MilkTea.Domain.Users.ValueObject;
@@ -17,22 +18,22 @@ public sealed record BirthDay(string Value)
     public static BirthDay Of(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("BirthDay is required.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "birthDay");
 
         value = value.Trim();
 
         if (!DateTime.TryParseExact(value, Format, Culture, DateTimeStyles.None, out var birthDate))
-            throw new ArgumentException($"BirthDay must be a valid date in format {Format}.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "birthDay");
 
         var today = DateTime.UtcNow.Date;
 
         if (birthDate.Date > today)
-            throw new ArgumentException("BirthDay cannot be in the future.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "birthDay");
 
         var age = CalculateAge(birthDate, today);
 
         if (age < MinAge || age > MaxAge)
-            throw new ArgumentException($"Age must be between {MinAge} and {MaxAge}.", nameof(value));
+            throw new ArgumentException(ErrorCode.E0036, "birthDay");
 
         return new BirthDay(birthDate.ToString(Format, Culture));
     }

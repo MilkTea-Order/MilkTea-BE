@@ -8,7 +8,7 @@ public class MenuSizeConfiguration : IEntityTypeConfiguration<MenuSize>
 {
     public void Configure(EntityTypeBuilder<MenuSize> builder)
     {
-        builder.ToTable("menusize");
+        builder.ToTable("menu_size");
 
         builder.HasKey(x => new { x.MenuID, x.SizeID });
 
@@ -16,16 +16,5 @@ public class MenuSizeConfiguration : IEntityTypeConfiguration<MenuSize>
         builder.Property(x => x.SizeID).HasColumnName("SizeID");
         builder.Property(x => x.CostPrice).HasColumnName("CostPrice");
         builder.Property(x => x.SalePrice).HasColumnName("SalePrice");
-
-        // Relationships
-        builder.HasOne(ms => ms.Menu)
-            .WithMany()
-            .HasForeignKey(ms => ms.MenuID)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(ms => ms.Size)
-            .WithMany()
-            .HasForeignKey(ms => ms.SizeID)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

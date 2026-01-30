@@ -14,7 +14,7 @@ public interface IPermissionRepository
     /// </summary>
     /// <param name="userId">The user ID to get permissions for.</param>
     /// <returns>A list of tuples containing PermissionDetail and Permission for each assigned permission.</returns>
-    Task<List<(PermissionDetail PermissionDetail, Permission Permission)>> GetPermissionsByUserIdAsync(int userId);
+    Task<List<(PermissionDetail PermissionDetail, Permission Permission)>> GetPermissionsByUserIdAsync(int userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets all available permissions from the database.
