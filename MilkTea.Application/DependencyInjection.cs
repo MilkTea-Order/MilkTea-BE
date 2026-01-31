@@ -1,5 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using MilkTea.Application.Ports.Catalog;
+using MilkTea.Application.Features.Catalog.Queries;
 using Shared.Abstractions.Behaviors;
 using System.Reflection;
 
@@ -15,6 +17,10 @@ public static class DependencyInjection
             config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+
+        // Register catalog sales query service
+        services.AddScoped<ICatalogSalesQuery, CatalogSalesQueryHandler>();
+
         return services;
     }
 }

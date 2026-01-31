@@ -2,12 +2,12 @@ using MediatR;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Orders.Repositories;
 
 namespace MilkTea.Application.Features.Orders.Queries;
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
-    IUnitOfWork unitOfWork,
+    IOrderingUnitOfWork orderingUnitOfWork,
     ICurrentUser currentUser) : IRequestHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
 {
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
@@ -21,7 +21,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
             status = (Domain.Orders.Enums.OrderStatus)query.StatusId.Value;
         }
 
-        var orders = await unitOfWork.Orders.GetOrdersByOrderByAndStatusAsync(currentUser.UserId, status);
+        var orders = await orderingUnitOfWork.Orders.GetOrdersByOrderByAndStatusAsync(currentUser.UserId, status);
         result.Orders = orders.Select(o => new Order
         {
             OrderId = o.Id,

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Pricing.Entities;
-using MilkTea.Domain.Pricing.Enums;
+using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Enums;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Pricing;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
 public class PromotionOnTotalBillConfiguration : IEntityTypeConfiguration<PromotionOnTotalBill>
 {

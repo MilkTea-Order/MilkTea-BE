@@ -1,7 +1,7 @@
-using MilkTea.Domain.Pricing.Enums;
+using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Pricing.Entities;
+namespace MilkTea.Domain.Catalog.Entities;
 
 /// <summary>
 /// Price list entity (Aggregate Root).

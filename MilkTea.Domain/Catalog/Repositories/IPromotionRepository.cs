@@ -1,6 +1,6 @@
-using MilkTea.Domain.Pricing.Entities;
+using MilkTea.Domain.Catalog.Entities;
 
-namespace MilkTea.Domain.Pricing.Repositories;
+namespace MilkTea.Domain.Catalog.Repositories;
 
 /// <summary>
 /// Repository interface for promotion operations.

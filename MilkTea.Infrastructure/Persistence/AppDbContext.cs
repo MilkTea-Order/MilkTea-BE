@@ -3,7 +3,6 @@ using MilkTea.Domain.Catalog.Entities;
 using MilkTea.Domain.Configuration.Entities;
 using MilkTea.Domain.Inventory.Entities;
 using MilkTea.Domain.Orders.Entities;
-using MilkTea.Domain.Pricing.Entities;
 using MilkTea.Domain.Users.Entities;
 
 namespace MilkTea.Infrastructure.Persistence;
@@ -12,7 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     #region DbSet
 
-    // ===== Ordering (Aggregate) =====
+    // ===== Order =====
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
 
@@ -22,15 +21,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MenuSize> MenuSizes { get; set; }
     public DbSet<Size> Sizes { get; set; }
     public DbSet<KindOfHotpot> KindOfHotpots { get; set; }
-
-    // ===== Tables (Catalog) =====
-    public DbSet<TableEntity> Tables { get; set; }
-
-    // ===== Pricing =====
     public DbSet<Currency> Currencies { get; set; }
     public DbSet<PriceList> PriceLists { get; set; }
     public DbSet<PriceListDetail> PriceListDetails { get; set; }
     public DbSet<PromotionOnTotalBill> Promotions { get; set; }
+    public DbSet<TableEntity> Tables { get; set; }
 
     // ===== Inventory =====
     public DbSet<Unit> Units { get; set; }
@@ -74,7 +69,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 type.Namespace.Contains(".Configurations.Ordering") ||
                 type.Namespace.Contains(".Configurations.Catalog") ||
                 type.Namespace.Contains(".Configurations.TableManagement") ||
-                type.Namespace.Contains(".Configurations.Pricing") ||
                 type.Namespace.Contains(".Configurations.Inventory") ||
                 type.Namespace.Contains(".Configurations.Users") ||
                 type.Namespace.Contains(".Configurations.Configuration")

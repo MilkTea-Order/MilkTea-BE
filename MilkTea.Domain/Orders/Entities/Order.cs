@@ -10,11 +10,11 @@ public sealed class Order : Aggregate<int>
     private readonly List<OrderItem> _vOrderItems = new();
     public IReadOnlyList<OrderItem> OrderItems => _vOrderItems.AsReadOnly();
 
-    public BillNo BillNo { get; set; } = default!;
+    public BillNo BillNo { get; private set; } = default!;
 
-    public int DinnerTableId { get; set; }
+    public int DinnerTableId { get; private set; }
 
-    public OrderStatus Status { get; set; }
+    public OrderStatus Status { get; private set; }
 
     public int OrderBy { get; set; }
     public DateTime OrderDate { get; set; }
@@ -89,14 +89,55 @@ public sealed class Order : Aggregate<int>
         EnsureNotCancelled();
 
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
-        if (item is null) return;
+        if (item is null)
+            throw new InvalidOperationException($"OrderItem with ID {orderItemId} not found in this order.");
 
-        if (!item.IsCancelled)
+        if (item.IsCancelled)
+            throw new InvalidOperationException($"OrderItem with ID {orderItemId} is already cancelled.");
+
+        item.Cancel(removedBy);
+        RecalculateTotalAmount();
+        Touch(updatedBy: removedBy);
+    }
+
+    /// <summary>
+    /// Removes multiple order items by their IDs.
+    /// </summary>
+    public void RemoveOrderItems(List<int> orderItemIds, int removedBy)
+    {
+        EnsureNotCancelled();
+        ArgumentNullException.ThrowIfNull(orderItemIds);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(removedBy);
+
+        if (orderItemIds.Count == 0)
+            return;
+
+        var itemsToRemove = _vOrderItems
+            .Where(x => orderItemIds.Contains(x.Id) && !x.IsCancelled)
+            .ToList();
+
+        if (itemsToRemove.Count == 0)
+            return;
+
+        foreach (var item in itemsToRemove)
         {
             item.Cancel(removedBy);
-            RecalculateTotalAmount();
-            Touch(updatedBy: removedBy);
         }
+
+        RecalculateTotalAmount();
+        Touch(updatedBy: removedBy);
+    }
+
+    /// <summary>
+    /// Assigns the order to a dinner table.
+    /// </summary>
+    public void AssignTable(int dinnerTableId, int updatedBy)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dinnerTableId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
+
+        DinnerTableId = dinnerTableId;
+        Touch(updatedBy);
     }
 
     public void FinalizeAndPublishCreated()

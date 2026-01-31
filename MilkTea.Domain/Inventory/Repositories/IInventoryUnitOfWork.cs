@@ -1,25 +1,12 @@
-using MilkTea.Domain.Catalog.Repositories;
-using MilkTea.Domain.Configuration.Repositories;
-using MilkTea.Domain.Inventory.Repositories;
-using MilkTea.Domain.Orders.Repositories;
-using MilkTea.Domain.Users.Repositories;
+namespace MilkTea.Domain.Inventory.Repositories;
 
-namespace MilkTea.Domain.SharedKernel.Repositories;
-
-public interface IUnitOfWork
+/// <summary>
+/// Unit of Work interface for Inventory module.
+/// Manages transactions and provides access to Inventory repositories.
+/// </summary>
+public interface IInventoryUnitOfWork
 {
-    IUserRepository Users { get; }
-    IEmployeeRepository Employees { get; }
-    IPermissionRepository Permissions { get; }
-    IRoleRepository Roles { get; }
-    IOrderRepository Orders { get; }
-    IMenuRepository Menus { get; }
-    ISizeRepository Sizes { get; }
-    ITableRepository Tables { get; }
-    IDefinitionRepository Definitions { get; }
-    IPriceListRepository PriceLists { get; }
     IWarehouseRepository Warehouses { get; }
-
 
     /// <summary>
     /// Saves all changes made in the current transaction.

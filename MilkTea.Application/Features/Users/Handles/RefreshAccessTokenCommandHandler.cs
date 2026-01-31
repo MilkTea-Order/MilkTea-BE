@@ -1,14 +1,14 @@
 using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Application.Ports.Authentication.JWTPorts;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
 using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class RefreshAccessTokenCommandHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     IJWTServicePort jwtServicePort) : ICommandHandler<RefreshAccessTokenCommand, RefreshAccessTokenResult>
 {
     public async Task<RefreshAccessTokenResult> Handle(RefreshAccessTokenCommand command, CancellationToken cancellationToken)
@@ -22,7 +22,7 @@ public sealed class RefreshAccessTokenCommandHandler(
         }
 
         // Get valid refresh token through User aggregate repository
-        var refreshToken = await unitOfWork.Users.GetValidRefreshTokenByTokenAsync(command.RefreshToken, cancellationToken);
+        var refreshToken = await userUnitOfWork.Users.GetValidRefreshTokenByTokenAsync(command.RefreshToken, cancellationToken);
 
         if (refreshToken is null)
         {

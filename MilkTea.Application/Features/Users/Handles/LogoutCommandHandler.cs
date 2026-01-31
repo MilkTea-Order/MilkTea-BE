@@ -1,15 +1,15 @@
-﻿using MediatR;
+using MediatR;
 using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Application.Ports.Users;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
 using MilkTea.Shared.Extensions;
 
 namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class LogoutCommandHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     ICurrentUser currentUser) : IRequestHandler<LogoutCommand, LogoutResult>
 {
     public async Task<LogoutResult> Handle(LogoutCommand command, CancellationToken cancellationToken)
@@ -24,27 +24,27 @@ public sealed class LogoutCommandHandler(
         }
 
         // Load user with tracking for update
-        var user = await unitOfWork.Users.GetByIdForUpdateAsync(userId, cancellationToken);
+        var user = await userUnitOfWork.Users.GetByIdForUpdateAsync(userId, cancellationToken);
         if (user is null)
         {
             result.ResultData.AddMeta(MetaKey.TOKEN_ERROR, true);
             return result;
         }
 
-        await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await userUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             // Revoke refresh token
             user.RevokeRefreshToken(command.RefreshToken, userId);
 
             // Commit transaction 
-            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            await userUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
         }
         catch (Exception)
         {
             // Rollback transaction on error and logout
-            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            await userUnitOfWork.RollbackTransactionAsync(cancellationToken);
             result.ResultData.AddMeta(MetaKey.TOKEN_ERROR, true);
             return result;
         }

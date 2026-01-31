@@ -5,10 +5,10 @@ namespace MilkTea.Domain.Configuration.Entities;
 /// <summary>
 /// Definition group entity for organizing configuration items.
 /// </summary>
-public class DefinitionGroup : Entity<int>
+public class DefinitionGroup : Aggregate<int>
 {
-    public string Name { get; set; } = null!;
+    private readonly List<Definition> _vDenifitions = new();
+    public IReadOnlyList<Definition> Denifitions => _vDenifitions.AsReadOnly();
 
-    // Navigation
-    public ICollection<Definition> Definitions { get; set; } = new List<Definition>();
+    public string Name { get; set; } = null!;
 }

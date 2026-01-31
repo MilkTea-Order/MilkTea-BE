@@ -113,5 +113,15 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
     }
     #endregion Relationship 
 
+    /// <inheritdoc/>
+    public async Task<bool> isActiceMenuAndSize(int menuId, int sizeId, CancellationToken cancellationToken)
+    {
+        return await _vContext.Menus
+                            .AsNoTracking()
+                            .AnyAsync(m =>
+                                m.Id == menuId &&
+                                m.Status == MenuStatus.Active &&
+                                m.MenuSizes.Any(ms => ms.SizeID == sizeId),
+                                cancellationToken);
+    }
 }
-

@@ -1,52 +1,64 @@
-using MediatR;
 using MilkTea.Application.Features.Orders.Results;
-using MilkTea.Application.Models.Errors;
-using MilkTea.Application.Models.Orders;
+using MilkTea.Application.Ports.Catalog;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Domain.Configuration.Repositories;
+using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.Orders.ValueObjects;
-using MilkTea.Domain.Pricing.Enums;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
+using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Orders.Commands;
 
 public sealed class CreateOrderCommandHandler(
-    IUnitOfWork unitOfWork,
-    ICurrentUser currentUser) : IRequestHandler<CreateOrderCommand, CreateOrderResult>
+    IOrderingUnitOfWork orderingUnitOfWork,
+    IConfigurationUnitOfWork configurationUnitOfWork,
+    ICatalogSalesQuery catalogSalesQuery,
+    ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
-    private const int PriceListId = (int)PriceListStatus.Active;
-
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
         var result = new CreateOrderResult();
         var createdBy = currentUser.UserId;
+        // Default to createdBy if OrderedBy is not provided
         var orderedBy = command.OrderedBy ?? createdBy;
 
-        var requestError = await ValidateRequest(command, cancellationToken);
-        if (requestError != null) return SendError(result, requestError.Code, requestError.Fields);
-
-        var validatedItems = new List<OrderItemValidation>();
+        var validatedItems = new List<ValidatedOrderItemDto>();
         foreach (var item in command.Items!)
         {
-            var validation = await ValidateItem(item, cancellationToken);
-            if (validation.HasError)
-                return SendErrorItem(result, validation.Error!.Code, validation.Error.Fields ?? [], item.MenuID, item.SizeID);
-            validatedItems.Add(validation);
+            var quote = await catalogSalesQuery.ValidateAndQuoteAsync(
+                                                                command.DinnerTableID,
+                                                                item.MenuID,
+                                                                item.SizeID,
+                                                                item.Quantity,
+                                                                cancellationToken);
+            if (!quote.IsValid)
+            {
+                var mapped = MapValidationError(quote);
+
+                Console.WriteLine(quote.ErrorCode);
+                if (quote.ErrorCode!.Equals("TABLE"))
+                {
+                    return SendError(result, mapped.errorCode, mapped.fields);
+                }
+                else
+                {
+                    return SendErrorItem(result, mapped.errorCode, mapped.fields, item.MenuID, item.SizeID);
+                }
+            }
+            validatedItems.Add(new ValidatedOrderItemDto(item, quote));
         }
 
-        var stockErrors = await CheckStockAvailability(validatedItems, cancellationToken);
-        if (stockErrors.Count > 0) return SendErrorMaterial(result, ErrorCode.ValidationFailed, stockErrors);
-
-        await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await orderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var now = DateTime.UtcNow;
-            var codePrefix = await unitOfWork.Definitions.GetCodePrefixBill()
-                ?? throw new InvalidOperationException("Not exist code prefix for bill. Need create code prefix for bill.");
+            // throw => not created order successfully
+            var codePrefix = await configurationUnitOfWork.Definitions.GetCodePrefixBill()
+                ?? throw new InvalidOperationException("Bill number prefix is not configured.");
             if (string.IsNullOrWhiteSpace(codePrefix.Value))
-                throw new InvalidOperationException("Code prefix Value for bill is missing.");
+                throw new InvalidOperationException("Bill number prefix value is missing.");
 
-            var count = await unitOfWork.Orders.GetTotalOrdersCountInDateAsync(now.Date);
+            var count = await orderingUnitOfWork.Orders.GetTotalOrdersCountInDateAsync(now.Date);
             var billNo = BillNo.Create(codePrefix.Value!, now, createdBy, count + 1);
 
             var order = Domain.Orders.Entities.Order.Create(
@@ -55,51 +67,60 @@ public sealed class CreateOrderCommandHandler(
                 orderBy: orderedBy,
                 createdBy: createdBy,
                 note: command.Note);
-
             foreach (var v in validatedItems)
             {
-                var menuItem = Domain.Orders.ValueObjects.MenuItem.Of(
-                    menuId: v.Menu!.Id,
-                    sizeId: v.Item!.SizeID,
-                    price: v.Price!.Value,
-                    priceListId: PriceListId,
-                    kindOfHotpot1Id: v.Item.KindOfHotpotIDs?.Count > 0 ? v.Item.KindOfHotpotIDs[0] : null,
-                    kindOfHotpot2Id: v.Item.KindOfHotpotIDs?.Count > 1 ? v.Item.KindOfHotpotIDs[1] : null);
+                var menuItem = MenuItem.Of(
+                    menuId: v.OriginalItem.MenuID,
+                    sizeId: v.OriginalItem.SizeID,
+                    price: v.UnitPrice,
+                    priceListId: v.PriceListId,
+                    kindOfHotpot1Id: v.OriginalItem.KindOfHotpotIDs?.Count > 0 ? v.OriginalItem.KindOfHotpotIDs[0] : null,
+                    kindOfHotpot2Id: v.OriginalItem.KindOfHotpotIDs?.Count > 1 ? v.OriginalItem.KindOfHotpotIDs[1] : null);
 
                 order.CreateOrderItem(
                     menuItem: menuItem,
-                    quantity: v.Item.Quantity,
+                    quantity: v.OriginalItem.Quantity,
                     createdBy: createdBy,
-                    note: v.Item.Note);
+                    note: v.OriginalItem.Note);
             }
-
-            order.FinalizeAndPublishCreated();
-
-            await unitOfWork.Orders.AddAsync(order, cancellationToken);
-            await unitOfWork.CommitTransactionAsync(cancellationToken);
-
+            await orderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             result.OrderDate = order.OrderDate;
             result.OrderID = order.Id;
             result.BillNo = order.BillNo.Value;
             result.TotalAmount = order.TotalAmount;
-            result.Items = validatedItems.Select(v => new OrderItemResult
-            {
-                MenuID = v.Item!.MenuID,
-                MenuName = v.Menu!.Name,
-                SizeID = v.Item.SizeID,
-                SizeName = v.Size!.Name,
-                Quantity = v.Item.Quantity,
-                Price = (decimal)v.Price!,
-                TotalPrice = (decimal)(v.Item.Quantity * v.Price),
-            }).ToList();
+            //result.Items = validatedItems.Select(v => new OrderItemResult
+            //{
+            //    MenuID = v.OriginalItem.MenuID,
+            //    MenuName = v.Menu.Name,
+            //    SizeID = v.OriginalItem.SizeID,
+            //    SizeName = v.Size.Name,
+            //    Quantity = v.OriginalItem.Quantity,
+            //    Price = v.UnitPrice,
+            //    TotalPrice = v.OriginalItem.Quantity * v.UnitPrice
+            //}).ToList();
 
             return result;
         }
         catch
         {
-            await unitOfWork.RollbackTransactionAsync(cancellationToken);
-            return SendError(result, ErrorCode.ValidationFailed, "CreateOrder");
+            await orderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            return SendError(result, ErrorCode.E9999, "CreateOrder");
         }
+    }
+
+
+
+    private static (string errorCode, string[] fields) MapValidationError(SalesValidationResult quote)
+    {
+        Console.WriteLine(quote.ErrorCode);
+        return quote.ErrorCode switch
+        {
+            "TABLE" => (ErrorCode.E0036, ["dinnerTableId"]),
+            "MENU_SIZE" => (ErrorCode.E0036, ["menu"]),
+            "PRICE" => (ErrorCode.E0036, ["price"]),
+            "QUANTITY" => (ErrorCode.E0036, ["quantity"]),
+            _ => (ErrorCode.E0036, ["dinnerTableId", "menuID", "sizeID"])
+        };
     }
 
     private static CreateOrderResult SendError(CreateOrderResult result, string errorCode, params string[] values)
@@ -118,96 +139,24 @@ public sealed class CreateOrderCommandHandler(
         return result;
     }
 
-    private static CreateOrderResult SendErrorMaterial(CreateOrderResult result, string errorCode, List<(int menuId, int sizeId, List<string> materialNames)> items)
+    private sealed class ValidatedOrderItemDto(OrderItemCommand originalItem, SalesValidationResult quote)
     {
-        result.ResultData.Add(errorCode, items.Select(x => string.Join(",", x.materialNames)).ToList());
-        if (items.Count == 1)
-        {
-            result.ResultData.AddMeta("menuId", items[0].menuId);
-            result.ResultData.AddMeta("sizeId", items[0].sizeId);
-        }
-        return result;
-    }
-
-    private async Task<ValidationError?> ValidateRequest(CreateOrderCommand command, CancellationToken ct)
-    {
-        if (await unitOfWork.Tables.GetByIdAsync(command.DinnerTableID) == null)
-            return ValidationError.InvalidData(nameof(command.DinnerTableID));
-
-        if (command.OrderedBy.HasValue && command.OrderedBy.Value <= 0)
-            return ValidationError.InvalidData(nameof(command.OrderedBy));
-
-        if (command.Items == null || command.Items.Count == 0)
-            return ValidationError.InvalidData(nameof(command.Items));
-
-        return null;
-    }
-
-    private async Task<OrderItemValidation> ValidateItem(OrderItemCommand item, CancellationToken ct)
-    {
-        var v = new OrderItemValidation(item);
-
-        var menuGroup = await unitOfWork.Menus.GetByMenuIdWithRelationshipsAsync(item.MenuID, ct);
-        if (menuGroup == null) return v.SetError(ValidationError.InvalidData(nameof(item.MenuID)));
-        var menu = menuGroup.Menus.FirstOrDefault();
-        if (menu == null) return v.SetError(ValidationError.InvalidData(nameof(item.MenuID)));
-
-        var price = await unitOfWork.PriceLists.GetPriceAsync(PriceListId, item.MenuID, item.SizeID);
-        if (price == null) return v.SetError(ValidationError.InvalidData(nameof(item.SizeID)));
-
-        if (item.Quantity <= 0) return v.SetError(ValidationError.InvalidData(nameof(item.Quantity)));
-
-        var recipe = await unitOfWork.Warehouses.GetRecipeAsync(item.MenuID, item.SizeID);
-        if (recipe == null || recipe.Count == 0)
-            return v.SetError(ValidationError.NotExist(nameof(item.SizeID), nameof(item.MenuID)));
-
-        var size = await unitOfWork.Sizes.GetByIdAsync(item.SizeID);
-        return v.SetSuccess(menu, size!, price.Value, recipe);
-    }
-
-    private async Task<List<(int menuId, int sizeId, List<string> materialNames)>> CheckStockAvailability(List<OrderItemValidation> items, CancellationToken ct)
-    {
-        var required = new Dictionary<int, decimal>();
-        var materialToItems = new Dictionary<int, List<OrderItemValidation>>();
-
-        foreach (var it in items)
-        {
-            foreach (var r in it.Recipe!)
-            {
-                var qty = r.Quantity * it.Item!.Quantity;
-                required[r.MaterialID] = required.GetValueOrDefault(r.MaterialID) + qty;
-                if (!materialToItems.ContainsKey(r.MaterialID))
-                    materialToItems[r.MaterialID] = new List<OrderItemValidation>();
-                materialToItems[r.MaterialID].Add(it);
-            }
-        }
-
-        var stock = await unitOfWork.Warehouses.GetMaterialStockAsync(required.Keys.ToList());
-        var materials = await unitOfWork.Warehouses.GetMaterialsAsync(required.Keys.ToList());
-
-        var insufficient = required
-            .Where(r => stock.GetValueOrDefault(r.Key, 0) < r.Value)
-            .Select(r => r.Key)
-            .ToList();
-
-        if (insufficient.Count == 0) return [];
-
-        var menuSizeToNames = new Dictionary<(int MenuId, int SizeId), List<string>>();
-        foreach (var mid in insufficient)
-        {
-            var name = materials.GetValueOrDefault(mid, $"MaterialID:{mid}");
-            if (!materialToItems.TryGetValue(mid, out var affected)) continue;
-
-            foreach (var it in affected)
-            {
-                if (it.Menu == null || it.Size == null) continue;
-                var key = (it.Menu.Id, it.Size.Id);
-                if (!menuSizeToNames.ContainsKey(key)) menuSizeToNames[key] = new List<string>();
-                if (!menuSizeToNames[key].Contains(name)) menuSizeToNames[key].Add(name);
-            }
-        }
-
-        return menuSizeToNames.Select(kv => (kv.Key.MenuId, kv.Key.SizeId, kv.Value)).ToList();
+        public OrderItemCommand OriginalItem { get; } = originalItem;
+        public decimal UnitPrice { get; } = quote.UnitPrice!.Value;
+        public int PriceListId { get; } = quote.PriceListId!.Value;
     }
 }
 
+
+//private static ValidationError? ValidateRequest(CreateOrderCommand command)
+//{
+//    if (command.Items.Any(i => i.MenuID <= 0))
+//        return ValidationError.InvalidData(nameof(OrderItemCommand.MenuID));
+
+//    if (command.Items.Any(i => i.SizeID <= 0))
+//        return ValidationError.InvalidData(nameof(OrderItemCommand.SizeID));
+
+//    if (command.Items.Any(i => i.Quantity <= 0))
+//        return ValidationError.InvalidData(nameof(OrderItemCommand.Quantity));
+//    return null;
+//}

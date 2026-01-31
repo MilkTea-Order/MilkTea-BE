@@ -21,9 +21,11 @@ public class DefinitionConfiguration : IEntityTypeConfiguration<Definition>
         builder.Property(x => x.IsEncrypt).HasColumnName("IsEncrypt").IsRequired();
         builder.Property(x => x.DefinitionGroupID).HasColumnName("DefinitionGroupID").IsRequired();
 
-        builder.HasOne(d => d.DefinitionGroup)
-            .WithMany(dg => dg.Definitions)
-            .HasForeignKey(d => d.DefinitionGroupID)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Ignore(x => x.CreatedDate);
+        builder.Ignore(x => x.CreatedBy);
+        builder.Ignore(x => x.UpdatedDate);
+        builder.Ignore(x => x.UpdatedBy);
+
+
     }
 }

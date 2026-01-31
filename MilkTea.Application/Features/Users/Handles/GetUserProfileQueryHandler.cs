@@ -4,12 +4,12 @@ using MilkTea.Application.Features.Users.Results;
 using MilkTea.Application.Models.Users;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Repositories;
 
 namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class GetUserProfileQueryHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     ICurrentUser currentUser) : IRequestHandler<GetUserProfileQuery, GetUserProfileResult>
 {
     public async Task<GetUserProfileResult> Handle(GetUserProfileQuery query, CancellationToken cancellationToken)
@@ -17,13 +17,13 @@ public sealed class GetUserProfileQueryHandler(
         var result = new GetUserProfileResult();
         var userId = currentUser.UserId;
 
-        var user = await unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+        var user = await userUnitOfWork.Users.GetByIdAsync(userId, cancellationToken);
         if (user is null)
         {
             result.ResultData.Add(ErrorCode.E0001, nameof(userId));
             return result;
         }
-        var employee = await unitOfWork.Employees.GetByIdWithGenderAndPositionAsync(user.EmployeeID, cancellationToken);
+        var employee = await userUnitOfWork.Employees.GetByIdWithGenderAndPositionAsync(user.EmployeeID, cancellationToken);
         if (employee is null)
         {
             result.ResultData.Add(ErrorCode.E0001, "Employee");

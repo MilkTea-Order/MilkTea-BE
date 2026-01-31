@@ -3,14 +3,14 @@ using MilkTea.Application.Features.Users.Results;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
 using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class UpdatePasswordCommandHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     ICurrentUser currentUser,
     IPasswordHasher passwordHasher
     ) : ICommandHandler<UpdatePasswordCommand, UpdatePasswordResult>
@@ -21,7 +21,7 @@ public sealed class UpdatePasswordCommandHandler(
         var result = new UpdatePasswordResult();
         var userId = currentUser.UserId;
 
-        var user = await unitOfWork.Users.GetByIdForUpdateAsync(userId, cancellationToken);
+        var user = await userUnitOfWork.Users.GetByIdForUpdateAsync(userId, cancellationToken);
         // Not Authorized to update password of other users => logout
         if (user is null)
         {
@@ -37,19 +37,19 @@ public sealed class UpdatePasswordCommandHandler(
         // Encrypt new password
         var newPasswordHash = passwordHasher.HashPassword(command.NewPassword);
 
-        await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await userUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             // Update password using domain method
             user.UpdatePassword(newPasswordHash, userId);
 
             // Commit transaction 
-            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            await userUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
         }
         catch (Exception)
         {
-            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            await userUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return SendError(result, ErrorCode.E9999, "UpdatePassword");
         }
     }

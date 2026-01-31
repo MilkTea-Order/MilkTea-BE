@@ -3,13 +3,13 @@ using MilkTea.Application.Features.Catalog.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 namespace MilkTea.Application.Features.Catalog.Handlers;
 
 public sealed class GetTableByStatusQueryHandler(
-    IUnitOfWork unitOfWork) : IRequestHandler<GetTableByStatusQuery, GetTableByStatusResult>
+    ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetTableByStatusQuery, GetTableByStatusResult>
 {
     public async Task<GetTableByStatusResult> Handle(GetTableByStatusQuery query, CancellationToken cancellationToken)
     {
@@ -28,11 +28,11 @@ public sealed class GetTableByStatusQueryHandler(
                 return SendError(result, ErrorCode.E0001, "StatusID");
 
             var status = (TableStatus)query.StatusId.Value;
-            tables = await unitOfWork.Tables.GetByStatusAsync(status);
+            tables = await catalogUnitOfWork.Tables.GetByStatusAsync(status);
         }
         else
         {
-            tables = await unitOfWork.Tables.GetAllAsync();
+            tables = await catalogUnitOfWork.Tables.GetAllAsync();
         }
 
         result.Tables = tables.Select(t => new TableDto

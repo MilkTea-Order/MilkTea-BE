@@ -2,14 +2,14 @@ using MediatR;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Enums;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class AdminUpdateUserCommandHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     ICurrentUser currentUser) : IRequestHandler<AdminUpdateUserCommand, AdminUpdateUserResult>
 {
     public async Task<AdminUpdateUserResult> Handle(AdminUpdateUserCommand command, CancellationToken cancellationToken)
@@ -21,15 +21,15 @@ public sealed class AdminUpdateUserCommandHandler(
             return SendError(result, ErrorCode.E0036, "UserID");
 
         // Load entities with tracking for updates
-        var user = await unitOfWork.Users.GetByIdForUpdateAsync(command.UserID, cancellationToken);
+        var user = await userUnitOfWork.Users.GetByIdForUpdateAsync(command.UserID, cancellationToken);
         if (user is null)
             return SendError(result, ErrorCode.E0001, "User");
 
-        var employee = await unitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID, cancellationToken);
+        var employee = await userUnitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID, cancellationToken);
         if (employee is null)
             return SendError(result, ErrorCode.E0001, "Employee");
 
-        await unitOfWork.BeginTransactionAsync();
+        await userUnitOfWork.BeginTransactionAsync();
         try
         {
             var updatedBy = currentUser.UserId;
@@ -99,13 +99,13 @@ public sealed class AdminUpdateUserCommandHandler(
             }
 
             // Commit transaction (SaveChangesAsync is called inside CommitTransactionAsync)
-            await unitOfWork.CommitTransactionAsync();
+            await userUnitOfWork.CommitTransactionAsync();
 
             return result;
         }
         catch (Exception)
         {
-            await unitOfWork.RollbackTransactionAsync();
+            await userUnitOfWork.RollbackTransactionAsync();
             return SendError(result, ErrorCode.E9999, "AdminUpdateUser");
         }
     }

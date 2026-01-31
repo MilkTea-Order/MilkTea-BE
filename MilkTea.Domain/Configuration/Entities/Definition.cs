@@ -15,6 +15,5 @@ public class Definition : Entity<int>
     public int IsEncrypt { get; set; }
     public int DefinitionGroupID { get; set; }
 
-    // Navigation
-    public DefinitionGroup? DefinitionGroup { get; set; }
+
 }

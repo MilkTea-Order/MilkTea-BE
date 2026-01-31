@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Pricing.Entities;
+using MilkTea.Domain.Catalog.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Pricing;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
 public class PriceListConfiguration : IEntityTypeConfiguration<PriceList>
 {

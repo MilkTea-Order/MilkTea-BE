@@ -18,17 +18,17 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderID ?? 0))
                 .ForMember(d => d.BillNo, o => o.MapFrom(s => s.BillNo ?? string.Empty))
                 .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount ?? 0m))
-                .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
-                .ForMember(d => d.Items, o => o.MapFrom(s => s.Items));
+                .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default));
+            //.ForMember(d => d.Items, o => o.MapFrom(s => s.Items));
 
-            CreateMap<OrderItemResult, OrderItemResponse>()
-                .ForMember(d => d.MenuID, o => o.MapFrom(s => s.MenuID))
-                .ForMember(d => d.MenuName, o => o.MapFrom(s => s.MenuName ?? string.Empty))
-                .ForMember(d => d.SizeID, o => o.MapFrom(s => s.SizeID))
-                .ForMember(d => d.SizeName, o => o.MapFrom(s => s.SizeName))
-                .ForMember(d => d.Quantity, o => o.MapFrom(s => s.Quantity))
-                .ForMember(d => d.Price, o => o.MapFrom(s => s.Price))
-                .ForMember(d => d.TotalPrice, o => o.MapFrom(s => s.TotalPrice));
+            //CreateMap<OrderItemResult, OrderItemResponse>()
+            //    .ForMember(d => d.MenuID, o => o.MapFrom(s => s.MenuID))
+            //    .ForMember(d => d.MenuName, o => o.MapFrom(s => s.MenuName ?? string.Empty))
+            //    .ForMember(d => d.SizeID, o => o.MapFrom(s => s.SizeID))
+            //    .ForMember(d => d.SizeName, o => o.MapFrom(s => s.SizeName))
+            //    .ForMember(d => d.Quantity, o => o.MapFrom(s => s.Quantity))
+            //    .ForMember(d => d.Price, o => o.MapFrom(s => s.Price))
+            //    .ForMember(d => d.TotalPrice, o => o.MapFrom(s => s.TotalPrice));
 
             // Cancel order
             CreateMap<CancelOrderResult, CancelOrderResponseDto>()

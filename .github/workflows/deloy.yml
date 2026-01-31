@@ -107,6 +107,11 @@ jobs:
             JwtSettings__AccessTokenExpireMinutes=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES }}
             JwtSettings__RefreshTokenExpireMinutes=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION_MINUTES }}
 
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+            MYSQL_USER=${{ secrets.MYSQL_USER }}
+            MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+
             Logging__LogLevel__Default=Information
             Logging__LogLevel__Microsoft.AspNetCore=Warning
             AllowedHosts=*

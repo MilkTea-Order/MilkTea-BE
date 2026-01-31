@@ -41,5 +41,5 @@ public interface ITableRepository
     /// - No orders with unpaid or not-collected status are associated with the table
     /// Get not empty table is otherwise;
     /// </summary>
-    Task<IReadOnlyList<TableEntity>> GetTableAsync(bool isEmpty = true, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TableEntity>> GetTableEmptyAsync(bool isEmpty = true, CancellationToken cancellationToken = default);
 }

@@ -1,43 +1,26 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using MilkTea.Domain.Catalog.Repositories;
-using MilkTea.Domain.Configuration.Repositories;
-using MilkTea.Domain.Inventory.Repositories;
-using MilkTea.Domain.Orders.Repositories;
-using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
-namespace MilkTea.Infrastructure.Repositories;
+namespace MilkTea.Infrastructure.Repositories.Users;
 
-
-public class UnitOfWork(
+/// <summary>
+/// Unit of Work implementation for Users module.
+/// </summary>
+public class UserUnitOfWork(
     AppDbContext context,
     IUserRepository users,
     IEmployeeRepository employees,
-    IPermissionRepository permissions,
     IRoleRepository roles,
-    IOrderRepository orders,
-    IMenuRepository menus,
-    ISizeRepository sizes,
-    ITableRepository tables,
-    IDefinitionRepository definitions,
-    IPriceListRepository priceLists,
-    IWarehouseRepository warehouses) : IUnitOfWork
+    IPermissionRepository permissions) : IUserUnitOfWork
 {
     private readonly AppDbContext _vContext = context;
     private IDbContextTransaction? _vTransaction;
 
     public IUserRepository Users { get; } = users;
     public IEmployeeRepository Employees { get; } = employees;
-    public IPermissionRepository Permissions { get; } = permissions;
     public IRoleRepository Roles { get; } = roles;
-    public IOrderRepository Orders { get; } = orders;
-    public IMenuRepository Menus { get; } = menus;
-    public ISizeRepository Sizes { get; } = sizes;
-    public ITableRepository Tables { get; } = tables;
-    public IDefinitionRepository Definitions { get; } = definitions;
-    public IPriceListRepository PriceLists { get; } = priceLists;
-    public IWarehouseRepository Warehouses { get; } = warehouses;
+    public IPermissionRepository Permissions { get; } = permissions;
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
@@ -71,7 +54,6 @@ public class UnitOfWork(
     {
         if (_vTransaction != null)
         {
-            Console.WriteLine("Rolling back transaction...");
             await _vTransaction.RollbackAsync(cancellationToken);
             await _vTransaction.DisposeAsync();
             _vTransaction = null;

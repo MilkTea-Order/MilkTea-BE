@@ -1,4 +1,4 @@
-namespace MilkTea.Domain.Pricing.Enums;
+namespace MilkTea.Domain.Catalog.Enums;
 
 /// <summary>
 /// Status of a price list.

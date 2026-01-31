@@ -2,21 +2,21 @@ using MediatR;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
 
 namespace MilkTea.Application.Features.Orders.Commands;
 
 public sealed class CancelOrderCommandHandler(
-    IUnitOfWork unitOfWork,
+    IOrderingUnitOfWork orderingUnitOfWork,
     ICurrentUser currentUser) : IRequestHandler<CancelOrderCommand, CancelOrderResult>
 {
     public async Task<CancelOrderResult> Handle(CancelOrderCommand command, CancellationToken cancellationToken)
     {
         var result = new CancelOrderResult();
 
-        // Get order
-        var order = await unitOfWork.Orders.GetOrderByIdAsync(command.OrderID);
+        // Load order with items for update
+        var order = await orderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
         if (order is null)
             return SendError(result, ErrorCode.E0001, nameof(command.OrderID));
 
@@ -24,7 +24,7 @@ public sealed class CancelOrderCommandHandler(
         if (order.Status != Domain.Orders.Enums.OrderStatus.Unpaid)
             return SendError(result, ErrorCode.E0042, nameof(command.OrderID));
 
-        await unitOfWork.BeginTransactionAsync();
+        await orderingUnitOfWork.BeginTransactionAsync();
         try
         {
             var cancelledBy = currentUser.UserId;
@@ -37,8 +37,8 @@ public sealed class CancelOrderCommandHandler(
 
             order.Cancel(cancelledBy);
 
-            await unitOfWork.Orders.UpdateAsync(order);
-            await unitOfWork.CommitTransactionAsync();
+            await orderingUnitOfWork.Orders.UpdateAsync(order);
+            await orderingUnitOfWork.CommitTransactionAsync();
 
             result.OrderID = order.Id;
             result.BillNo = order.BillNo.Value;
@@ -48,7 +48,7 @@ public sealed class CancelOrderCommandHandler(
         }
         catch (Exception)
         {
-            await unitOfWork.RollbackTransactionAsync();
+            await orderingUnitOfWork.RollbackTransactionAsync();
             return SendError(result, ErrorCode.E0027, "Cancel Order Request");
         }
     }

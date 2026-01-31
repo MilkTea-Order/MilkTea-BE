@@ -19,14 +19,14 @@ public interface IOrderRepository
     Task<bool> UpdateAsync(Order order);
 
     /// <summary>
-    /// Creates a new order item.
-    /// </summary>
-    Task<OrderItem> CreateOrderItemAsync(OrderItem orderItem);
-
-    /// <summary>
     /// Gets an order by its ID.
     /// </summary>
     Task<Order?> GetOrderByIdAsync(int orderId);
+
+    /// <summary>
+    /// Gets an order by its ID with order items loaded.
+    /// </summary>
+    Task<Order?> GetOrderByIdWithItemsAsync(int orderId);
 
     /// <summary>
     /// Gets the total count of orders created on a specific date.
@@ -42,26 +42,6 @@ public interface IOrderRepository
     /// Gets an order with details by ID and cancellation status.
     /// </summary>
     Task<Order?> GetOrderDetailByIDAndStatus(int orderID, bool? isCancelled);
-
-    /// <summary>
-    /// Cancels an order.
-    /// </summary>
-    Task<bool> CancelOrderAsync(Order order);
-
-    /// <summary>
-    /// Cancels all order items for a specific order.
-    /// </summary>
-    Task<bool> CancelOrderItemsAsync(int orderId, int cancelledBy, DateTime cancelledDate);
-
-    /// <summary>
-    /// Cancels a specific order item.
-    /// </summary>
-    Task<bool> CancelOrderItemAsync(int orderItemId, int cancelledBy, DateTime cancelledDate);
-
-    /// <summary>
-    /// Cancels multiple specific order items.
-    /// </summary>
-    Task<bool> CancelSpecificOrderItemsAsync(List<int> orderItemIds, int cancelledBy, DateTime cancelledDate);
 
     /// <summary>
     /// Gets all order item IDs for a specific order.

@@ -2,17 +2,17 @@ using MediatR;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Enums;
-using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetGroupMenuQueryHandler(
-    IUnitOfWork unitOfWork) : IRequestHandler<GetGroupMenuQuery, GetGroupMenuResult>
+    ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetGroupMenuQuery, GetGroupMenuResult>
 {
 
-    private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+    private readonly ICatalogUnitOfWork _vCatalogUnitOfWork = catalogUnitOfWork;
     public async Task<GetGroupMenuResult> Handle(GetGroupMenuQuery query, CancellationToken cancellationToken)
     {
         var result = new GetGroupMenuResult();
@@ -29,7 +29,7 @@ public sealed class GetGroupMenuQueryHandler(
         {
             itemStatus = (MenuStatus)query.ItemStatusId.Value;
         }
-        var groups = await _vUnitOfWork.Menus.GetByStatusWithMenuAsync(
+        var groups = await _vCatalogUnitOfWork.Menus.GetByStatusWithMenuAsync(
                                                     query.StatusId.HasValue ? (int?)query.StatusId.Value : null,
                                                     query.ItemStatusId.HasValue ? (int?)query.ItemStatusId.Value : null,
                                                     cancellationToken);

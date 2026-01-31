@@ -5,20 +5,20 @@ using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
 using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class LoginCommandHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     IJWTServicePort jwtServicePort,
     IPasswordHasher passwordHasher,
     IPermissionHasher permissionHasher
     ) : ICommandHandler<LoginCommand, LoginWithUserNameResult>
 {
-    private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+    private readonly IUserUnitOfWork _vUserUnitOfWork = userUnitOfWork;
     private readonly IJWTServicePort _vJWTServicePort = jwtServicePort;
     private readonly IPasswordHasher _vPasswordHasher = passwordHasher;
     private readonly IPermissionHasher _vPermissionHasher = permissionHasher;
@@ -28,7 +28,7 @@ public sealed class LoginCommandHandler(
         result.ResultData.AddMeta(MetaKey.DATE_LOGIN, DateTime.UtcNow);
 
         // Get user
-        var user = await _vUnitOfWork.Users.GetByUserNameForUpdateAsync(command.UserName, cancellationToken);
+        var user = await _vUserUnitOfWork.Users.GetByUserNameForUpdateAsync(command.UserName, cancellationToken);
         if (user is null)
         {
             return SendError(result, ErrorCode.E0001, "Username");
@@ -47,7 +47,7 @@ public sealed class LoginCommandHandler(
         }
 
         result.UserId = user.Id;
-        var permissions = await _vUnitOfWork.Permissions.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
+        var permissions = await _vUserUnitOfWork.Permissions.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
         result.Permissions = permissions.Select(p =>
                                             new UserPermission(
                                                 Id: p.PermissionDetail.Id,
@@ -69,17 +69,17 @@ public sealed class LoginCommandHandler(
         var (refreshToken, refreshTokenExpiresAt) = _vJWTServicePort.CreateJwtRefreshToken();
         result.RefreshToken = refreshToken;
 
-        await _vUnitOfWork.BeginTransactionAsync(cancellationToken);
+        await _vUserUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             user.AddRefreshToken(refreshToken, refreshTokenExpiresAt);
-            await _vUnitOfWork.CommitTransactionAsync(cancellationToken);
+            await _vUserUnitOfWork.CommitTransactionAsync(cancellationToken);
 
             return result;
         }
         catch (Exception)
         {
-            await _vUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            await _vUserUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return SendError(result, ErrorCode.E9999, "Login");
         }
     }

@@ -2,7 +2,7 @@ using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Application.Features.Users.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
 using Shared.Abstractions.CQRS;
 using SixLabors.ImageSharp;
@@ -11,10 +11,10 @@ using SixLabors.ImageSharp.Formats.Png;
 namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class EmployeeUpdateProfileCommandHandler(
-    IUnitOfWork unitOfWork,
+    IUserUnitOfWork userUnitOfWork,
     ICurrentUser currentUser) : ICommandHandler<EmployeeUpdateProfileCommand, EmployeeUpdateProfileResult>
 {
-    private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+    private readonly IUserUnitOfWork _vUserUnitOfWork = userUnitOfWork;
     private readonly ICurrentUser _vCurrentUser = currentUser;
     public async Task<EmployeeUpdateProfileResult> Handle(EmployeeUpdateProfileCommand command, CancellationToken cancellationToken)
     {
@@ -23,7 +23,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
 
         Console.WriteLine(command.ToString());
 
-        var user = await _vUnitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+        var user = await _vUserUnitOfWork.Users.GetByIdAsync(userId, cancellationToken);
         // No Authorization => logout
         if (user is null)
         {
@@ -32,7 +32,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
         }
 
         // No Authorization => logout
-        var employee = await _vUnitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID, cancellationToken);
+        var employee = await _vUserUnitOfWork.Employees.GetByIdForUpdateAsync(user.EmployeeID, cancellationToken);
         if (employee is null)
         {
             result.ResultData.AddMeta(MetaKey.TOKEN_ERROR, true);
@@ -45,7 +45,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
             var currentEmail = employee.Email?.Value;
             if (command.Email != currentEmail)
             {
-                var isEmailExist = await _vUnitOfWork.Employees.IsEmailExistAsync(command.Email, employee.Id, cancellationToken);
+                var isEmailExist = await _vUserUnitOfWork.Employees.IsEmailExistAsync(command.Email, employee.Id, cancellationToken);
                 if (isEmailExist) result = SendError(result, ErrorCode.E0002, "email");
             }
         }
@@ -56,7 +56,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
             var currentPhone = employee.CellPhone?.Value;
             if (command.CellPhone != currentPhone)
             {
-                var isPhoneExist = await _vUnitOfWork.Employees.IsCellPhoneExistAsync(command.CellPhone, employee.Id, cancellationToken);
+                var isPhoneExist = await _vUserUnitOfWork.Employees.IsCellPhoneExistAsync(command.CellPhone, employee.Id, cancellationToken);
                 if (isPhoneExist) result = SendError(result, ErrorCode.E0002, "cellphone");
             }
         }
@@ -81,7 +81,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
         // if having error validation, return error
         if (result.ResultData.HasData) return result;
 
-        await _vUnitOfWork.BeginTransactionAsync(cancellationToken);
+        await _vUserUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             // Update all fields using UpdateProfile method
@@ -100,7 +100,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
                 updatedBy: userId);
 
             // Commit transaction 
-            await _vUnitOfWork.CommitTransactionAsync(cancellationToken);
+            await _vUserUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
         }
         catch (ArgumentException ex)
@@ -126,12 +126,12 @@ public sealed class EmployeeUpdateProfileCommandHandler(
             {
                 result.ResultData.Add(errorCode, "employeeUpdateProfile");
             }
-            await _vUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            await _vUserUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return result;
         }
         catch (Exception)
         {
-            await _vUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            await _vUserUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return SendError(result, ErrorCode.E9999, "employeeUpdateProfile");
         }
     }

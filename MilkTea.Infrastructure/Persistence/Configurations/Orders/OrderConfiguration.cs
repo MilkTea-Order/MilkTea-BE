@@ -62,7 +62,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.OwnsOne(x => x.Promotion, pb =>
         {
-            pb.WithOwner(); // Map into same table (orders)
+            pb.WithOwner();
 
             pb.Property(p => p.PromotionId)
                 .HasColumnName("PromotionID");

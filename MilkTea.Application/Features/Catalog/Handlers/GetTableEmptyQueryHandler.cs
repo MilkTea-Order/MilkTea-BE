@@ -2,18 +2,18 @@ using MediatR;
 using MilkTea.Application.Features.Catalog.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.Catalog.Repositories;
 
 namespace MilkTea.Application.Features.Catalog.Handlers;
 
 public sealed class GetTableEmptyQueryHandler(
-    IUnitOfWork unitOfWork) : IRequestHandler<GetTableEmptyQuery, GetTableEmptyResult>
+    ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetTableEmptyQuery, GetTableEmptyResult>
 {
-    private readonly IUnitOfWork _vUnitOfWork = unitOfWork;
+    private readonly ICatalogUnitOfWork _vCatalogUnitOfWork = catalogUnitOfWork;
     public async Task<GetTableEmptyResult> Handle(GetTableEmptyQuery query, CancellationToken cancellationToken)
     {
         var result = new GetTableEmptyResult();
-        var tables = await _vUnitOfWork.Tables.GetTableAsync(query.IsEmpty, cancellationToken);
+        var tables = await _vCatalogUnitOfWork.Tables.GetTableEmptyAsync(query.IsEmpty, cancellationToken);
         result.Tables = tables.Select(t => new TableDto
         {
             Id = t.Id,

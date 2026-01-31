@@ -1,6 +1,6 @@
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Pricing.Entities;
+namespace MilkTea.Domain.Catalog.Entities;
 
 /// <summary>
 /// Currency entity.

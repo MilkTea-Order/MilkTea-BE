@@ -5,7 +5,6 @@ using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.Configuration.Repositories;
 using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
-using MilkTea.Domain.Pricing.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Hash.Password;
@@ -14,8 +13,7 @@ using MilkTea.Infrastructure.Repositories;
 using MilkTea.Infrastructure.Repositories.Catalog;
 using MilkTea.Infrastructure.Repositories.Configuration;
 using MilkTea.Infrastructure.Repositories.Inventory;
-using MilkTea.Infrastructure.Repositories.Ordering;
-using MilkTea.Infrastructure.Repositories.Pricing;
+using MilkTea.Infrastructure.Repositories.Orders;
 using MilkTea.Infrastructure.Repositories.Users;
 
 namespace MilkTea.Infrastructure;
@@ -26,6 +24,13 @@ public static class DependencyInjection
     {
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Module-specific Unit of Work
+        services.AddScoped<ICatalogUnitOfWork, CatalogUnitOfWork>();
+        services.AddScoped<IOrderingUnitOfWork, OrderingUnitOfWork>();
+        services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
+        services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
+        services.AddScoped<IConfigurationUnitOfWork, ConfigurationUnitOfWork>();
 
         // Ordering
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -55,8 +60,6 @@ public static class DependencyInjection
         //Invenotry
         //services.AddScoped<IMaterialRepository, MaterialRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
-
-        // TODO: Add remaining repository registrations as needed
 
 
 

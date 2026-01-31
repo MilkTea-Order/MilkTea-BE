@@ -52,7 +52,7 @@ public class TableRepository(AppDbContext context) : ITableRepository
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<TableEntity>> GetTableAsync(bool isEmpty = true, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<TableEntity>> GetTableEmptyAsync(bool isEmpty = true, CancellationToken cancellationToken = default)
     {
         var query = _vContext.Tables
         .AsNoTracking()

@@ -1,13 +1,13 @@
 using MediatR;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
+using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Domain.SharedKernel.Repositories;
 
 namespace MilkTea.Application.Features.Orders.Queries;
 
 public sealed class GetOrderDetailByIdAndStatusQueryHandler(
-    IUnitOfWork unitOfWork) : IRequestHandler<GetOrderDetailByIdAndStatusQuery, GetOrderDetailByIDAndStatusResult>
+    IOrderingUnitOfWork orderingUnitOfWork) : IRequestHandler<GetOrderDetailByIdAndStatusQuery, GetOrderDetailByIDAndStatusResult>
 {
     public async Task<GetOrderDetailByIDAndStatusResult> Handle(GetOrderDetailByIdAndStatusQuery query, CancellationToken cancellationToken)
     {
@@ -18,7 +18,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             return SendError(result, ErrorCode.E0036, nameof(query.OrderId));
         }
 
-        var order = await unitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, query.IsCancelled);
+        var order = await orderingUnitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, query.IsCancelled);
 
         if (order is null)
         {

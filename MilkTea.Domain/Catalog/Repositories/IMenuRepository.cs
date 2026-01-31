@@ -37,6 +37,13 @@ public interface IMenuRepository
     /// </summary>
     Task<List<MenuGroup>> GetByStatusWithMenuAsync(int? statusId, int? itemStatusId, CancellationToken cancellationToken);
 
-
+    /// <summary>
+    /// Check menu and size is status active (can pay)
+    /// </summary>
+    /// <param name="menuId"></param>
+    /// <param name="sizeId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>menu and size are active(can pay)</returns>
+    Task<bool> isActiceMenuAndSize(int menuId, int sizeId, CancellationToken cancellationToken);
 }
 
