@@ -1,5 +1,3 @@
-using MilkTea.Application.Models.Catalog;
-
 namespace MilkTea.Application.Models.Orders
 {
     public class Order
@@ -17,9 +15,24 @@ namespace MilkTea.Application.Models.Orders
 
     public sealed class OrderDetail : Order
     {
-        public TableDto? DinnerTable { get; set; }
+        public Table? DinnerTable { get; set; }
         public OrderStatus? Status { get; set; }
         public List<OrderLine> OrderDetails { get; set; } = new();
+    }
+
+    public sealed class Table
+    {
+        public int Id { get; set; }
+        public string? Code { get; set; }
+        public string? Name { get; set; }
+        public string? Position { get; set; }
+        public int? NumberOfSeats { get; set; }
+        public int? StatusId { get; set; }
+        public string? StatusName { get; set; }
+        public string? Note { get; set; }
+        public string? Img { get; set; }
+        public string? EmptyImg { get; set; }
+        public string? UsingImg { get; set; }
     }
 
     public sealed class OrderLine

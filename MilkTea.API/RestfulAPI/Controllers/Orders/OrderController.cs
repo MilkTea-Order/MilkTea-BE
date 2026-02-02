@@ -14,7 +14,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
     public class OrderController(ISender sender,
                                 IMapper mapper) : BaseController
     {
-        private readonly ISender _sender = sender;
+        private readonly ISender _vSender = sender;
         private readonly IMapper _vMapper = mapper;
 
         [Authorize]
@@ -36,7 +36,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                     Note = i.Note
                 }).ToList()
             };
-            var result = await _sender.Send(command);
+            var result = await _vSender.Send(command);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
@@ -54,7 +54,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 StatusId = statusId
             };
 
-            var result = await _sender.Send(query);
+            var result = await _vSender.Send(query);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
@@ -72,7 +72,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 IsCancelled = isCancelled
             };
 
-            var result = await _sender.Send(query);
+            var result = await _vSender.Send(query);
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
@@ -90,7 +90,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 CancelNote = request.CancelNote
             };
 
-            var result = await _sender.Send(command);
+            var result = await _vSender.Send(command);
 
             if (result.ResultData.HasData)
             {
@@ -112,7 +112,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 OrderDetailIDs = request.OrderDetailIDs,
             };
 
-            var result = await _sender.Send(command);
+            var result = await _vSender.Send(command);
 
             if (result.ResultData.HasData)
             {

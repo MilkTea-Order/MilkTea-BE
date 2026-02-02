@@ -1,4 +1,5 @@
-﻿using MilkTea.Application.Ports.Catalog;
+﻿using MilkTea.Application.Models.Catalog;
+using MilkTea.Application.Ports.Catalog;
 using MilkTea.Domain.Catalog.Repositories;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
@@ -7,15 +8,15 @@ namespace MilkTea.Application.Features.Catalog.Queries;
 /// Handler for catalog sales queries.
 /// Implements ICatalogSalesQuery to provide sales validation and pricing to other modules.
 /// </summary>
-public class CatalogSalesQueryHandler(
-    ICatalogUnitOfWork catalogUnitOfWork) : ICatalogSalesQuery
+public class CatalogQueryHandler(ICatalogUnitOfWork catalogUnitOfWork) : ICatalogQuery
 {
+    private readonly ICatalogUnitOfWork _vCatalogUnitOfWork = catalogUnitOfWork;
     public async Task<SalesValidationResult> ValidateAndQuoteAsync(int tableId, int menuId, int sizeId, int quantity, CancellationToken cancellationToken = default)
     {
         var result = new SalesValidationResult();
 
         // Validate table (Not Found or Not Empty)
-        var emptyTables = await catalogUnitOfWork.Tables.GetTableEmptyAsync(true, cancellationToken);
+        var emptyTables = await _vCatalogUnitOfWork.Tables.GetTableEmptyAsync(true, cancellationToken);
         var isTableEmpty = emptyTables.Any(t => t.Id == tableId);
         //Console.WriteLine($"isTableEmpty: {isTableEmpty}");
         if (!isTableEmpty)
@@ -28,7 +29,7 @@ public class CatalogSalesQueryHandler(
         }
 
         // Validate Menu and Size (Active)
-        var isMenuSizeActive = await catalogUnitOfWork.Menus.isActiceMenuAndSize(menuId, sizeId, cancellationToken);
+        var isMenuSizeActive = await _vCatalogUnitOfWork.Menus.isActiceMenuAndSize(menuId, sizeId, cancellationToken);
         //Console.WriteLine($"isMenuSizeActive: {isMenuSizeActive}");
         if (!isMenuSizeActive)
         {
@@ -36,7 +37,7 @@ public class CatalogSalesQueryHandler(
         }
 
         // Price
-        var priceList = await catalogUnitOfWork.PriceLists.GetActiveByMenuAndSizeWithRelationshipAsync(menuId, sizeId, cancellationToken);
+        var priceList = await _vCatalogUnitOfWork.PriceLists.GetActiveByMenuAndSizeWithRelationshipAsync(menuId, sizeId, cancellationToken);
         var priceDetail = priceList?.Details?.FirstOrDefault();
         if (priceDetail is null)
         {
@@ -54,4 +55,13 @@ public class CatalogSalesQueryHandler(
         return r;
     }
 
+    public Task<IReadOnlyDictionary<int, MenuItemDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IReadOnlyDictionary<int, MenuSizeDto>> GetMenuSizesAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

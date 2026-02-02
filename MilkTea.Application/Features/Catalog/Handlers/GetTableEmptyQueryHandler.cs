@@ -24,7 +24,7 @@ public sealed class GetTableEmptyQueryHandler(
             StatusId = (int)t.Status,
             StatusName = t.Status.ToString(),
             Note = t.Note,
-            Img = t.EmptyPicture != null
+            EmptyImg = t.EmptyPicture != null
                 ? $"data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"
                 : null
         }).ToList();

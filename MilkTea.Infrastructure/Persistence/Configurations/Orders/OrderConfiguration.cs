@@ -57,7 +57,7 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         {
             b.Property(p => p.Value)
                 .HasColumnName("BillNo")
-                .HasColumnType("tinytext"); // DB tinytext
+                .HasColumnType("tinytext");
         });
 
         builder.OwnsOne(x => x.Promotion, pb =>
@@ -87,8 +87,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.ActionDate).HasColumnName("ActionDate");
 
         builder.HasMany(x => x.OrderItems)
-                .WithOne("Order")
-                .HasForeignKey("OrderId")
+                .WithOne()
+                .HasForeignKey(x => x.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.OrderItems)

@@ -4,7 +4,7 @@ namespace MilkTea.Application.Ports.Catalog;
 /// Query service interface for Catalog module to provide sales-related data to other modules.
 /// This abstraction allows Orders module to query Catalog data without direct repository access.
 /// </summary>
-public interface ICatalogSalesQuery
+public interface ICatalogQuery
 {
     /// <summary>
     /// Validates table availability, menu status, and quotes unit price for a menu item.

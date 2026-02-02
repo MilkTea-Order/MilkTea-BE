@@ -26,12 +26,12 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.Property(x => x.CancelledDate).HasColumnName("CancelledDate");
         builder.Property(x => x.Note).HasColumnName("Note");
 
+        builder.Ignore(x => x.UpdatedBy);
+        builder.Ignore(x => x.UpdatedDate);
         builder.Ignore(x => x.TotalAmount);
 
-        builder.OwnsOne(x => x.MenuItem, menuItem =>
+        builder.ComplexProperty(x => x.MenuItem, menuItem =>
         {
-            menuItem.WithOwner();
-
             menuItem.Property(m => m.MenuId).HasColumnName("MenuID").IsRequired();
             menuItem.Property(m => m.SizeId).HasColumnName("SizeID").IsRequired();
             menuItem.Property(m => m.PriceListId).HasColumnName("PriceListID");
@@ -45,7 +45,6 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             menuItem.Property(m => m.KindOfHotpot2Id).HasColumnName("KindOfHotpot2ID");
         });
 
-        builder.Navigation(x => x.MenuItem).IsRequired();
-        builder.Navigation("Order");
+        //builder.Navigation("Order");
     }
 }

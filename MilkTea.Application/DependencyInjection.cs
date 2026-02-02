@@ -19,7 +19,7 @@ public static class DependencyInjection
         });
 
         // Register catalog sales query service
-        services.AddScoped<ICatalogSalesQuery, CatalogSalesQueryHandler>();
+        services.AddScoped<ICatalogQuery, CatalogQueryHandler>();
 
         return services;
     }

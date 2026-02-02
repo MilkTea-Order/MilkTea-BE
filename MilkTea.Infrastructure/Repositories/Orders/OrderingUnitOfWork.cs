@@ -25,6 +25,7 @@ public class OrderingUnitOfWork(
     {
         try
         {
+            Console.WriteLine("Before Save tracked entries: " + _vContext.ChangeTracker.Entries().Count());
             await _vContext.SaveChangesAsync(cancellationToken);
             if (_vTransaction != null)
                 await _vTransaction.CommitAsync(cancellationToken);

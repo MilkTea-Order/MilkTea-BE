@@ -12,14 +12,13 @@ namespace MilkTea.Application.Features.Orders.Commands;
 public sealed class CreateOrderCommandHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
     IConfigurationUnitOfWork configurationUnitOfWork,
-    ICatalogSalesQuery catalogSalesQuery,
+    ICatalogQuery catalogSalesQuery,
     ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
         var result = new CreateOrderResult();
         var createdBy = currentUser.UserId;
-        // Default to createdBy if OrderedBy is not provided
         var orderedBy = command.OrderedBy ?? createdBy;
 
         var validatedItems = new List<ValidatedOrderItemDto>();
@@ -76,29 +75,18 @@ public sealed class CreateOrderCommandHandler(
                     priceListId: v.PriceListId,
                     kindOfHotpot1Id: v.OriginalItem.KindOfHotpotIDs?.Count > 0 ? v.OriginalItem.KindOfHotpotIDs[0] : null,
                     kindOfHotpot2Id: v.OriginalItem.KindOfHotpotIDs?.Count > 1 ? v.OriginalItem.KindOfHotpotIDs[1] : null);
-
                 order.CreateOrderItem(
                     menuItem: menuItem,
                     quantity: v.OriginalItem.Quantity,
                     createdBy: createdBy,
                     note: v.OriginalItem.Note);
             }
+            await orderingUnitOfWork.Orders.AddAsync(order, cancellationToken);
             await orderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             result.OrderDate = order.OrderDate;
             result.OrderID = order.Id;
             result.BillNo = order.BillNo.Value;
             result.TotalAmount = order.TotalAmount;
-            //result.Items = validatedItems.Select(v => new OrderItemResult
-            //{
-            //    MenuID = v.OriginalItem.MenuID,
-            //    MenuName = v.Menu.Name,
-            //    SizeID = v.OriginalItem.SizeID,
-            //    SizeName = v.Size.Name,
-            //    Quantity = v.OriginalItem.Quantity,
-            //    Price = v.UnitPrice,
-            //    TotalPrice = v.OriginalItem.Quantity * v.UnitPrice
-            //}).ToList();
-
             return result;
         }
         catch

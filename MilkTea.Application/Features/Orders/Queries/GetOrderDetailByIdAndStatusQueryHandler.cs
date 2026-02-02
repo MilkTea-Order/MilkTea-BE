@@ -1,14 +1,19 @@
 using MediatR;
+using MilkTea.Application.Features.Catalog.Services;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
+using Shared.Extensions;
 
 namespace MilkTea.Application.Features.Orders.Queries;
 
 public sealed class GetOrderDetailByIdAndStatusQueryHandler(
-    IOrderingUnitOfWork orderingUnitOfWork) : IRequestHandler<GetOrderDetailByIdAndStatusQuery, GetOrderDetailByIDAndStatusResult>
+    IOrderingUnitOfWork orderingUnitOfWork,
+    ICatalogService catalogService) : IRequestHandler<GetOrderDetailByIdAndStatusQuery, GetOrderDetailByIDAndStatusResult>
 {
+    private readonly ICatalogService _vCatalogQuery = catalogService;
+    private readonly IOrderingUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
     public async Task<GetOrderDetailByIDAndStatusResult> Handle(GetOrderDetailByIdAndStatusQuery query, CancellationToken cancellationToken)
     {
         var result = new GetOrderDetailByIDAndStatusResult();
@@ -18,12 +23,19 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             return SendError(result, ErrorCode.E0036, nameof(query.OrderId));
         }
 
-        var order = await orderingUnitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, query.IsCancelled);
+        var order = await _vOrderUnitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, query.IsCancelled);
 
         if (order is null)
         {
             return SendError(result, ErrorCode.E0001, nameof(query.OrderId));
         }
+        var menuIds = order.OrderItems.Select(x => x.MenuItem.MenuId).Distinct();
+
+        var sizeIds = order.OrderItems.Select(x => x.MenuItem.SizeId).Distinct();
+
+        var menus = await _vCatalogQuery.GetMenusAsync(menuIds, cancellationToken);
+        var sizes = await _vCatalogQuery.GetMenuSizesAsync(sizeIds, cancellationToken);
+        var table = await _vCatalogQuery.GetTableAsync(order.DinnerTableId, cancellationToken);
 
         result.Order = new OrderDetail
         {
@@ -36,6 +48,22 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             StatusId = (int)order.Status,
             Note = order.Note,
             TotalAmount = order.TotalAmount,
+            Status = new OrderStatus
+            {
+                Id = (int)order.Status,
+                Name = order.Status.GetDescription()
+            },
+            DinnerTable = table is null ? null : new Table
+            {
+                Id = table.Id,
+                Code = table.Code,
+                Name = table.Name,
+                Position = table.Position,
+                NumberOfSeats = table.NumberOfSeats,
+                StatusId = table.StatusId,
+                StatusName = table.StatusName,
+                Note = table.Note,
+            },
             OrderDetails = order.OrderItems
                 .Where(item => query.IsCancelled == null || item.IsCancelled == query.IsCancelled)
                 .Select(item => new OrderLine
@@ -53,10 +81,30 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                     CancelledDate = item.CancelledDate,
                     Note = item.Note,
                     KindOfHotpot1Id = item.MenuItem.KindOfHotpot1Id,
-                    KindOfHotpot2Id = item.MenuItem.KindOfHotpot2Id
+                    KindOfHotpot2Id = item.MenuItem.KindOfHotpot2Id,
+                    Menu = menus.TryGetValue(item.MenuItem.MenuId, out var m)
+                                    ? new Menu
+                                    {
+                                        Id = m.MenuId,
+                                        Code = m.MenuCode,
+                                        Name = m.MenuName,
+                                        MenuGroupName = m.MenuGroupName,
+                                        StatusName = m.StatusName,
+                                        UnitName = m.UnitName,
+                                        Note = m.Note
+                                    }
+                                    : null,
+
+                    Size = sizes.TryGetValue(item.MenuItem.SizeId, out var s)
+                                    ? new Size
+                                    {
+                                        Id = s.SizeId,
+                                        Name = s.SizeName,
+                                        RankIndex = s.RankIndex
+                                    }
+                                    : null,
                 }).ToList()
         };
-
         return result;
     }
 

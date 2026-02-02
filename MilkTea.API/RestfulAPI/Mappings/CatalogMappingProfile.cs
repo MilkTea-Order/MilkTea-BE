@@ -33,7 +33,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.TableNote, o => o.MapFrom(s => s.Note))
                 .ForMember(d => d.StatusID, o => o.MapFrom(s => s.StatusId))
                 .ForMember(d => d.StatusName, o => o.MapFrom(s => s.StatusName))
-                .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.Img));
+                .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg));
 
         }
     }

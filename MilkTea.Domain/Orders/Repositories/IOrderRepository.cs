@@ -52,4 +52,5 @@ public interface IOrderRepository
     /// Checks if an order item is cancelled.
     /// </summary>
     Task<bool> IsOrderItemCancelledAsync(int orderItemId);
+
 }
