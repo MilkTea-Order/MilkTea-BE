@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Inventory.Entities;
-using MilkTea.Domain.Inventory.Enums;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Inventory;
 
@@ -9,7 +8,7 @@ public class MaterialConfiguration : IEntityTypeConfiguration<Material>
 {
     public void Configure(EntityTypeBuilder<Material> builder)
     {
-        builder.ToTable("materials");
+        builder.ToTable("Materials");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -22,7 +21,7 @@ public class MaterialConfiguration : IEntityTypeConfiguration<Material>
         builder.Property(x => x.UnitID_Max).HasColumnName("UnitID_Max");
         builder.Property(x => x.StyleQuantity).HasColumnName("StyleQuantity");
         builder.Property(x => x.MaterialsGroupID).HasColumnName("MaterialsGroupID").IsRequired();
-        
+
         // Map enum to existing StatusID column
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")

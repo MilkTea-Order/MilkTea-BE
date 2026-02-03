@@ -2,13 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Catalog.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.TableManagement;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
 public class TableConfiguration : IEntityTypeConfiguration<TableEntity>
 {
     public void Configure(EntityTypeBuilder<TableEntity> builder)
     {
-        builder.ToTable("dinnertable");
+        builder.ToTable("DinnerTable");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)

@@ -8,7 +8,7 @@ public class MenuMaterialRecipeConfiguration : IEntityTypeConfiguration<MenuMate
 {
     public void Configure(EntityTypeBuilder<MenuMaterialRecipe> builder)
     {
-        builder.ToTable("menuandmaterial");
+        builder.ToTable("MenuAndMaterial");
 
         builder.HasKey(x => new { x.MenuID, x.MaterialID });
 

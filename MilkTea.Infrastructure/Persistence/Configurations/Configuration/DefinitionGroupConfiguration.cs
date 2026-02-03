@@ -8,7 +8,7 @@ public class DefinitionGroupConfiguration : IEntityTypeConfiguration<DefinitionG
 {
     public void Configure(EntityTypeBuilder<DefinitionGroup> builder)
     {
-        builder.ToTable("definitiongroup");
+        builder.ToTable("DefinitionGroup");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID").IsRequired();

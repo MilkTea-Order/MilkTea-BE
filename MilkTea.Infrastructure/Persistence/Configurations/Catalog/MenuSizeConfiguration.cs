@@ -8,7 +8,7 @@ public class MenuSizeConfiguration : IEntityTypeConfiguration<MenuSize>
 {
     public void Configure(EntityTypeBuilder<MenuSize> builder)
     {
-        builder.ToTable("menu_size");
+        builder.ToTable("Menu_Size");
 
         builder.HasKey(x => new { x.MenuID, x.SizeID });
 

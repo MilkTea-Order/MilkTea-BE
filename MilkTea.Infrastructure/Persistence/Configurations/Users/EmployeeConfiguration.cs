@@ -5,7 +5,7 @@ using MilkTea.Domain.Users.Entities;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
 
-public class EmployeeProfileConfiguration : IEntityTypeConfiguration<Employee>
+public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 {
     // Save: "" -> NULL
     // Load: NULL -> ""
@@ -19,7 +19,7 @@ public class EmployeeProfileConfiguration : IEntityTypeConfiguration<Employee>
 
     public void Configure(EntityTypeBuilder<Employee> builder)
     {
-        builder.ToTable("employees");
+        builder.ToTable("Employees");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");

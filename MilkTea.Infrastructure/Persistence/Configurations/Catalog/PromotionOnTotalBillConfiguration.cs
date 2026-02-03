@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Catalog.Entities;
-using MilkTea.Domain.Catalog.Enums;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
@@ -9,7 +8,7 @@ public class PromotionOnTotalBillConfiguration : IEntityTypeConfiguration<Promot
 {
     public void Configure(EntityTypeBuilder<PromotionOnTotalBill> builder)
     {
-        builder.ToTable("promotionontotalbill");
+        builder.ToTable("PromotionOnTotalBill");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -25,13 +24,13 @@ public class PromotionOnTotalBillConfiguration : IEntityTypeConfiguration<Promot
         builder.Property(x => x.StopDate).HasColumnName("StopDate").IsRequired();
         builder.Property(x => x.ProPercent).HasColumnName("ProPercent");
         builder.Property(x => x.ProAmount).HasColumnName("ProAmount");
-        
+
         // Map enum to existing StatusID column
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")
             .HasConversion<int>()
             .IsRequired();
-        
+
         builder.Property(x => x.Note).HasColumnName("Note");
 
         builder.Ignore(x => x.DomainEvents);

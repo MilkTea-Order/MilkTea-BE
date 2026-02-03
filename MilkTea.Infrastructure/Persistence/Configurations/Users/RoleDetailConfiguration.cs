@@ -8,7 +8,7 @@ public class RoleDetailConfiguration : IEntityTypeConfiguration<RoleDetail>
 {
     public void Configure(EntityTypeBuilder<RoleDetail> builder)
     {
-        builder.ToTable("roledetail");
+        builder.ToTable("RoleDetail");
         builder.HasKey(x => new { x.RoleID, x.PermissionDetailID });
 
         builder.Property(x => x.RoleID).HasColumnName("RoleID").IsRequired();

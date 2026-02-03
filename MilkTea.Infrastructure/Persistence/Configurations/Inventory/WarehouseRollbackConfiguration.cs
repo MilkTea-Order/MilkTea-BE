@@ -8,7 +8,7 @@ public class WarehouseRollbackConfiguration : IEntityTypeConfiguration<Warehouse
 {
     public void Configure(EntityTypeBuilder<WarehouseRollback> builder)
     {
-        builder.ToTable("warehouserollback");
+        builder.ToTable("WarehouseRollback");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");

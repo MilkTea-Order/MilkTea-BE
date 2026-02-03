@@ -8,7 +8,7 @@ public class MaterialsGroupConfiguration : IEntityTypeConfiguration<MaterialsGro
 {
     public void Configure(EntityTypeBuilder<MaterialsGroup> builder)
     {
-        builder.ToTable("materialsgroup");
+        builder.ToTable("MaterialsGroup");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");

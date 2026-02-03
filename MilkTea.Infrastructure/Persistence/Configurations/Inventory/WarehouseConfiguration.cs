@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Inventory.Entities;
-using MilkTea.Domain.SharedKernel.Enums;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Inventory;
 
@@ -9,7 +8,7 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 {
     public void Configure(EntityTypeBuilder<Warehouse> builder)
     {
-        builder.ToTable("warehouse");
+        builder.ToTable("Warehouse");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -22,7 +21,7 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
         builder.Property(x => x.PriceImport).HasColumnName("PriceImport").IsRequired();
         builder.Property(x => x.AmountTotal).HasColumnName("AmountTotal").IsRequired();
         builder.Property(x => x.ImportFromSuppliersID).HasColumnName("ImportFromSuppliersID").IsRequired();
-        
+
         // Map enum to existing StatusID column
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")

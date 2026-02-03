@@ -8,7 +8,7 @@ public class DefinitionConfiguration : IEntityTypeConfiguration<Definition>
 {
     public void Configure(EntityTypeBuilder<Definition> builder)
     {
-        builder.ToTable("definition");
+        builder.ToTable("Definition");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");

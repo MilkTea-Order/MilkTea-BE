@@ -8,7 +8,7 @@ public class PermissionGroupConfiguration : IEntityTypeConfiguration<PermissionG
 {
     public void Configure(EntityTypeBuilder<PermissionGroup> builder)
     {
-        builder.ToTable("permissiongroup");
+        builder.ToTable("PermissionGroup");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");

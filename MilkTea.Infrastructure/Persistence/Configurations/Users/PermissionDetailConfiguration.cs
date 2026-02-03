@@ -8,7 +8,7 @@ public class PermissionDetailConfiguration : IEntityTypeConfiguration<Permission
 {
     public void Configure(EntityTypeBuilder<PermissionDetail> builder)
     {
-        builder.ToTable("permissiondetail");
+        builder.ToTable("PermissionDetail");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID").IsRequired();

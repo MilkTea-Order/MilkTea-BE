@@ -8,7 +8,7 @@ public class UserAndPermissionDetailConfiguration : IEntityTypeConfiguration<Use
 {
     public void Configure(EntityTypeBuilder<UserAndPermissionDetail> builder)
     {
-        builder.ToTable("userandpermissiondetail");
+        builder.ToTable("UserAndPermissionDetail");
 
         builder.HasKey(x => new { x.UserID, x.PermissionDetailID });
 

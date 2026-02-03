@@ -8,7 +8,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
 {
     public void Configure(EntityTypeBuilder<Position> builder)
     {
-        builder.ToTable("position");
+        builder.ToTable("Position");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID").IsRequired();

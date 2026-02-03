@@ -8,7 +8,7 @@ public class SizeConfiguration : IEntityTypeConfiguration<Size>
 {
     public void Configure(EntityTypeBuilder<Size> builder)
     {
-        builder.ToTable("size");
+        builder.ToTable("Size");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)

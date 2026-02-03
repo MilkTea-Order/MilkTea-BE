@@ -8,7 +8,7 @@ public class PriceListConfiguration : IEntityTypeConfiguration<PriceList>
 {
     public void Configure(EntityTypeBuilder<PriceList> builder)
     {
-        builder.ToTable("pricelist");
+        builder.ToTable("PriceList");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)

@@ -8,7 +8,7 @@ public class KindOfHotpotConfiguration : IEntityTypeConfiguration<KindOfHotpot>
 {
     public void Configure(EntityTypeBuilder<KindOfHotpot> builder)
     {
-        builder.ToTable("kindofhotpot");
+        builder.ToTable("KindOfHotpot");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasColumnName("ID");
