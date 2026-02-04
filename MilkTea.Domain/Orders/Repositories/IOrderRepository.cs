@@ -36,7 +36,7 @@ public interface IOrderRepository
     /// <summary>
     /// Gets orders filtered by order creator and optional status.
     /// </summary>
-    Task<List<Order>> GetOrdersByOrderByAndStatusAsync(int orderBy, OrderStatus? status);
+    Task<List<Order>> GetOrdersByOrderByAndStatusWithRelationshipAsync(int orderBy, OrderStatus? status);
 
     /// <summary>
     /// Gets an order with details by ID and cancellation status.

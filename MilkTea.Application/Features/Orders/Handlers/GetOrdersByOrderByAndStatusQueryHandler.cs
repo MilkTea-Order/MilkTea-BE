@@ -21,7 +21,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
             status = (Domain.Orders.Enums.OrderStatus)query.StatusId.Value;
         }
 
-        var orders = await orderingUnitOfWork.Orders.GetOrdersByOrderByAndStatusAsync(currentUser.UserId, status);
+        var orders = await orderingUnitOfWork.Orders.GetOrdersByOrderByAndStatusWithRelationshipAsync(currentUser.UserId, status);
         result.Orders = orders.Select(o => new Order
         {
             OrderId = o.Id,

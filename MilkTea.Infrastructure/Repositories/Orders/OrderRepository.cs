@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Domain.Orders.Entities;
 using MilkTea.Domain.Orders.Enums;
 using MilkTea.Domain.Orders.Repositories;
@@ -27,14 +27,18 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     }
 
     /// <inheritdoc/>
-    public async Task<List<Order>> GetOrdersByOrderByAndStatusAsync(int orderBy, OrderStatus? status)
+    public async Task<List<Order>> GetOrdersByOrderByAndStatusWithRelationshipAsync(int orderBy, OrderStatus? status)
     {
-        var query = _vContext.Orders.Where(o => o.OrderBy == orderBy);
+        var query = _vContext.Orders.AsNoTracking().Where(o => o.OrderBy == orderBy);
 
         if (status.HasValue)
             query = query.Where(o => o.Status == status.Value);
 
-        return await query.OrderByDescending(o => o.Id).ToListAsync();
+        return await query
+        .Include(o => o.OrderItems)
+        .AsSplitQuery()
+        .OrderByDescending(o => o.Id)
+        .ToListAsync();
     }
 
     /// <inheritdoc/>
