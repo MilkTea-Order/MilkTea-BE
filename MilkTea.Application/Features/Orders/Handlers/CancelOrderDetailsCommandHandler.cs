@@ -1,6 +1,7 @@
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Abstractions.CQRS;
@@ -27,12 +28,6 @@ public sealed class CancelOrderDetailsCommandHandler(
             return SendError(result, ErrorCode.E0001, "OrderID");
         }
 
-        // Check if order can have items cancelled (must be Unpaid)
-        if (order.Status != Domain.Orders.Enums.OrderStatus.Unpaid)
-        {
-            return SendError(result, ErrorCode.E0042, "OrderID");
-        }
-
         // Validate order detail IDs belong to this order
         var validOrderDetailIds = order.OrderItems.Select(oi => oi.Id).ToList();
         var invalidDetailIds = command.OrderDetailIDs
@@ -46,15 +41,19 @@ public sealed class CancelOrderDetailsCommandHandler(
             result.ResultData.AddMeta("InvalidIDs", invalidDetailIds);
             return result;
         }
-
         // Cancel item not already cancelled
         await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var cancelledBy = currentUser.UserId;
-            result.CancelledDetailIDs = order.RemoveOrderItems(command.OrderDetailIDs, cancelledBy);
+            result.CancelledDetailIDs = order.CancelOrderItems(command.OrderDetailIDs, cancelledBy);
             await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
+        }
+        catch (OrderNotEditableException)
+        {
+            await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            return SendError(result, ErrorCode.E0042, "OrderID");
         }
         catch (Exception)
         {

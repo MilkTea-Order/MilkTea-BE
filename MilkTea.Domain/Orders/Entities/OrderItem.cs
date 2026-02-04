@@ -75,8 +75,7 @@ public sealed class OrderItem : Entity<int>
 
     public void Cancel(int cancelledBy)
     {
-        if (IsCancelled)
-            throw new InvalidOperationException("Order item is already cancelled.");
+        if (IsCancelled) throw new OrderItemCancelledException();
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
 

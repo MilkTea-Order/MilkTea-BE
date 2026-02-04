@@ -1,10 +1,11 @@
 using MediatR;
+using MilkTea.Application.Features.Orders.Queries;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Repositories;
 
-namespace MilkTea.Application.Features.Orders.Queries;
+namespace MilkTea.Application.Features.Orders.Handlers;
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
@@ -14,7 +15,6 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
     {
         var result = new GetOrdersByOrderByAndStatusResult();
 
-        // Convert StatusId to enum if provided
         Domain.Orders.Enums.OrderStatus? status = null;
         if (query.StatusId.HasValue && Enum.IsDefined(typeof(Domain.Orders.Enums.OrderStatus), query.StatusId.Value))
         {
@@ -32,7 +32,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
             CreatedBy = o.CreatedBy,
             StatusId = (int)o.Status,
             Note = o.Note,
-            TotalAmount = o.TotalAmount
+            TotalAmount = o.GetTotalAmount()
         }).ToList();
 
         return result;

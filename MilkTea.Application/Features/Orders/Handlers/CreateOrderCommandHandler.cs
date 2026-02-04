@@ -2,7 +2,6 @@ using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Catalog;
 using MilkTea.Application.Ports.Users;
-using MilkTea.Domain.Configuration.Repositories;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Constants;
@@ -12,7 +11,6 @@ namespace MilkTea.Application.Features.Orders.Handlers;
 
 public sealed class CreateOrderCommandHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
-    IConfigurationUnitOfWork configurationUnitOfWork,
     ICatalogQuery catalogSalesQuery,
     ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
@@ -21,7 +19,6 @@ public sealed class CreateOrderCommandHandler(
         var result = new CreateOrderResult();
         var createdBy = currentUser.UserId;
         var orderedBy = command.OrderedBy ?? createdBy;
-
         var validatedItems = new List<ValidatedOrderItemDto>();
         foreach (var item in command.Items!)
         {
@@ -52,17 +49,7 @@ public sealed class CreateOrderCommandHandler(
         try
         {
             var now = DateTime.UtcNow;
-            // throw => not created order successfully
-            var codePrefix = await configurationUnitOfWork.Definitions.GetCodePrefixBill()
-                ?? throw new InvalidOperationException("Bill number prefix is not configured.");
-            if (string.IsNullOrWhiteSpace(codePrefix.Value))
-                throw new InvalidOperationException("Bill number prefix value is missing.");
-
-            var count = await orderingUnitOfWork.Orders.GetTotalOrdersCountInDateAsync(now.Date);
-            var billNo = BillNo.Create(codePrefix.Value!, now, createdBy, count + 1);
-
             var order = Domain.Orders.Entities.Order.Create(
-                billNo: billNo,
                 dinnerTableId: command.DinnerTableID,
                 orderBy: orderedBy,
                 createdBy: createdBy,
@@ -86,8 +73,8 @@ public sealed class CreateOrderCommandHandler(
             await orderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             result.OrderDate = order.OrderDate;
             result.OrderID = order.Id;
-            result.BillNo = order.BillNo.Value;
-            result.TotalAmount = order.TotalAmount;
+            result.BillNo = order.BillNo?.Value;
+            result.TotalAmount = order.GetTotalAmount();
             return result;
         }
         catch
@@ -135,17 +122,3 @@ public sealed class CreateOrderCommandHandler(
         public int PriceListId { get; } = quote.PriceListId!.Value;
     }
 }
-
-
-//private static ValidationError? ValidateRequest(CreateOrderCommand command)
-//{
-//    if (command.Items.Any(i => i.MenuID <= 0))
-//        return ValidationError.InvalidData(nameof(OrderItemCommand.MenuID));
-
-//    if (command.Items.Any(i => i.SizeID <= 0))
-//        return ValidationError.InvalidData(nameof(OrderItemCommand.SizeID));
-
-//    if (command.Items.Any(i => i.Quantity <= 0))
-//        return ValidationError.InvalidData(nameof(OrderItemCommand.Quantity));
-//    return null;
-//}

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Orders.Entities;
 
@@ -53,12 +53,23 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.MergedBy).HasColumnName("MergedBy");
         builder.Property(x => x.MergedDate).HasColumnName("MergedDate");
 
-        builder.ComplexProperty(x => x.BillNo, b =>
+        //builder.ComplexProperty(x => x.BillNo, b =>
+        //{
+        //    b.Property(p => p!.Value)
+        //        .HasColumnName("BillNo")
+        //        .HasColumnType("tinytext")
+        //        .IsRequired(false);
+        //});
+
+        builder.OwnsOne(x => x.BillNo, b =>
         {
             b.Property(p => p.Value)
                 .HasColumnName("BillNo")
-                .HasColumnType("tinytext");
+                .HasColumnType("tinytext")
+                .IsRequired(false);
         });
+
+        builder.Navigation(x => x.BillNo).IsRequired(false);
 
         builder.OwnsOne(x => x.Promotion, pb =>
         {

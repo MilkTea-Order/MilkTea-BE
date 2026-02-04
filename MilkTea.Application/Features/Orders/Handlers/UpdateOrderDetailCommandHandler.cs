@@ -41,7 +41,7 @@ namespace MilkTea.Application.Features.Orders.Handlers
             catch (OrderNotEditableException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0027, "OrderID");
+                return SendError(result, ErrorCode.E0042, "OrderID");
             }
             catch (OrderItemNotFoundException)
             {
@@ -51,7 +51,7 @@ namespace MilkTea.Application.Features.Orders.Handlers
             catch (OrderItemCancelledException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0027, "OrderDetailID");
+                return SendError(result, ErrorCode.E0042, "OrderDetailID");
             }
             catch (Exception ex)
             {

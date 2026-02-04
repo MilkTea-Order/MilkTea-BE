@@ -11,40 +11,34 @@ public sealed class Order : Aggregate<int>
     private readonly List<OrderItem> _vOrderItems = new();
     public IReadOnlyList<OrderItem> OrderItems => _vOrderItems.AsReadOnly();
 
-    public BillNo BillNo { get; private set; } = default!;
-
     public int DinnerTableId { get; private set; }
-
+    public int OrderBy { get; private set; }
+    public DateTime OrderDate { get; private set; }
+    public int? CancelledBy { get; private set; }
+    public DateTime? CancelledDate { get; private set; }
     public OrderStatus Status { get; private set; }
+    public string? Note { get; private set; }
 
-    public int OrderBy { get; set; }
-    public DateTime OrderDate { get; set; }
+    public int? PaymentedBy { get; private set; }
+    public DateTime? PaymentedDate { get; private set; }
+    public decimal? PaymentedTotal { get; private set; }
+    public string? PaymentedType { get; private set; }
 
-    public decimal TotalAmount { get; private set; }
+    public int? AddNoteBy { get; private set; }
+    public DateTime? AddNoteDate { get; private set; }
+    public int? ChangeBy { get; private set; }
+    public DateTime? ChangeDate { get; private set; }
+    public int? MergedBy { get; private set; }
+    public DateTime? MergedDate { get; private set; }
 
-    public string? Note { get; set; }
-
-    public int? PaymentedBy { get; set; }
-    public DateTime? PaymentedDate { get; set; }
-    public decimal? PaymentedTotal { get; set; }
-    public string? PaymentedType { get; set; }
-
-    public int? CancelledBy { get; set; }
-    public DateTime? CancelledDate { get; set; }
-
+    public BillNo? BillNo { get; private set; }
     public Promotion? Promotion { get; private set; }
-
-    public int? AddNoteBy { get; set; }
-    public DateTime? AddNoteDate { get; set; }
-    public int? ChangeBy { get; set; }
-    public DateTime? ChangeDate { get; set; }
-    public int? MergedBy { get; set; }
-    public DateTime? MergedDate { get; set; }
-    public int? ActionBy { get; set; }
-    public DateTime? ActionDate { get; set; }
+    public decimal? TotalAmount { get; private set; }
+    public int? ActionBy { get; private set; }
+    public DateTime? ActionDate { get; private set; }
 
     public static Order Create(
-        BillNo billNo,
+        //BillNo billNo,
         int dinnerTableId,
         int orderBy,
         int createdBy,
@@ -54,15 +48,15 @@ public sealed class Order : Aggregate<int>
 
         var order = new Order
         {
-            BillNo = billNo,
+            //BillNo = billNo,
             DinnerTableId = dinnerTableId,
             OrderBy = orderBy,
             OrderDate = now,
             CreatedBy = createdBy,
             CreatedDate = now,
             Status = OrderStatus.Unpaid,
-            Note = note,
-            TotalAmount = 0m
+            Note = note
+            //TotalAmount = 0m
         };
 
         if (!string.IsNullOrWhiteSpace(note))
@@ -76,18 +70,18 @@ public sealed class Order : Aggregate<int>
 
     public void CreateOrderItem(MenuItem menuItem, int quantity, int createdBy, string? note = null)
     {
-        EnsureNotCancelled();
+        EnsureCanEdit();
 
         var orderItem = OrderItem.Create(menuItem, quantity, createdBy, note);
         _vOrderItems.Add(orderItem);
 
-        RecalculateTotalAmount();
+        //RecalculateTotalAmount();
         Touch(updatedBy: createdBy);
     }
 
-    public void RemoveOrderItem(int orderItemId, int removedBy)
+    public void CancelOrderItem(int orderItemId, int removedBy)
     {
-        EnsureNotCancelled();
+        EnsureCanEdit();
 
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (item is null)
@@ -97,19 +91,14 @@ public sealed class Order : Aggregate<int>
             throw new InvalidOperationException($"OrderItem with ID {orderItemId} is already cancelled.");
 
         item.Cancel(removedBy);
-        RecalculateTotalAmount();
+        //RecalculateTotalAmount();
         Touch(updatedBy: removedBy);
     }
-
-    /// <summary>
-    /// Removes multiple order items by their IDs.
-    /// </summary>
-    public List<int> RemoveOrderItems(List<int> orderItemIds, int removedBy)
+    public List<int> CancelOrderItems(List<int> orderItemIds, int removedBy)
     {
-        EnsureNotCancelled();
+        EnsureCanEdit();
         ArgumentNullException.ThrowIfNull(orderItemIds);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(removedBy);
-
         var cancelledIDs = new List<int>();
         if (orderItemIds.Count == 0)
             return new List<int>();
@@ -126,37 +115,42 @@ public sealed class Order : Aggregate<int>
             item.Cancel(removedBy);
             cancelledIDs.Add(item.Id);
         }
-
-        RecalculateTotalAmount();
         Touch(removedBy);
         return cancelledIDs;
     }
 
-    /// <summary>
-    /// Assigns the order to a dinner table.
-    /// </summary>
-    public void AssignTable(int dinnerTableId, int updatedBy)
+    public void UpdateItemQuantity(int orderItemId, int quantity, int updatedBy)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dinnerTableId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
-        DinnerTableId = dinnerTableId;
-        Touch(updatedBy);
+        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (item is null) throw new OrderItemNotFoundException();
+
+        EnsureCanEdit();
+
+        item.UpdateQuantity(quantity, updatedBy);
+
+        //RecalculateTotalAmount();
+
+        UpdatedBy = updatedBy;
+        UpdatedDate = DateTime.UtcNow;
     }
 
-    public void FinalizeAndPublishCreated()
+    public void UpdateItemNote(int orderItemId, string? note, int updatedBy)
     {
-        AddDomainEvent(new OrderCreatedDomainEvent(this));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
+        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (item is null) throw new OrderItemNotFoundException();
+
+        EnsureCanEdit();
+        item.UpdateNote(note, updatedBy);
+        UpdatedBy = updatedBy;
+        UpdatedDate = DateTime.UtcNow;
     }
 
-    public void UpdateStatus(OrderStatus newStatus, int changedBy)
-    {
-        if (!Enum.IsDefined(typeof(OrderStatus), newStatus))
-            throw new ArgumentException("Invalid order status.", nameof(newStatus));
-
-        Status = newStatus;
-        Touch(changedBy);
-    }
 
     public void Cancel(int cancelledBy)
     {
@@ -171,9 +165,50 @@ public sealed class Order : Aggregate<int>
         foreach (var item in _vOrderItems.Where(x => !x.IsCancelled))
             item.Cancel(cancelledBy);
 
-        RecalculateTotalAmount();
+        //RecalculateTotalAmount();
 
         AddDomainEvent(new OrderCancelledDomainEvent(this, cancelledBy));
+    }
+
+
+    public void UpdateNote(string note, int updatedBy)
+    {
+        Note = note;
+        AddNoteBy = updatedBy;
+        AddNoteDate = DateTime.UtcNow;
+        Touch(updatedBy);
+    }
+
+    public void AssignTable(int dinnerTableId, int updatedBy)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dinnerTableId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
+
+        DinnerTableId = dinnerTableId;
+        Touch(updatedBy);
+    }
+
+    public void FinalizeAndPublishCreated()
+    {
+        AddDomainEvent(new OrderCreatedDomainEvent(this));
+    }
+
+
+    public void AssignBillNo(
+    string prefix,
+    int sequence,
+    int assignedBy,
+    DateTime? date = null)
+    {
+        EnsureCanEdit();
+
+        if (BillNo is not null) throw new InvalidOperationException("BillNo already assigned.");
+
+        var billDate = date ?? DateTime.UtcNow;
+
+        BillNo = BillNo.Create(prefix, billDate, assignedBy, sequence);
+
+        Touch(assignedBy);
     }
 
     public void MarkAsPaid(int paidBy, decimal total, string paymentType)
@@ -201,29 +236,60 @@ public sealed class Order : Aggregate<int>
     {
         ArgumentNullException.ThrowIfNull(promotion);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(appliedBy);
-        EnsureNotCancelled();
+        EnsureCanEdit();
 
         Promotion = promotion;
-        RecalculateTotalAmount();
+        //RecalculateTotalAmount();
         Touch(updatedBy: appliedBy);
     }
 
     public void RemovePromotion(int updatedBy)
     {
-        EnsureNotCancelled();
+        EnsureCanEdit();
 
         Promotion = null;
-        RecalculateTotalAmount();
+        //RecalculateTotalAmount();
         Touch(updatedBy);
     }
 
-    public void UpdateNote(string note, int updatedBy)
+
+
+    public decimal GetTotalAmount()
     {
-        Note = note;
-        AddNoteBy = updatedBy;
-        AddNoteDate = DateTime.UtcNow;
-        Touch(updatedBy);
+        var subtotal = _vOrderItems.Where(x => !x.IsCancelled).Sum(x => x.TotalAmount);
+        if (Promotion is not null)
+        {
+            var discount = Promotion.CalculateDiscount(subtotal);
+            subtotal = Math.Max(0, subtotal - discount);
+        }
+        return subtotal;
     }
+
+    private void Touch(int updatedBy)
+    {
+        UpdatedBy = updatedBy;
+        UpdatedDate = DateTime.UtcNow;
+    }
+
+
+    private void UpdateStatus(OrderStatus newStatus, int changedBy)
+    {
+        if (!Enum.IsDefined(typeof(OrderStatus), newStatus))
+            throw new ArgumentException("Invalid order status.", nameof(newStatus));
+
+        Status = newStatus;
+        Touch(changedBy);
+    }
+    private void EnsureNotCancelled()
+    {
+        if (Status == OrderStatus.Cancelled)
+            throw new OrderCancelledException();
+    }
+    private void EnsureCanEdit()
+    {
+        if (Status != OrderStatus.Unpaid) throw new OrderNotEditableException();
+    }
+
 
     private void RecalculateTotalAmount()
     {
@@ -239,54 +305,7 @@ public sealed class Order : Aggregate<int>
             TotalAmount = subtotal;
         }
     }
-    public void UpdateItemQuantity(int orderItemId, int quantity, int updatedBy)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
-
-        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
-        if (item is null) throw new OrderItemNotFoundException();
-
-        EnsureCanEdit();
-
-        item.UpdateQuantity(quantity, updatedBy);
-
-        RecalculateTotalAmount();
-
-        UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
-    }
-
-    public void UpdateItemNote(int orderItemId, string? note, int updatedBy)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
-        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
-        if (item is null) throw new OrderItemNotFoundException();
-
-        EnsureCanEdit();
-        item.UpdateNote(note, updatedBy);
-        UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
-    }
 
 
 
-    private void Touch(int updatedBy)
-    {
-        UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
-    }
-
-    private void EnsureNotCancelled()
-    {
-        if (Status == OrderStatus.Cancelled)
-            throw new OrderCancelledException();
-    }
-
-    private void EnsureCanEdit()
-    {
-        if (Status != OrderStatus.Unpaid) throw new OrderNotEditableException();
-    }
 }

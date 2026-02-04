@@ -1,12 +1,13 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Services;
+using MilkTea.Application.Features.Orders.Queries;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Extensions;
 
-namespace MilkTea.Application.Features.Orders.Queries;
+namespace MilkTea.Application.Features.Orders.Handlers;
 
 public sealed class GetOrderDetailByIdAndStatusQueryHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
@@ -47,7 +48,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             CreatedBy = order.CreatedBy,
             StatusId = (int)order.Status,
             Note = order.Note,
-            TotalAmount = order.TotalAmount,
+            TotalAmount = order.GetTotalAmount(),
             Status = new OrderStatus
             {
                 Id = (int)order.Status,
