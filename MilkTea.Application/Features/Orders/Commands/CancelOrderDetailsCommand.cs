@@ -1,10 +1,11 @@
 using FluentValidation;
-using MediatR;
 using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Domain.SharedKernel.Constants;
+using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Orders.Commands;
 
-public class CancelOrderDetailsCommand : IRequest<CancelOrderDetailsResult>
+public class CancelOrderDetailsCommand : ICommand<CancelOrderDetailsResult>
 {
     public int OrderID { get; set; }
     public List<int> OrderDetailIDs { get; set; } = new();
@@ -14,12 +15,18 @@ public sealed class CancelOrderDetailsCommandValidator : AbstractValidator<Cance
 {
     public CancelOrderDetailsCommandValidator()
     {
+        // Check null, empty, and less than or equal to 0
         RuleFor(x => x.OrderID)
             .GreaterThan(0)
-            .WithMessage("OrderID phải lớn hơn 0");
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName("OrderID");
 
+        // check null and less than or equal to 0 if not empty
         RuleFor(x => x.OrderDetailIDs)
             .NotNull()
-            .WithMessage("OrderDetailIDs không được null");
+            .Must(list => !list.Any() || list.All(id => id > 0))
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName("OrderDetailIDs");
+
     }
 }

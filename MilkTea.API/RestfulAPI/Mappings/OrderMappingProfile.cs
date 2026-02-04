@@ -37,9 +37,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
 
             // Cancel order details
             CreateMap<CancelOrderDetailsResult, CancelOrderDetailsResponseDto>()
-                .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderID ?? 0))
-                .ForMember(d => d.CancelledDetailIDs, o => o.MapFrom(s => s.CancelledDetailIDs))
-                .ForMember(d => d.CancelledDate, o => o.MapFrom(s => s.CancelledDate ?? default));
+                .ForMember(d => d.CancelledDetailIDs, o => o.MapFrom(s => s.CancelledDetailIDs));
 
             // List orders
             CreateMap<Order, GetOrdersByOrderByAndStatusResponseDto>()

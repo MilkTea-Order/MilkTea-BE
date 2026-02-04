@@ -1,5 +1,6 @@
-using MilkTea.Domain.Orders.Enums;
+﻿using MilkTea.Domain.Orders.Enums;
 using MilkTea.Domain.Orders.Events;
+using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Abstractions;
 
@@ -103,29 +104,32 @@ public sealed class Order : Aggregate<int>
     /// <summary>
     /// Removes multiple order items by their IDs.
     /// </summary>
-    public void RemoveOrderItems(List<int> orderItemIds, int removedBy)
+    public List<int> RemoveOrderItems(List<int> orderItemIds, int removedBy)
     {
         EnsureNotCancelled();
         ArgumentNullException.ThrowIfNull(orderItemIds);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(removedBy);
 
+        var cancelledIDs = new List<int>();
         if (orderItemIds.Count == 0)
-            return;
+            return new List<int>();
 
         var itemsToRemove = _vOrderItems
             .Where(x => orderItemIds.Contains(x.Id) && !x.IsCancelled)
             .ToList();
 
         if (itemsToRemove.Count == 0)
-            return;
+            return new List<int>();
 
         foreach (var item in itemsToRemove)
         {
             item.Cancel(removedBy);
+            cancelledIDs.Add(item.Id);
         }
 
         RecalculateTotalAmount();
-        Touch(updatedBy: removedBy);
+        Touch(removedBy);
+        return cancelledIDs;
     }
 
     /// <summary>
@@ -235,6 +239,39 @@ public sealed class Order : Aggregate<int>
             TotalAmount = subtotal;
         }
     }
+    public void UpdateItemQuantity(int orderItemId, int quantity, int updatedBy)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
+
+        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (item is null) throw new OrderItemNotFoundException();
+
+        EnsureCanEdit();
+
+        item.UpdateQuantity(quantity, updatedBy);
+
+        RecalculateTotalAmount();
+
+        UpdatedBy = updatedBy;
+        UpdatedDate = DateTime.UtcNow;
+    }
+
+    public void UpdateItemNote(int orderItemId, string? note, int updatedBy)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
+        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (item is null) throw new OrderItemNotFoundException();
+
+        EnsureCanEdit();
+        item.UpdateNote(note, updatedBy);
+        UpdatedBy = updatedBy;
+        UpdatedDate = DateTime.UtcNow;
+    }
+
+
 
     private void Touch(int updatedBy)
     {
@@ -245,6 +282,11 @@ public sealed class Order : Aggregate<int>
     private void EnsureNotCancelled()
     {
         if (Status == OrderStatus.Cancelled)
-            throw new InvalidOperationException("Order is cancelled.");
+            throw new OrderCancelledException();
+    }
+
+    private void EnsureCanEdit()
+    {
+        if (Status != OrderStatus.Unpaid) throw new OrderNotEditableException();
     }
 }

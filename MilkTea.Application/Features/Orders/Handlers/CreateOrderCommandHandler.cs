@@ -1,3 +1,4 @@
+using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Catalog;
 using MilkTea.Application.Ports.Users;
@@ -7,7 +8,7 @@ using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Abstractions.CQRS;
 
-namespace MilkTea.Application.Features.Orders.Commands;
+namespace MilkTea.Application.Features.Orders.Handlers;
 
 public sealed class CreateOrderCommandHandler(
     IOrderingUnitOfWork orderingUnitOfWork,

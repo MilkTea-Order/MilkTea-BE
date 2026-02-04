@@ -1,3 +1,4 @@
+using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Abstractions;
 
@@ -42,7 +43,6 @@ public sealed class OrderItem : Entity<int>
 
         return new OrderItem
         {
-            // OrderId is intentionally NOT set here
             MenuItem = menuItem,
             Quantity = quantity,
             CreatedBy = createdBy,
@@ -53,8 +53,7 @@ public sealed class OrderItem : Entity<int>
 
     public void UpdateQuantity(int quantity, int updatedBy)
     {
-        if (IsCancelled)
-            throw new InvalidOperationException("Cannot update quantity of a cancelled order item.");
+        if (IsCancelled) throw new OrderItemCancelledException();
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
@@ -66,9 +65,7 @@ public sealed class OrderItem : Entity<int>
 
     public void UpdateNote(string? note, int updatedBy)
     {
-        if (IsCancelled)
-            throw new InvalidOperationException("Cannot update note of a cancelled order item.");
-
+        if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
         Note = note;

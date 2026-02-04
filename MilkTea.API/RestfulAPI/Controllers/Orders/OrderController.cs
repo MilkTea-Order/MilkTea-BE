@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
+using MilkTea.API.RestfulAPI.DTOs.Requests.Orders;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Queries;
@@ -122,6 +123,23 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
             var response = _vMapper.Map<CancelOrderDetailsResponseDto>(result);
 
             return SendSuccess(response);
+        }
+
+
+        [Authorize]
+        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/update")]
+        public async Task<ResponseDto> UpdateOrderDetail([FromRoute] int orderId, [FromRoute] int orderDetailId, [FromBody] UpdateOrderDetailRequestDto request)
+        {
+            var command = new UpdateOrderDetailCommand
+            {
+                OrderID = orderId,
+                OrderDetailID = orderDetailId,
+                Quantity = request.Quantity,
+                Note = request.Note
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
         }
     }
 }
