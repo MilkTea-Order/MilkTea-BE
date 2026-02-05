@@ -71,11 +71,8 @@ public sealed class Order : Aggregate<int>
     public void CreateOrderItem(MenuItem menuItem, int quantity, int createdBy, string? note = null)
     {
         EnsureCanEdit();
-
         var orderItem = OrderItem.Create(menuItem, quantity, createdBy, note);
         _vOrderItems.Add(orderItem);
-
-        //RecalculateTotalAmount();
         Touch(updatedBy: createdBy);
     }
 
@@ -253,8 +250,26 @@ public sealed class Order : Aggregate<int>
     }
 
 
-
+    /// <summary>
+    /// Get Total Amount before payment (no excluded cancelled items)
+    /// </summary>
+    /// <returns></returns>
     public decimal GetTotalAmount()
+    {
+        var subtotal = _vOrderItems.Where(x => !x.IsCancelled).Sum(x => x.TotalAmount);
+        if (Promotion is not null)
+        {
+            var discount = Promotion.CalculateDiscount(subtotal);
+            subtotal = Math.Max(0, subtotal - discount);
+        }
+        return subtotal;
+    }
+
+    /// <summary>
+    /// Get Total Amount for Pay (excluding cancelled items)
+    /// </summary>
+    /// <returns></returns>
+    public decimal GetTotalAmountForPay()
     {
         var subtotal = _vOrderItems.Where(x => !x.IsCancelled).Sum(x => x.TotalAmount);
         if (Promotion is not null)

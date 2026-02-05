@@ -47,6 +47,28 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
+        [HttpPatch("{orderId:int}/add-items")]
+        public async Task<ResponseDto> AddOrderDetail([FromRoute] int orderId, [FromBody] AddOrderDetailRequestDto request)
+        {
+            var command = new AddOrderDetailCommand
+            {
+                OrderID = orderId,
+                Items = request.Items.Select(i => new OrderItemCommand
+                {
+                    MenuID = i.MenuID,
+                    SizeID = i.SizeID,
+                    Quantity = i.Quantity,
+                    ToppingIDs = i.ToppingIDs,
+                    KindOfHotpotIDs = i.KindOfHotpotIDs,
+                    Note = i.Note
+                }).ToList()
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
+
+        [Authorize]
         [HttpGet]
         public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int? statusId)
         {
@@ -65,7 +87,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
 
         [Authorize]
         [HttpGet("{orderId:int}")]
-        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool? isCancelled)
+        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool isCancelled = false)
         {
             var query = new GetOrderDetailByIdAndStatusQuery
             {

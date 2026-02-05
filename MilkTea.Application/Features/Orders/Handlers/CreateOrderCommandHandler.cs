@@ -32,7 +32,6 @@ public sealed class CreateOrderCommandHandler(
             {
                 var mapped = MapValidationError(quote);
 
-                Console.WriteLine(quote.ErrorCode);
                 if (quote.ErrorCode!.Equals("TABLE"))
                 {
                     return SendError(result, mapped.errorCode, mapped.fields);

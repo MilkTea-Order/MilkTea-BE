@@ -24,15 +24,17 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             return SendError(result, ErrorCode.E0036, nameof(query.OrderId));
         }
 
-        var order = await _vOrderUnitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, query.IsCancelled);
+        var order = await _vOrderUnitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, null);
 
         if (order is null)
         {
             return SendError(result, ErrorCode.E0001, nameof(query.OrderId));
         }
-        var menuIds = order.OrderItems.Select(x => x.MenuItem.MenuId).Distinct();
 
-        var sizeIds = order.OrderItems.Select(x => x.MenuItem.SizeId).Distinct();
+        var orderItems = order.OrderItems.Where(x => x.IsCancelled == query.IsCancelled).ToList();
+
+        var menuIds = orderItems.Select(x => x.MenuItem.MenuId).Distinct();
+        var sizeIds = orderItems.Select(x => x.MenuItem.SizeId).Distinct();
 
         var menus = await _vCatalogQuery.GetMenusAsync(menuIds, cancellationToken);
         var sizes = await _vCatalogQuery.GetMenuSizesAsync(sizeIds, cancellationToken);
@@ -65,8 +67,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                 StatusName = table.StatusName,
                 Note = table.Note,
             },
-            OrderDetails = order.OrderItems
-                .Where(item => query.IsCancelled == null || item.IsCancelled == query.IsCancelled)
+            OrderDetails = orderItems
                 .Select(item => new OrderLine
                 {
                     Id = item.Id,
