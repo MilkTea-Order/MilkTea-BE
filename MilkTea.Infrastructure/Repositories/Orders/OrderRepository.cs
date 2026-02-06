@@ -27,7 +27,7 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     }
 
     /// <inheritdoc/>
-    public async Task<List<Order>> GetOrdersByOrderByAndStatusWithRelationshipAsync(int orderBy, OrderStatus? status)
+    public async Task<List<Order>> GetOrdersByOrderByAndStatusWithItemsAsync(int orderBy, OrderStatus? status)
     {
         var query = _vContext.Orders.AsNoTracking().Where(o => o.OrderBy == orderBy);
 
@@ -35,8 +35,8 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
             query = query.Where(o => o.Status == status.Value);
 
         return await query
-        .Include(o => o.OrderItems)
         .AsSplitQuery()
+        .Include(o => o.OrderItems)
         .OrderByDescending(o => o.Id)
         .ToListAsync();
     }
@@ -106,4 +106,11 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
         return orderItem.IsCancelled;
     }
 
+    /// <inheritdoc/>
+    public async Task<bool> HadUsing(int dinnerTableId, CancellationToken cancellationToken = default)
+    {
+        return await _vContext.Orders
+            .AsNoTracking()
+            .AnyAsync(o => o.DinnerTableId == dinnerTableId && o.Status == OrderStatus.Unpaid, cancellationToken);
+    }
 }

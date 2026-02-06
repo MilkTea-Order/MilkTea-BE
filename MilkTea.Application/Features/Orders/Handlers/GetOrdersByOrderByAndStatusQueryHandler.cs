@@ -1,40 +1,66 @@
 using MediatR;
+using MilkTea.Application.Features.Catalog.Services;
 using MilkTea.Application.Features.Orders.Queries;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Repositories;
+using Shared.Extensions;
+using Order = MilkTea.Application.Models.Orders.Order;
 
 namespace MilkTea.Application.Features.Orders.Handlers;
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
-    ICurrentUser currentUser) : IRequestHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
+    ICurrentUser currentUser,
+    ICatalogService catalogService) : IRequestHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
 {
+    private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+    private readonly ICatalogService _vCatalogQuery = catalogService;
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
     {
         var result = new GetOrdersByOrderByAndStatusResult();
 
-        Domain.Orders.Enums.OrderStatus? status = null;
-        if (query.StatusId.HasValue && Enum.IsDefined(typeof(Domain.Orders.Enums.OrderStatus), query.StatusId.Value))
+        var status = Domain.Orders.Enums.OrderStatus.Unpaid;
+        if (Enum.IsDefined(typeof(Domain.Orders.Enums.OrderStatus), query.StatusId))
         {
-            status = (Domain.Orders.Enums.OrderStatus)query.StatusId.Value;
+            status = (Domain.Orders.Enums.OrderStatus)query.StatusId;
         }
+        var orders = await _vOrderingUnitOfWork.Orders.GetOrdersByOrderByAndStatusWithItemsAsync(currentUser.UserId, status);
+        var tableIds = orders.Select(o => o.DinnerTableId).Distinct().ToList();
+        var tableDict = await _vCatalogQuery.GetTableAsync(tableIds, cancellationToken);
 
-        var orders = await orderingUnitOfWork.Orders.GetOrdersByOrderByAndStatusWithRelationshipAsync(currentUser.UserId, status);
-        result.Orders = orders.Select(o => new Order
-        {
-            OrderId = o.Id,
-            DinnerTableId = o.DinnerTableId,
-            OrderDate = o.OrderDate,
-            OrderBy = o.OrderBy,
-            CreatedDate = o.CreatedDate,
-            CreatedBy = o.CreatedBy,
-            StatusId = (int)o.Status,
-            Note = o.Note,
-            TotalAmount = o.GetTotalAmount()
-        }).ToList();
-
+        result.Orders = orders.Select(o =>
+            new Order
+            {
+                OrderId = o.Id,
+                DinnerTableId = o.DinnerTableId,
+                OrderDate = o.OrderDate,
+                OrderBy = o.OrderBy,
+                CreatedDate = o.CreatedDate,
+                CreatedBy = o.CreatedBy,
+                StatusId = (int)o.Status,
+                Note = o.Note,
+                TotalAmount = o.GetTotalAmount(),
+                Status = new OrderStatus
+                {
+                    Id = (int)o.Status,
+                    Name = o.Status.GetDescription()
+                },
+                DinnerTable = tableDict.TryGetValue(o.DinnerTableId, out var table)
+                    ? new Table
+                    {
+                        Id = table.Id,
+                        Name = table.Name,
+                        Code = table.Code,
+                        StatusId = table.StatusId,
+                        StatusName = table.StatusName,
+                        NumberOfSeats = table.NumberOfSeats,
+                        UsingImg = table.UsingImg,
+                    }
+                    : null
+            }
+        ).OrderBy(o => o.DinnerTableId).ToList();
         return result;
     }
 }

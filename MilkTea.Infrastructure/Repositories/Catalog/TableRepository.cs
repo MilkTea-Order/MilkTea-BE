@@ -71,6 +71,6 @@ public class TableRepository(AppDbContext context) : ITableRepository
                 o.Status == Domain.Orders.Enums.OrderStatus.Unpaid));
         }
 
-        return await query.OrderBy(t => t.Name).ToListAsync(cancellationToken);
+        return await query.OrderBy(t => t.Id).ToListAsync(cancellationToken);
     }
 }

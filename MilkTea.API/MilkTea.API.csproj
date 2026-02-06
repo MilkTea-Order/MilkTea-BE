@@ -25,4 +25,9 @@
     <ProjectReference Include="..\MilkTea.Infrastructure\MilkTea.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RestfulAPI\DTOs\Catalog\Requests\" />
+    <Folder Include="RestfulAPI\DTOs\Requests\Orders\" />
+  </ItemGroup>
+
 </Project>

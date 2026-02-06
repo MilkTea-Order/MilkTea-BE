@@ -1,4 +1,4 @@
-﻿namespace MilkTea.API.RestfulAPI.DTOs.Requests.Orders
+﻿namespace MilkTea.API.RestfulAPI.DTOs.Orders.Requests
 {
     public class AddOrderDetailRequestDto
     {

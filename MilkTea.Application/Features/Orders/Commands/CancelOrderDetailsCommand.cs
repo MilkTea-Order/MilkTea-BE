@@ -18,14 +18,15 @@ public sealed class CancelOrderDetailsCommandValidator : AbstractValidator<Cance
         // Check null, empty, and less than or equal to 0
         RuleFor(x => x.OrderID)
             .GreaterThan(0)
-            .WithErrorCode(ErrorCode.E0036)
+            .WithErrorCode(ErrorCode.E0001)
             .OverridePropertyName("OrderID");
 
-        // check null and less than or equal to 0 if not empty
+        // check null and not empty and all greater than 0
         RuleFor(x => x.OrderDetailIDs)
             .NotNull()
-            .Must(list => !list.Any() || list.All(id => id > 0))
-            .WithErrorCode(ErrorCode.E0036)
+            .NotEmpty()
+            .Must(x => x.All(id => id > 0))
+            .WithErrorCode(ErrorCode.E0001)
             .OverridePropertyName("OrderDetailIDs");
 
     }

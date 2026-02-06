@@ -11,12 +11,12 @@ namespace MilkTea.Application.Models.Orders
         public int? StatusId { get; set; }
         public string? Note { get; set; }
         public decimal TotalAmount { get; set; }
+        public Table? DinnerTable { get; set; }
+        public OrderStatus? Status { get; set; }
     }
 
     public sealed class OrderDetail : Order
     {
-        public Table? DinnerTable { get; set; }
-        public OrderStatus? Status { get; set; }
         public List<OrderLine> OrderDetails { get; set; } = new();
     }
 
@@ -30,9 +30,14 @@ namespace MilkTea.Application.Models.Orders
         public int? StatusId { get; set; }
         public string? StatusName { get; set; }
         public string? Note { get; set; }
-        public string? Img { get; set; }
         public string? EmptyImg { get; set; }
         public string? UsingImg { get; set; }
+    }
+
+    public sealed class OrderStatus
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 
     public sealed class OrderLine
@@ -61,8 +66,11 @@ namespace MilkTea.Application.Models.Orders
         public int Id { get; set; }
         public string? Code { get; set; }
         public string? Name { get; set; }
+        public int? MenuGroupId { get; set; }
         public string? MenuGroupName { get; set; }
+        public int? StatusId { get; set; }
         public string? StatusName { get; set; }
+        public int? UnitId { get; set; }
         public string? UnitName { get; set; }
         public string? Note { get; set; }
     }
@@ -73,14 +81,6 @@ namespace MilkTea.Application.Models.Orders
         public int Id { get; set; }
         public string? Name { get; set; }
         public int? RankIndex { get; set; }
-    }
-
-
-
-    public sealed class OrderStatus
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
     }
 }
 

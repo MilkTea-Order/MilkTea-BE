@@ -1,10 +1,9 @@
-using MilkTea.Shared.Domain.Services;
+﻿using MilkTea.Shared.Domain.Services;
 
 namespace MilkTea.Application.Features.Orders.Results
 {
-    public class CancelOrderDetailsResult
+    public class CancelOrderDetailResult
     {
         public StringListEntry ResultData { get; set; } = new();
     }
 }
-

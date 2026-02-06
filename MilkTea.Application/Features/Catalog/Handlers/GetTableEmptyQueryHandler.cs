@@ -3,6 +3,7 @@ using MilkTea.Application.Features.Catalog.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Repositories;
+using Shared.Extensions;
 
 namespace MilkTea.Application.Features.Catalog.Handlers;
 
@@ -22,7 +23,7 @@ public sealed class GetTableEmptyQueryHandler(
             Position = t.Position,
             NumberOfSeats = t.NumberOfSeats,
             StatusId = (int)t.Status,
-            StatusName = t.Status.ToString(),
+            StatusName = t.Status.GetDescription(),
             Note = t.Note,
             EmptyImg = t.EmptyPicture != null
                 ? $"data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"

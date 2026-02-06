@@ -24,41 +24,47 @@ namespace MilkTea.Application.Features.Orders.Handlers
         {
             var result = new AddOrderDetailResult();
             var createdBy = _vCurrentUser.UserId;
+            var hasError = false;
 
             // Check order exist
             var order = await _vOrderUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
             if (order is null)
+            {
                 return SendError(result, ErrorCode.E0001, "OrderID");
+            }
 
             // Check quantity
             foreach (var item in command.Items)
             {
                 if (item.Quantity <= 0)
                 {
-                    SendError(result, ErrorCode.E0036, "Quantity");
+                    if (!hasError)
+                    {
+                        result = SendError(result, ErrorCode.E0036, "quantity");
+                        hasError = true;
+                    }
                     AddItemMeta(result, item);
-                    return result;
                 }
             }
+            if (hasError) return result;
 
-            var pairs = command.Items
-                .Select(i => (i.MenuID, i.SizeID))
-                .Distinct()
-                .ToList();
-
+            // Check menu can pay
+            var pairs = command.Items.Select(i => (i.MenuID, i.SizeID)).Distinct().ToList();
             var canPayMap = await _vCatalogService.CanPayBatch(pairs, cancellationToken);
-
             foreach (var item in command.Items)
             {
                 var key = (item.MenuID, item.SizeID);
                 if (!canPayMap.TryGetValue(key, out var info) || !info.CanPay)
                 {
-                    SendError(result, ErrorCode.E0001, "Menu");
+                    if (!hasError)
+                    {
+                        result = SendError(result, ErrorCode.E0001, "Menu");
+                        hasError = true;
+                    }
                     AddItemMeta(result, item);
-                    return result;
                 }
             }
-
+            if (hasError) return result;
 
             await _vOrderUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
@@ -69,6 +75,12 @@ namespace MilkTea.Application.Features.Orders.Handlers
                     var info = canPayMap[key];
 
                     var (priceListId, price) = info.Data;
+
+                    // If the item already exists in the order, update quantity instead of adding a new one
+                    //var exists = order.OrderItems.Any(od => od.MenuItem.MenuId == item.MenuID
+                    //                            && od.MenuItem.SizeId == item.SizeID
+                    //                            && od.MenuItem.Price == price
+                    //                            && od.MenuItem.PriceListId == priceListId);
 
                     var menuItem = MenuItem.Of(
                         menuId: item.MenuID,
@@ -101,8 +113,12 @@ namespace MilkTea.Application.Features.Orders.Handlers
 
         private static void AddItemMeta(AddOrderDetailResult result, dynamic item)
         {
-            result.ResultData.AddMeta("menuId", item.MenuID);
-            result.ResultData.AddMeta("sizeId", item.SizeID);
+            var i = new
+            {
+                menuId = item.MenuID,
+                sizeId = item.SizeID
+            };
+            result.ResultData.AddMeta("InvalidItems", i);
         }
 
         private static AddOrderDetailResult SendError(AddOrderDetailResult result, string errorCode, params string[] values)

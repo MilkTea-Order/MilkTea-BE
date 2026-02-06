@@ -22,10 +22,23 @@
         //====META====
         public void AddMeta(string key, object? value)
         {
-            if (value != null)
+            if (value == null) return;
+
+            if (!_Meta.TryGetValue(key, out var existing))
             {
                 _Meta[key] = value;
+                return;
             }
+            if (existing is List<object> list)
+            {
+                list.Add(value);
+                return;
+            }
+            _Meta[key] = new List<object> { existing, value };
+            //if (value != null)
+            //{
+            //    _Meta[key] = value;
+            //}
         }
 
         public object? GetMeta(string key)
@@ -48,6 +61,8 @@
         }
 
         //====DATA====
+
+
         public void Add(string key, string? value)
         {
             if (value != null)
@@ -145,6 +160,16 @@
                 }
             }
             return vResult;
+        }
+
+        /// <summary>
+        /// Check if _Data contains the specified key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>True if the key exists; otherwise, false.</returns>
+        public bool HasKey(string key)
+        {
+            return _Data.ContainsKey(key);
         }
 
         // Clear all data in _Data

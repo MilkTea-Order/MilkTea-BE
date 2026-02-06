@@ -51,6 +51,13 @@ public sealed class OrderItem : Entity<int>
         };
     }
 
+    /// <summary>
+    /// Updates the quantity of the order item and records the user who made the update.
+    /// </summary>
+    /// <param name="quantity">The new quantity to set for the order item.</param>
+    /// <param name="updatedBy">The identifier of the user performing the update.</param>
+    /// <exception cref="OrderItemCancelledException">Thrown if the order item has been cancelled.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="quantity"/> or <paramref name="updatedBy"/> is less than or equal to zero.</exception>
     public void UpdateQuantity(int quantity, int updatedBy)
     {
         if (IsCancelled) throw new OrderItemCancelledException();
@@ -73,10 +80,15 @@ public sealed class OrderItem : Entity<int>
         UpdatedDate = DateTime.UtcNow;
     }
 
+    /// <summary>
+    ///  Cancels the order item.
+    /// </summary>
+    /// <param name="cancelledBy">The identifier of the user performing the cancellation.</param>
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="cancelledBy"/> is less than or equal to zero.</exception>"
     public void Cancel(int cancelledBy)
     {
         if (IsCancelled) throw new OrderItemCancelledException();
-
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
 
         CancelledBy = cancelledBy;

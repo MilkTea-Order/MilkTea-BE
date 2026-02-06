@@ -1,49 +1,35 @@
-﻿using MediatR;
-using MilkTea.Application.Features.Orders.Commands;
+﻿using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
-using MilkTea.Shared.Extensions;
+using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Orders.Handlers
 {
-    public class UpdateOrderDetailCommandHandler
-        (IOrderingUnitOfWork orderingUnitOfWork,
-        ICurrentUser currentUser) : IRequestHandler<UpdateOrderDetailCommand, UpdateOrderDetailResult>
+    public class CancelOrderDetailCommnadHandler(
+                                        IOrderingUnitOfWork orderingUnitOfWork,
+                                    ICurrentUser currentUser) : ICommandHandler<CancelOrderDetailCommnad, CancelOrderDetailResult>
     {
         private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
-        public async Task<UpdateOrderDetailResult> Handle(UpdateOrderDetailCommand command, CancellationToken cancellationToken)
+        public async Task<CancelOrderDetailResult> Handle(CancelOrderDetailCommnad command, CancellationToken cancellationToken)
         {
-            var result = new UpdateOrderDetailResult();
-            // Check order exist
+            var result = new CancelOrderDetailResult();
+            // Load order with items for update
             var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
             if (order is null)
             {
                 return SendError(result, ErrorCode.E0001, "OrderID");
             }
+
             await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                if (command.Quantity.HasValue)
-                {
-                    // If quantity equals zero, remove item, else update quantity
-                    if (command.Quantity.Value == 0)
-                    {
-                        order.CancelOrderItem(command.OrderDetailID, currentUser.UserId);
-                    }
-                    else
-                    {
-                        order.UpdateItemQuantity(command.OrderDetailID, command.Quantity.Value, currentUser.UserId);
-                    }
-                }
-                if (command.Note is not null)
-                {
-                    var note = command.Note.IsNullOrWhiteSpace() ? null : command.Note.Trim();
-                    order.UpdateItemNote(command.OrderDetailID, note, currentUser.UserId);
-                }
+                var cancelledBy = currentUser.UserId;
+                order.CancelOrderItem(command.OrderDetailID, cancelledBy);
                 await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
+                return result;
             }
             catch (OrderNotEditableException)
             {
@@ -60,20 +46,19 @@ namespace MilkTea.Application.Features.Orders.Handlers
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
                 return SendError(result, ErrorCode.E0042, "OrderDetailID");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex);
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E9999, "UpdateItemOrderDetail");
+                return SendError(result, ErrorCode.E9999, "CancelOrderDetails");
             }
-            return result;
         }
-        private static UpdateOrderDetailResult SendError(UpdateOrderDetailResult result, string errorCode, params string[] values)
+
+        private static CancelOrderDetailResult SendError(CancelOrderDetailResult result, string errorCode, params string[] values)
         {
             if (values is { Length: > 0 })
                 result.ResultData.Add(errorCode, values.ToList());
             return result;
         }
-    }
 
+    }
 }

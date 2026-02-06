@@ -24,7 +24,7 @@ public interface IOrderRepository
     Task<Order?> GetOrderByIdAsync(int orderId);
 
     /// <summary>
-    /// Gets an order by its ID with order items loaded.
+    /// Gets an order by its ID with order items (Can update).
     /// </summary>
     Task<Order?> GetOrderByIdWithItemsAsync(int orderId);
 
@@ -36,7 +36,7 @@ public interface IOrderRepository
     /// <summary>
     /// Gets orders filtered by order creator and optional status.
     /// </summary>
-    Task<List<Order>> GetOrdersByOrderByAndStatusWithRelationshipAsync(int orderBy, OrderStatus? status);
+    Task<List<Order>> GetOrdersByOrderByAndStatusWithItemsAsync(int orderBy, OrderStatus? status);
 
     /// <summary>
     /// Gets an order with details by ID and cancellation status.
@@ -52,5 +52,13 @@ public interface IOrderRepository
     /// Checks if an order item is cancelled.
     /// </summary>
     Task<bool> IsOrderItemCancelledAsync(int orderItemId);
+
+    /// <summary>
+    /// Check if a dinner table is currently in use.
+    /// </summary>
+    /// <param name="dinnerTableId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>True if the dinner table is currently in use; otherwise, false.</returns>
+    Task<bool> HadUsing(int dinnerTableId, CancellationToken cancellationToken = default);
 
 }

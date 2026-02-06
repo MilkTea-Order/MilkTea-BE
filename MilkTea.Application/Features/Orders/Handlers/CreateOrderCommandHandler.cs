@@ -1,7 +1,9 @@
+using MilkTea.Application.Features.Catalog.Services;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Results;
-using MilkTea.Application.Ports.Catalog;
+using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Constants;
@@ -11,113 +13,131 @@ namespace MilkTea.Application.Features.Orders.Handlers;
 
 public sealed class CreateOrderCommandHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
-    ICatalogQuery catalogSalesQuery,
+    ICatalogService catalogService,
     ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
+    private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+    private readonly ICatalogService _vCatalogService = catalogService;
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
         var result = new CreateOrderResult();
         var createdBy = currentUser.UserId;
         var orderedBy = command.OrderedBy ?? createdBy;
-        var validatedItems = new List<ValidatedOrderItemDto>();
-        foreach (var item in command.Items!)
-        {
-            var quote = await catalogSalesQuery.ValidateAndQuoteAsync(
-                                                                command.DinnerTableID,
-                                                                item.MenuID,
-                                                                item.SizeID,
-                                                                item.Quantity,
-                                                                cancellationToken);
-            if (!quote.IsValid)
-            {
-                var mapped = MapValidationError(quote);
 
-                if (quote.ErrorCode!.Equals("TABLE"))
-                {
-                    return SendError(result, mapped.errorCode, mapped.fields);
-                }
-                else
-                {
-                    return SendErrorItem(result, mapped.errorCode, mapped.fields, item.MenuID, item.SizeID);
-                }
-            }
-            validatedItems.Add(new ValidatedOrderItemDto(item, quote));
+        // Validate dinnerTable
+        var hadUsing = await _vOrderingUnitOfWork.Orders.HadUsing(command.DinnerTableID, cancellationToken);
+        if (hadUsing)
+        {
+            return SendError(result, ErrorCode.E0036, "dinnerTableId");
+        }
+        var table = await _vCatalogService.GetTableAsync(command.DinnerTableID, cancellationToken);
+        if (table is null || table.StatusId != (int)TableStatus.InUsing)
+        {
+            return SendError(result, ErrorCode.E0036, "dinnerTableId");
         }
 
-        await orderingUnitOfWork.BeginTransactionAsync(cancellationToken);
+        // Validate quantity of each items
+        var hasError = false;
+        foreach (var item in command.Items)
+        {
+            if (item.Quantity <= 0)
+            {
+                if (!hasError)
+                {
+                    result = SendError(result, ErrorCode.E0036, "quantity");
+                    hasError = true;
+                }
+                AddItemMeta(result, item);
+            }
+        }
+        if (hasError)
+        {
+            return result;
+        }
+
+        //Validate each items
+        var menuSizePairs = command.Items.Select(i => (i.MenuID, i.SizeID)).Distinct().ToList();
+        var canPayMap = await _vCatalogService.CanPayBatch(menuSizePairs, cancellationToken);
+        foreach (var item in command.Items)
+        {
+            var key = (item.MenuID, item.SizeID);
+            if (!canPayMap.TryGetValue(key, out var info) || !info.CanPay)
+            {
+                if (!hasError)
+                {
+                    hasError = true;
+                    result = SendError(result, ErrorCode.E0001, "menu");
+                }
+                AddItemMeta(result, item);
+            }
+        }
+        if (hasError)
+        {
+            return result;
+        }
+
+        await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var now = DateTime.UtcNow;
             var order = Domain.Orders.Entities.Order.Create(
                 dinnerTableId: command.DinnerTableID,
                 orderBy: orderedBy,
                 createdBy: createdBy,
                 note: command.Note);
-            foreach (var v in validatedItems)
+            foreach (var item in command.Items)
             {
+                var priceInfo = canPayMap[(item.MenuID, item.SizeID)];
                 var menuItem = MenuItem.Of(
-                    menuId: v.OriginalItem.MenuID,
-                    sizeId: v.OriginalItem.SizeID,
-                    price: v.UnitPrice,
-                    priceListId: v.PriceListId,
-                    kindOfHotpot1Id: v.OriginalItem.KindOfHotpotIDs?.Count > 0 ? v.OriginalItem.KindOfHotpotIDs[0] : null,
-                    kindOfHotpot2Id: v.OriginalItem.KindOfHotpotIDs?.Count > 1 ? v.OriginalItem.KindOfHotpotIDs[1] : null);
+                    menuId: item.MenuID,
+                    sizeId: item.SizeID,
+                    priceListId: priceInfo.Data.PriceListID,
+                    price: priceInfo.Data.Price,
+                    kindOfHotpot1Id: item.KindOfHotpotIDs?.Count > 0 ? item.KindOfHotpotIDs[0] : null,
+                    kindOfHotpot2Id: item.KindOfHotpotIDs?.Count > 1 ? item.KindOfHotpotIDs[1] : null);
                 order.CreateOrderItem(
                     menuItem: menuItem,
-                    quantity: v.OriginalItem.Quantity,
+                    quantity: item.Quantity,
                     createdBy: createdBy,
-                    note: v.OriginalItem.Note);
+                    note: item.Note);
             }
-            await orderingUnitOfWork.Orders.AddAsync(order, cancellationToken);
-            await orderingUnitOfWork.CommitTransactionAsync(cancellationToken);
+            await _vOrderingUnitOfWork.Orders.AddAsync(order, cancellationToken);
+            await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             result.OrderDate = order.OrderDate;
             result.OrderID = order.Id;
-            result.BillNo = order.BillNo?.Value;
+            result.DinnerTable = new Table
+            {
+                Id = table.Id,
+                Code = table.Code,
+                Name = table.Name,
+                Position = table.Position,
+                NumberOfSeats = table.NumberOfSeats,
+                StatusId = table.StatusId,
+                StatusName = table.StatusName,
+                Note = table.Note,
+                UsingImg = table.UsingImg,
+            };
             result.TotalAmount = order.GetTotalAmount();
             return result;
         }
         catch
         {
-            await orderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return SendError(result, ErrorCode.E9999, "CreateOrder");
         }
     }
-
-
-
-    private static (string errorCode, string[] fields) MapValidationError(SalesValidationResult quote)
-    {
-        Console.WriteLine(quote.ErrorCode);
-        return quote.ErrorCode switch
-        {
-            "TABLE" => (ErrorCode.E0036, ["dinnerTableId"]),
-            "MENU_SIZE" => (ErrorCode.E0036, ["menu"]),
-            "PRICE" => (ErrorCode.E0036, ["price"]),
-            "QUANTITY" => (ErrorCode.E0036, ["quantity"]),
-            _ => (ErrorCode.E0036, ["dinnerTableId", "menuID", "sizeID"])
-        };
-    }
-
     private static CreateOrderResult SendError(CreateOrderResult result, string errorCode, params string[] values)
     {
         if (values is { Length: > 0 })
             result.ResultData.Add(errorCode, values.ToList());
         return result;
     }
-
-    private static CreateOrderResult SendErrorItem(CreateOrderResult result, string errorCode, string[] fields, int menuId, int sizeId)
+    private static void AddItemMeta(CreateOrderResult result, dynamic item)
     {
-        if (fields is { Length: > 0 })
-            result.ResultData.Add(errorCode, fields.ToList());
-        result.ResultData.AddMeta("menuId", menuId);
-        result.ResultData.AddMeta("sizeId", sizeId);
-        return result;
-    }
-
-    private sealed class ValidatedOrderItemDto(OrderItemCommand originalItem, SalesValidationResult quote)
-    {
-        public OrderItemCommand OriginalItem { get; } = originalItem;
-        public decimal UnitPrice { get; } = quote.UnitPrice!.Value;
-        public int PriceListId { get; } = quote.PriceListId!.Value;
+        var i = new
+        {
+            menuId = item.MenuID,
+            sizeId = item.SizeID
+        };
+        result.ResultData.AddMeta("InvalidItems", i);
     }
 }

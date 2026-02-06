@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MilkTea.API.RestfulAPI.DTOs.Catalog.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Catalog.Queries;
 

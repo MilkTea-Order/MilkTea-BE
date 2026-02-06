@@ -42,7 +42,6 @@ namespace MilkTea.Infrastructure.Catalog.Services
                                                                                                 CancellationToken cancellationToken = default)
         {
             var result = new Dictionary<(int MenuID, int SizeID), (bool, (int, decimal))>(items.Count);
-            // Default all to false
             foreach (var it in items.Distinct()) result[it] = (false, (0, 0m));
 
             if (result.Count == 0) return result;
@@ -92,8 +91,6 @@ namespace MilkTea.Infrastructure.Catalog.Services
             return result;
         }
 
-
-
         public async Task<IReadOnlyDictionary<int, MenuItemDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default)
         {
             return await (
@@ -112,6 +109,7 @@ namespace MilkTea.Infrastructure.Catalog.Services
                         MenuName = m.Name,
                         StatusId = (int)m.Status,
                         StatusName = m.Status.GetDescription(),
+                        UnitId = u.Id,
                         UnitName = u.Name,
                         Note = m.Note
                     }
@@ -153,6 +151,46 @@ namespace MilkTea.Infrastructure.Catalog.Services
                                                    : null
                                   })
                                   .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Dictionary<int, TableDto>> GetTableAsync(IReadOnlyCollection<int> tableIds, CancellationToken cancellationToken = default)
+        {
+            if (tableIds == null || tableIds.Count == 0) return new Dictionary<int, TableDto>();
+
+            var ids = tableIds.Count > 1 ? tableIds.Distinct() : tableIds;
+
+            return await _vContext.Tables
+                .AsNoTracking()
+                .Where(t => ids.Contains(t.Id))
+                .Select(t => new TableDto
+                {
+                    Id = t.Id,
+                    Code = t.Code,
+                    Name = t.Name,
+                    Position = t.Position,
+                    NumberOfSeats = t.NumberOfSeats,
+                    StatusId = (int?)t.Status,
+                    StatusName = t.Status.GetDescription(),
+                    Note = t.Note,
+
+                    UsingImg = t.UsingPicture != null
+                        ? $"data:image/png;base64,{Convert.ToBase64String(t.UsingPicture)}"
+                        : null,
+
+                    EmptyImg = t.EmptyPicture != null
+                        ? $"data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"
+                        : null
+                })
+                .ToDictionaryAsync(t => t.Id, cancellationToken);
+        }
+
+        public async Task<bool> TableCanUse(int tableId, CancellationToken cancellationToken = default)
+        {
+            var row = await _vContext.Tables
+                            .AsNoTracking()
+                            .Where(t => t.Id == tableId && t.Status == TableStatus.InUsing)
+                            .FirstOrDefaultAsync();
+            return row != null;
         }
     }
 }

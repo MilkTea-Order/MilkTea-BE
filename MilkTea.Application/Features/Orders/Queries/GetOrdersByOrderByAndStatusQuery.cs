@@ -5,6 +5,6 @@ namespace MilkTea.Application.Features.Orders.Queries;
 
 public sealed class GetOrdersByOrderByAndStatusQuery : IRequest<GetOrdersByOrderByAndStatusResult>
 {
-    public int? StatusId { get; set; }
+    public int StatusId { get; set; }
 }
 

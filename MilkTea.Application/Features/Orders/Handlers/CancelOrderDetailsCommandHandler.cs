@@ -17,10 +17,6 @@ public sealed class CancelOrderDetailsCommandHandler(
     {
         var result = new CancelOrderDetailsResult();
 
-        // If no order detail IDs provided, return empty result
-        if (command.OrderDetailIDs is null || command.OrderDetailIDs.Count == 0)
-            return result;
-
         // Load order with items for update
         var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
         if (order is null)
@@ -28,25 +24,12 @@ public sealed class CancelOrderDetailsCommandHandler(
             return SendError(result, ErrorCode.E0001, "OrderID");
         }
 
-        // Validate order detail IDs belong to this order
-        var validOrderDetailIds = order.OrderItems.Select(oi => oi.Id).ToList();
-        var invalidDetailIds = command.OrderDetailIDs
-            .Where(id => !validOrderDetailIds.Contains(id))
-            .ToList();
-
-        // If any invalid IDs found, return error
-        if (invalidDetailIds.Count > 0)
-        {
-            result = SendError(result, ErrorCode.E0001, "OrderDetailIDs");
-            result.ResultData.AddMeta("InvalidIDs", invalidDetailIds);
-            return result;
-        }
         // Cancel item not already cancelled
         await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var cancelledBy = currentUser.UserId;
-            result.CancelledDetailIDs = order.CancelOrderItems(command.OrderDetailIDs, cancelledBy);
+            order.CancelOrderItems(command.OrderDetailIDs, cancelledBy);
             await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
         }
@@ -54,6 +37,16 @@ public sealed class CancelOrderDetailsCommandHandler(
         {
             await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return SendError(result, ErrorCode.E0042, "OrderID");
+        }
+        catch (OrderItemNotFoundException)
+        {
+            await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            return SendError(result, ErrorCode.E0001, "OrderDetailIDs");
+        }
+        catch (OrderItemCancelledException)
+        {
+            await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            return SendError(result, ErrorCode.E0042, "OrderDetailIDs");
         }
         catch (Exception)
         {

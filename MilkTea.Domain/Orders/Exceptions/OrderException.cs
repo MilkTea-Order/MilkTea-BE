@@ -25,4 +25,10 @@ namespace MilkTea.Domain.Orders.Exceptions
         public OrderItemNotFoundException()
             : base("Order item not found.") { }
     }
+
+    public sealed class NotExistOrderStatus : DomainException
+    {
+        public NotExistOrderStatus()
+            : base("Order status is not exist.") { }
+    }
 }
