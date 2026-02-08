@@ -84,18 +84,15 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion Get Table Empty
 
             #region Get Table By status
-            CreateMap<TableDto, DTOs.Responses.DinnerTableDto>()
-                .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
-                .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
-                .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
-                .ForMember(d => d.Position, o => o.MapFrom(s => s.Position))
-                .ForMember(d => d.NumberOfSeats, o => o.MapFrom(s => s.NumberOfSeats ?? 0))
-                .ForMember(d => d.StatusName, o => o.MapFrom(s => s.StatusName))
-                .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
+            //CreateMap<TableDto, DTOs.Responses.DinnerTableDto>()
+            //    .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
+            //    .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
+            //    .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
+            //    .ForMember(d => d.Position, o => o.MapFrom(s => s.Position))
+            //    .ForMember(d => d.NumberOfSeats, o => o.MapFrom(s => s.NumberOfSeats ?? 0))
+            //    .ForMember(d => d.StatusName, o => o.MapFrom(s => s.StatusName))
+            //    .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
             #endregion Get Table By status
-
-
-
         }
     }
 }

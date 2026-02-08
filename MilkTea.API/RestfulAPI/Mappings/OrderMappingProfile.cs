@@ -3,7 +3,6 @@ using MilkTea.API.RestfulAPI.DTOs.Common;
 using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Common;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
-using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 
 namespace MilkTea.API.RestfulAPI.Mappings
@@ -74,17 +73,14 @@ namespace MilkTea.API.RestfulAPI.Mappings
 
             CreateMap<Order, GetOrdersByOrderByAndStatusResponseDto>()
                 .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
-                //.ForMember(d => d.DinnerTableID, o => o.MapFrom(s => s.DinnerTableId))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
                 .ForMember(d => d.OrderBy, o => o.MapFrom(s => s.OrderBy ?? 0))
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate ?? default))
                 .ForMember(d => d.CreatedBy, o => o.MapFrom(s => s.CreatedBy ?? 0))
-                //.ForMember(d => d.StatusID, o => o.MapFrom(s => s.StatusId ?? 0))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))
                 .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount))
                 .ForMember(d => d.DinnerTable, o => o.MapFrom(s => s.DinnerTable))
                 .ForMember(d => d.Status, o => o.MapFrom(s => s.Status));
-            //.ForMember(d => d.OrderDetails, o => o.Ignore());
 
             #endregion GetOrdersByOrderByAndStatusResponseDto
 
@@ -103,11 +99,16 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion GetOrderDetailByIDAndStatusResponseDto
 
             #region Create Order
-            CreateMap<CreateOrderResult, CreateOrderResponseDto>()
-                .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderID ?? 0))
-                .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount ?? 0m))
+            CreateMap<Order, CreateOrderResponseDto>()
+                .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
-                .ForMember(d => d.DinnerTable, o => o.MapFrom(s => s.DinnerTable));
+                .ForMember(d => d.OrderBy, o => o.MapFrom(s => s.OrderBy ?? 0))
+                .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate ?? default))
+                .ForMember(d => d.CreatedBy, o => o.MapFrom(s => s.CreatedBy ?? 0))
+                .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))
+                .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount))
+                .ForMember(d => d.DinnerTable, o => o.MapFrom(s => s.DinnerTable))
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status));
             #endregion Create Order
         }
     }

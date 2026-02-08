@@ -8,6 +8,7 @@ using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Abstractions.CQRS;
+using Shared.Extensions;
 
 namespace MilkTea.Application.Features.Orders.Handlers;
 
@@ -20,7 +21,7 @@ public sealed class CreateOrderCommandHandler(
     private readonly ICatalogService _vCatalogService = catalogService;
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
-        var result = new CreateOrderResult();
+        CreateOrderResult result = new CreateOrderResult();
         var createdBy = currentUser.UserId;
         var orderedBy = command.OrderedBy ?? createdBy;
 
@@ -102,21 +103,35 @@ public sealed class CreateOrderCommandHandler(
             }
             await _vOrderingUnitOfWork.Orders.AddAsync(order, cancellationToken);
             await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
-            result.OrderDate = order.OrderDate;
-            result.OrderID = order.Id;
-            result.DinnerTable = new Table
+            result.Order = new Order
             {
-                Id = table.Id,
-                Code = table.Code,
-                Name = table.Name,
-                Position = table.Position,
-                NumberOfSeats = table.NumberOfSeats,
-                StatusId = table.StatusId,
-                StatusName = table.StatusName,
-                Note = table.Note,
-                UsingImg = table.UsingImg,
+                OrderId = order.Id,
+                DinnerTableId = order.DinnerTableId,
+                OrderBy = order.OrderBy,
+                OrderDate = order.OrderDate,
+                CreatedBy = order.CreatedBy,
+                CreatedDate = order.CreatedDate,
+                StatusId = (int)order.Status,
+                Note = order.Note,
+                TotalAmount = order.GetTotalAmount(),
+                Status = new OrderStatus
+                {
+                    Id = (int)order.Status,
+                    Name = order.Status.GetDescription()
+                },
+                DinnerTable = new Table
+                {
+                    Id = table.Id,
+                    Code = table.Code,
+                    Name = table.Name,
+                    Position = table.Position,
+                    NumberOfSeats = table.NumberOfSeats,
+                    StatusId = table.StatusId,
+                    StatusName = table.StatusName,
+                    Note = table.Note,
+                    UsingImg = table.UsingImg,
+                }
             };
-            result.TotalAmount = order.GetTotalAmount();
             return result;
         }
         catch

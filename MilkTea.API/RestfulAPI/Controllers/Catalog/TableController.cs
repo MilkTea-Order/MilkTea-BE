@@ -14,19 +14,19 @@ namespace MilkTea.API.RestfulAPI.Controllers.Catalog
         private readonly ISender _vSender = sender;
         private readonly IMapper _vMapper = mapper;
 
-        [HttpGet]
-        public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
-        {
-            var query = new GetTableByStatusQuery { StatusId = statusID };
-            var result = await _vSender.Send(query);
+        //[HttpGet]
+        //public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
+        //{
+        //    var query = new GetTableByStatusQuery { StatusId = statusID };
+        //    var result = await _vSender.Send(query);
 
-            if (result.ResultData.HasData)
-            {
-                return SendError(result.ResultData);
-            }
-            var response = _vMapper.Map<List<DinnerTableDto>>(result.Tables);
-            return SendSuccess(response);
-        }
+        //    if (result.ResultData.HasData)
+        //    {
+        //        return SendError(result.ResultData);
+        //    }
+        //    var response = _vMapper.Map<List<DinnerTableDto>>(result.Tables);
+        //    return SendSuccess(response);
+        //}
 
         [HttpGet("empty")]
         public async Task<ResponseDto> GetTableEmpty([FromQuery] bool isEmpty = true)

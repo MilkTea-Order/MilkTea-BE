@@ -49,7 +49,7 @@ namespace MilkTea.Application.Features.Orders.Handlers
             catch (Exception)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E9999, "CancelOrderDetails");
+                return SendError(result, ErrorCode.E9999, "CancelOrderDetail");
             }
         }
 

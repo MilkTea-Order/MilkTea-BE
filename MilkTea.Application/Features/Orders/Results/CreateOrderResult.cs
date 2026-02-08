@@ -5,10 +5,7 @@ namespace MilkTea.Application.Features.Orders.Results
 {
     public class CreateOrderResult
     {
-        public int? OrderID { get; set; }
-        public decimal? TotalAmount { get; set; }
-        public DateTime? OrderDate { get; set; }
-        public Table? DinnerTable { get; set; }
+        public Order? Order;
         public StringListEntry ResultData { get; set; } = new();
     }
 }

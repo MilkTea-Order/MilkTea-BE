@@ -24,9 +24,6 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Responses
         public decimal Price { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
-        public int MenuID { get; set; }
-        public int SizeID { get; set; }
-
         public int? CancelledBy { get; set; }
         public DateTime? CancelledDate { get; set; }
         public string? Note { get; set; }

@@ -2,14 +2,13 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Requests;
+using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Queries;
-using CreateOrderResponseDto = MilkTea.API.RestfulAPI.DTOs.Orders.Responses.CreateOrderResponseDto;
-using GetOrderDetailByIDAndStatusResponseDto = MilkTea.API.RestfulAPI.DTOs.Orders.Responses.GetOrderDetailByIDAndStatusResponseDto;
-using GetOrdersByOrderByAndStatusResponseDto = MilkTea.API.RestfulAPI.DTOs.Order.Responses.GetOrdersByOrderByAndStatusResponseDto;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Orders
 {
@@ -79,7 +78,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
-            var response = _vMapper.Map<CreateOrderResponseDto>(result);
+            var response = _vMapper.Map<CreateOrderResponseDto>(result.Order);
 
             return SendSuccess(response);
         }
@@ -125,7 +124,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
-        [HttpPatch("{orderId:int}/item/{orderDetailId:int}/cancel")]
+        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/cancel")]
         public async Task<ResponseDto> CancelOrderDetail([FromRoute] int orderId, [FromRoute] int orderDetailId)
         {
             var command = new CancelOrderDetailCommnad
