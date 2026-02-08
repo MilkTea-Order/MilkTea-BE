@@ -32,7 +32,9 @@ namespace MilkTea.Application.Models.Catalog
 
     public sealed class MenuSizePriceDto : MenuSizeDto
     {
+        public int PriceListId { get; set; }
         public decimal Price { get; set; }
+        public int CurrencyId { get; set; }
         public string? CurrencyName { get; set; }
         public string? CurrencyCode { get; set; }
     }

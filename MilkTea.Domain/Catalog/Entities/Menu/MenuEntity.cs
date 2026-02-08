@@ -1,29 +1,27 @@
 ﻿using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Catalog.Entities;
-public sealed class Menu : Entity<int>
+namespace MilkTea.Domain.Catalog.Entities.Menu;
+public sealed class MenuEntity : Entity<int>
 {
-    private readonly List<MenuSize> _vMenuSizes = new();
-    public IReadOnlyList<MenuSize> MenuSizes => _vMenuSizes.AsReadOnly();
+    private readonly List<MenuSizeEntity> _vMenuSizes = new();
+    public IReadOnlyList<MenuSizeEntity> MenuSizes => _vMenuSizes.AsReadOnly();
 
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
 
     public int MenuGroupID { get; private set; }
-
+    public MenuStatus Status { get; private set; }
+    public int UnitID { get; private set; }
     public string? Formula { get; private set; }
     public byte[]? AvatarPicture { get; private set; }
     public string? Note { get; private set; }
-
-    public MenuStatus Status { get; private set; }
-    public int UnitID { get; private set; }
     public int? TasteQTy { get; private set; }
     public bool? PrintSticker { get; private set; }
 
-    private Menu() { }
+    private MenuEntity() { }
 
-    internal static Menu Create(
+    internal static MenuEntity Create(
         string code,
         string name,
         int menuGroupId,
@@ -39,7 +37,7 @@ public sealed class Menu : Entity<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(unitId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        return new Menu
+        return new MenuEntity
         {
             Code = code,
             Name = name,
@@ -61,7 +59,7 @@ public sealed class Menu : Entity<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
         var existing = _vMenuSizes.FirstOrDefault(x => x.SizeID == sizeId);
-        if (existing is null) _vMenuSizes.Add(MenuSize.Create(sizeId, cost, sale));
+        if (existing is null) _vMenuSizes.Add(MenuSizeEntity.Create(sizeId, cost, sale));
         else existing.UpdatePrice(cost, sale);
 
         Touch(updatedBy);

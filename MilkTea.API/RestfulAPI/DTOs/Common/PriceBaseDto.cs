@@ -2,13 +2,13 @@
 
 namespace MilkTea.API.RestfulAPI.DTOs.Common
 {
-    public class SizeBaseDto
+    public class PriceBaseDto
     {
         [JsonPropertyOrder(1)]
-        public int ID { get; set; }
+        public int PriceListID { get; set; }
         [JsonPropertyOrder(2)]
-        public string Name { get; set; } = string.Empty;
+        public decimal Price { get; set; }
         [JsonPropertyOrder(3)]
-        public int RankIndex { get; set; }
+        public CurrencyBaseDto? Currency { get; set; }
     }
 }

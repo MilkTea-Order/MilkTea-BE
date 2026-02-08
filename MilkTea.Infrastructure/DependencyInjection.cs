@@ -40,6 +40,7 @@ public static class DependencyInjection
         // Catalog
         services.AddScoped<IMenuRepository, MenuRepository>();
         services.AddScoped<ISizeRepository, SizeRepository>();
+        services.AddScoped<IUnitRepository, UnitRepository>();
 
         // TableManagement
         services.AddScoped<ITableRepository, TableRepository>();

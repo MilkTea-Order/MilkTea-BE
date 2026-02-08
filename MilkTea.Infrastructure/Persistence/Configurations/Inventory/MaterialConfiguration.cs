@@ -34,15 +34,15 @@ public class MaterialConfiguration : IEntityTypeConfiguration<Material>
             .HasForeignKey(m => m.MaterialsGroupID)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(m => m.Unit)
-            .WithMany()
-            .HasForeignKey(m => m.UnitID)
-            .OnDelete(DeleteBehavior.Restrict);
+        //builder.HasOne(m => m.Unit)
+        //    .WithMany()
+        //    .HasForeignKey(m => m.UnitID)
+        //    .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(m => m.UnitMax)
-            .WithMany()
-            .HasForeignKey(m => m.UnitID_Max)
-            .OnDelete(DeleteBehavior.Restrict);
+        //builder.HasOne(m => m.UnitMax)
+        //    .WithMany()
+        //    .HasForeignKey(m => m.UnitID_Max)
+        //    .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
         builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();

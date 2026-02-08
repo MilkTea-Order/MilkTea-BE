@@ -1,4 +1,4 @@
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Menu;
 
 namespace MilkTea.Domain.Catalog.Repositories;
 
@@ -10,32 +10,32 @@ public interface IMenuRepository
     /// <summary>
     /// Gets all menu groups.
     /// </summary>
-    Task<List<MenuGroup>> GetAllMenuGroupsAsync(CancellationToken cancellationToken);
+    Task<List<MenuGroupEntity>> GetAllMenuGroupsAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets all active menu groups.
     /// </summary>
-    Task<List<MenuGroup>> GetAlllActiveMenuGroupsAsync(CancellationToken cancellationToken);
+    Task<List<MenuGroupEntity>> GetAlllActiveMenuGroupsAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets group menu relations by group ID.
     /// </summary>
-    Task<MenuGroup?> GetByIdWithMenuAsync(int groupId, CancellationToken cancellationToken);
+    Task<MenuGroupEntity?> GetByIdWithMenuAsync(int groupId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets group menu relations by group ID and menu status.
     /// </summary>
-    Task<MenuGroup?> GetByIdWithMenuAsync(int groupId, int? menuStatusId, CancellationToken cancellationToken);
+    Task<MenuGroupEntity?> GetByIdWithMenuAsync(int groupId, int? menuStatusId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets group menu relations by menuID
     /// </summary>
-    Task<MenuGroup?> GetByMenuIdWithRelationshipsAsync(int menuId, CancellationToken cancellationToken);
+    Task<MenuGroupEntity?> GetByMenuIdWithRelationshipsAsync(int menuId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets menu groups by status.
     /// </summary>
-    Task<List<MenuGroup>> GetByStatusWithMenuAsync(int? statusId, int? itemStatusId, CancellationToken cancellationToken);
+    Task<List<MenuGroupEntity>> GetByStatusWithMenuAsync(int? statusId, int? itemStatusId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Check menu and size is status active (can pay)

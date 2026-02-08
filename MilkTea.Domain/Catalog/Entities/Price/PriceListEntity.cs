@@ -1,33 +1,26 @@
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Catalog.Entities;
+namespace MilkTea.Domain.Catalog.Entities.Price;
 
-/// <summary>
-/// Price list entity (Aggregate Root).
-/// </summary>
-public sealed class PriceList : Aggregate<int>
+public sealed class PriceListEntity : Aggregate<int>
 {
     public string Name { get; private set; } = null!;
     public string? Code { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime StopDate { get; private set; }
     public int CurrencyID { get; private set; }
-
-    /// <summary>
-    /// Price list status. Maps to StatusOfPriceListID column.
-    /// </summary>
     public PriceListStatus Status { get; private set; }
 
     // Navigations
-    public Currency? Currency { get; private set; }
-    private readonly List<PriceListDetail> _vDetails = new();
-    public IReadOnlyList<PriceListDetail> Details => _vDetails.AsReadOnly();
+    public CurrencyEntity? Currency { get; private set; }
+    private readonly List<PriceListDetailEntity> _vDetails = new();
+    public IReadOnlyList<PriceListDetailEntity> Details => _vDetails.AsReadOnly();
 
     // For EF Core
-    private PriceList() { }
+    private PriceListEntity() { }
 
-    public static PriceList Create(
+    public static PriceListEntity Create(
         string name,
         DateTime startDate,
         DateTime stopDate,
@@ -44,7 +37,7 @@ public sealed class PriceList : Aggregate<int>
 
         var now = DateTime.UtcNow;
 
-        return new PriceList
+        return new PriceListEntity
         {
             Name = name,
             Code = code,
@@ -97,14 +90,14 @@ public sealed class PriceList : Aggregate<int>
         Touch(expiredBy);
     }
 
-    public PriceListDetail AddDetail(int menuId, int sizeId, decimal price, int createdBy)
+    public PriceListDetailEntity AddDetail(int menuId, int sizeId, decimal price, int createdBy)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(menuId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sizeId);
         ArgumentOutOfRangeException.ThrowIfNegative(price);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        var detail = PriceListDetail.Create(Id, menuId, sizeId, price, createdBy);
+        var detail = PriceListDetailEntity.Create(Id, menuId, sizeId, price, createdBy);
         _vDetails.Add(detail);
         Touch(createdBy);
         return detail;

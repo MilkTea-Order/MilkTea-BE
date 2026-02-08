@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Size;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
@@ -13,7 +13,7 @@ public class SizeRepository(AppDbContext context) : ISizeRepository
     private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
-    public async Task<Size?> GetByIdAsync(int id)
+    public async Task<SizeEntity?> GetByIdAsync(int id)
     {
         return await _vContext.Sizes
             .AsNoTracking()
@@ -21,7 +21,7 @@ public class SizeRepository(AppDbContext context) : ISizeRepository
     }
 
     /// <inheritdoc/>
-    public async Task<List<Size>> GetAllAsync()
+    public async Task<List<SizeEntity>> GetAllAsync()
     {
         return await _vContext.Sizes
             .AsNoTracking()
@@ -31,18 +31,18 @@ public class SizeRepository(AppDbContext context) : ISizeRepository
 
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyDictionary<int, Size>> GetByIdsAsync(
+    public async Task<IReadOnlyDictionary<int, SizeEntity>> GetByIdsAsync(
         IEnumerable<int> sizeIds,
         CancellationToken cancellationToken = default)
     {
-        if (sizeIds is null) return new Dictionary<int, Size>();
+        if (sizeIds is null) return new Dictionary<int, SizeEntity>();
 
         var ids = sizeIds
             .Where(id => id > 0)
             .Distinct()
             .ToArray();
 
-        if (ids.Length == 0) return new Dictionary<int, Size>();
+        if (ids.Length == 0) return new Dictionary<int, SizeEntity>();
 
         var sizes = await _vContext.Sizes
             .AsNoTracking()

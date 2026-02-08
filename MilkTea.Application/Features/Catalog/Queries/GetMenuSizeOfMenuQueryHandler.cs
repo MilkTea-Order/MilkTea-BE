@@ -47,12 +47,15 @@ public sealed class GetMenuSizeOfMenuQueryHandler(
         result.MenuSize = menu.MenuSizes.Select(ms =>
         {
             sizeDict.TryGetValue(ms.SizeID, out var size);
+            var priceListDetail = priceList.Details.FirstOrDefault(d => d.MenuID == query.MenuId && d.SizeID == ms.SizeID);
             return new MenuSizePriceDto
             {
                 SizeId = ms.SizeID,
                 SizeName = size?.Name ?? "Không rõ",
                 RankIndex = size?.RankIndex ?? int.MaxValue,
-                Price = priceList.Details.FirstOrDefault(d => d.MenuID == query.MenuId && d.SizeID == ms.SizeID)?.Price ?? -1,
+                Price = priceListDetail?.Price ?? -1,
+                PriceListId = priceList.Id,
+                CurrencyId = priceList.Currency?.Id ?? 0,
                 CurrencyName = priceList.Currency?.Name,
                 CurrencyCode = priceList.Currency?.Code,
             };

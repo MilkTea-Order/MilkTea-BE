@@ -1,9 +1,9 @@
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Catalog.Entities;
+namespace MilkTea.Domain.Catalog.Entities.Size;
 
 
-public sealed class Size : Aggregate<int>
+public sealed class SizeEntity : Aggregate<int>
 {
     public string Name { get; private set; } = null!;
     public int RankIndex { get; private set; }

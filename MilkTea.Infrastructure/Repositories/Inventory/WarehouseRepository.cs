@@ -86,7 +86,7 @@ public class WarehouseRepository(AppDbContext context) : IWarehouseRepository
         return await _context.MenuMaterialRecipes
             .AsNoTracking()
             .Include(mmr => mmr.Material)
-            .Include(mmr => mmr.Unit)
+            //.Include(mmr => mmr.Unit)
             .Where(mmr => mmr.MenuID == menuId)
             .ToListAsync();
     }

@@ -12,8 +12,6 @@ public class MenuMaterialRecipe : Entity<int>
     public int MaterialID { get; set; }
     public decimal Quantity { get; set; }
     public int? UnitID { get; set; }
-
     // Navigations
     public Material? Material { get; set; }
-    public Unit? Unit { get; set; }
 }

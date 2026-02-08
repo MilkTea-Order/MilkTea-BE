@@ -1,4 +1,4 @@
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Price;
 
 namespace MilkTea.Domain.Catalog.Repositories;
 
@@ -13,20 +13,20 @@ public interface IPriceListRepository
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Price List</returns>
-    Task<PriceList?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<PriceListEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get active price list with details.
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns>Active price list with details.</returns>
-    Task<PriceList?> GetActiveWithCurrencyAsync(CancellationToken cancellationToken = default);
+    Task<PriceListEntity?> GetActiveWithCurrencyAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the active price list.
     /// </summary>
     /// <returns>Active price list.</returns>
-    Task<PriceList?> GetActiveWithRelationshipAsync(CancellationToken cancellationToken = default);
+    Task<PriceListEntity?> GetActiveWithRelationshipAsync(CancellationToken cancellationToken = default);
 
 
     /// <summary>
@@ -36,7 +36,7 @@ public interface IPriceListRepository
     /// <param name="sizeId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Active price list with details for the specified menu and size.</returns>
-    Task<PriceList?> GetActiveByMenuAndSizeWithRelationshipAsync(int menuId, int sizeId, CancellationToken cancellationToken = default);
+    Task<PriceListEntity?> GetActiveByMenuAndSizeWithRelationshipAsync(int menuId, int sizeId, CancellationToken cancellationToken = default);
 
 
     /// <summary>
@@ -45,5 +45,5 @@ public interface IPriceListRepository
     /// <param name="menuId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Active price list with details for the specified menu.</returns>
-    Task<PriceList?> GetActiveByMenuWithRelationshipAsync(int menuId, CancellationToken cancellationToken);
+    Task<PriceListEntity?> GetActiveByMenuWithRelationshipAsync(int menuId, CancellationToken cancellationToken);
 }

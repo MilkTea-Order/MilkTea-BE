@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Price;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Infrastructure.Persistence;
@@ -15,7 +15,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
 
 
     /// <inheritdoc/>
-    public async Task<PriceList?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<PriceListEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _vContext.PriceLists
             .AsNoTracking()
@@ -25,7 +25,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     }
 
     /// <inheritdoc/>
-    public async Task<PriceList?> GetActiveWithCurrencyAsync(CancellationToken cancellationToken = default)
+    public async Task<PriceListEntity?> GetActiveWithCurrencyAsync(CancellationToken cancellationToken = default)
     {
         return await _vContext.PriceLists
             .AsNoTracking()
@@ -36,7 +36,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     }
 
     /// <inheritdoc/>
-    public async Task<PriceList?> GetActiveWithRelationshipAsync(CancellationToken cancellationToken = default)
+    public async Task<PriceListEntity?> GetActiveWithRelationshipAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         return await _vContext.PriceLists
@@ -48,7 +48,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     }
 
 
-    public async Task<PriceList?> GetActiveByMenuAndSizeWithRelationshipAsync(int menuId, int sizeId, CancellationToken cancellationToken = default)
+    public async Task<PriceListEntity?> GetActiveByMenuAndSizeWithRelationshipAsync(int menuId, int sizeId, CancellationToken cancellationToken = default)
     {
         return await _vContext.PriceLists
             .AsNoTracking()
@@ -61,7 +61,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     }
 
     /// <inheritdoc/>
-    public async Task<PriceList?> GetActiveByMenuWithRelationshipAsync(int menuId, CancellationToken cancellationToken)
+    public async Task<PriceListEntity?> GetActiveByMenuWithRelationshipAsync(int menuId, CancellationToken cancellationToken)
     {
         return await _vContext.PriceLists
             .AsNoTracking()

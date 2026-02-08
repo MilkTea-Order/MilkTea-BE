@@ -5,6 +5,7 @@ using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Shared.Domain.Constants;
+using Shared.Extensions;
 namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetMenuItemsAvailableOfGroupQueryHandler(
@@ -34,7 +35,7 @@ public sealed class GetMenuItemsAvailableOfGroupQueryHandler(
                 MenuGroupId = m.MenuGroupID,
                 MenuGroupName = menus.Name,
                 StatusId = (int)m.Status,
-                StatusName = m.Status.ToString()
+                StatusName = m.Status.GetDescription()
             }).ToList();
         }
         return result;

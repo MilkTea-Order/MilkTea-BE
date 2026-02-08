@@ -23,9 +23,9 @@ public class MenuMaterialRecipeConfiguration : IEntityTypeConfiguration<MenuMate
             .HasForeignKey(r => r.MaterialID)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(r => r.Unit)
-            .WithMany()
-            .HasForeignKey(r => r.UnitID)
-            .OnDelete(DeleteBehavior.Restrict);
+        //builder.HasOne(r => r.Unit)
+        //    .WithMany()
+        //    .HasForeignKey(r => r.UnitID)
+        //    .OnDelete(DeleteBehavior.Restrict);
     }
 }

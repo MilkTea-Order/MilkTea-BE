@@ -6,5 +6,5 @@ namespace MilkTea.Application.Features.Catalog.Queries;
 public sealed class GetMenuItemsOfGroupQuery : IRequest<GetMenuItemsOfGroupResult>
 {
     public int GroupId { get; set; }
-    public int? MenuStatusId { get; set; }
+    public bool IsMenuActive { get; set; } = true;
 }

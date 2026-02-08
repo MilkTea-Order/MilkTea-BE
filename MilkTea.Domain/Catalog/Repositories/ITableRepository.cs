@@ -1,4 +1,4 @@
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Table;
 using MilkTea.Domain.Catalog.Enums;
 
 namespace MilkTea.Domain.Catalog.Repositories;

@@ -1,6 +1,6 @@
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Catalog.Entities;
+namespace MilkTea.Domain.Catalog.Entities.Menu;
 
 public class KindOfHotpot : EntityId<int>
 {

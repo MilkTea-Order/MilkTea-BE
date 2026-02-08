@@ -14,7 +14,7 @@ public sealed class Material : Entity<int>
     public int? UnitID_Max { get; private set; }
     public int? StyleQuantity { get; private set; }
     public int MaterialsGroupID { get; private set; }
-    
+
     /// <summary>
     /// Material status. Maps to StatusID column.
     /// </summary>
@@ -22,8 +22,6 @@ public sealed class Material : Entity<int>
 
     // Navigations
     public MaterialsGroup? MaterialsGroup { get; private set; }
-    public Unit? Unit { get; private set; }
-    public Unit? UnitMax { get; private set; }
 
     // For EF Core
     private Material() { }

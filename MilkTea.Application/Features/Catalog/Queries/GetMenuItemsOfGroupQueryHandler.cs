@@ -19,16 +19,10 @@ public sealed class GetMenuItemsOfGroupQueryHandler(
         if (query.GroupId <= 0)
             return SendError(result, ErrorCode.E0036, "GroupID");
 
-        // Convert MenuStatusId to enum if provided
-        MenuStatus? menuStatus = null;
-        if (query.MenuStatusId.HasValue && Enum.IsDefined(typeof(MenuStatus), query.MenuStatusId.Value))
-        {
-            menuStatus = (MenuStatus)query.MenuStatusId.Value;
-        }
+        // Convert MenuStatusId to enum if provided (default active menu)
+        var menuStatus = query.IsMenuActive ? MenuStatus.Active : MenuStatus.Inactive;
 
-        var menus = await catalogUnitOfWork.Menus.GetByIdWithMenuAsync(
-                                                        query.GroupId,
-                                                        query.MenuStatusId.HasValue ? (int?)query.MenuStatusId.Value : null, cancellationToken);
+        var menus = await catalogUnitOfWork.Menus.GetByIdWithMenuAsync(query.GroupId, (int)menuStatus, cancellationToken);
 
         if (menus == null)
         {

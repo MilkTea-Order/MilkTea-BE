@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="RestfulAPI\DTOs\Catalog\Common\" />
     <Folder Include="RestfulAPI\DTOs\Catalog\Requests\" />
     <Folder Include="RestfulAPI\DTOs\Requests\Orders\" />
   </ItemGroup>

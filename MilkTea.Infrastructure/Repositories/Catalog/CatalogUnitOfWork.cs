@@ -12,7 +12,8 @@ public class CatalogUnitOfWork(
     IMenuRepository menus,
     ISizeRepository sizes,
     ITableRepository tables,
-    IPriceListRepository priceLists
+    IPriceListRepository priceLists,
+    IUnitRepository unit
     //IPromotionRepository promotions
     ) : ICatalogUnitOfWork
 {
@@ -23,6 +24,7 @@ public class CatalogUnitOfWork(
     public ISizeRepository Sizes { get; } = sizes;
     public ITableRepository Tables { get; } = tables;
     public IPriceListRepository PriceLists { get; } = priceLists;
+    public IUnitRepository Unit { get; } = unit;
     //public IPromotionRepository Promotions { get; } = promotions;
 
     public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)

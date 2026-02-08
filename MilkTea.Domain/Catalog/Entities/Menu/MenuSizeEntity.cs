@@ -1,17 +1,17 @@
-namespace MilkTea.Domain.Catalog.Entities;
-public sealed class MenuSize
+namespace MilkTea.Domain.Catalog.Entities.Menu;
+public sealed class MenuSizeEntity
 {
     public int MenuID { get; private set; }
     public int SizeID { get; private set; }
     public decimal? CostPrice { get; private set; }
     public decimal? SalePrice { get; private set; }
 
-    private MenuSize() { }
+    private MenuSizeEntity() { }
 
-    internal static MenuSize Create(int sizeId, decimal? cost, decimal? sale)
+    internal static MenuSizeEntity Create(int sizeId, decimal? cost, decimal? sale)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sizeId);
-        return new MenuSize { SizeID = sizeId, CostPrice = cost, SalePrice = sale };
+        return new MenuSizeEntity { SizeID = sizeId, CostPrice = cost, SalePrice = sale };
     }
 
     internal void UpdatePrice(decimal? cost, decimal? sale)

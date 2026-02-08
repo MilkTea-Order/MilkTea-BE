@@ -11,6 +11,8 @@ public interface ICatalogUnitOfWork
     ISizeRepository Sizes { get; }
     ITableRepository Tables { get; }
     IPriceListRepository PriceLists { get; }
+    IUnitRepository Unit { get; }
+
     //IPromotionRepository Promotions { get; }
 
     /// <summary>

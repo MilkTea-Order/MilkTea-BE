@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Menu;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
-public class MenuSizeConfiguration : IEntityTypeConfiguration<MenuSize>
+public class MenuSizeConfiguration : IEntityTypeConfiguration<MenuSizeEntity>
 {
-    public void Configure(EntityTypeBuilder<MenuSize> builder)
+    public void Configure(EntityTypeBuilder<MenuSizeEntity> builder)
     {
         builder.ToTable("Menu_Size");
 

@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Price;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
-public class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
+public class CurrencyConfiguration : IEntityTypeConfiguration<CurrencyEntity>
 {
-    public void Configure(EntityTypeBuilder<Currency> builder)
+    public void Configure(EntityTypeBuilder<CurrencyEntity> builder)
     {
         builder.ToTable("Currency");
 

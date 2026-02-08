@@ -2,6 +2,7 @@ using MediatR;
 using MilkTea.Application.Features.Catalog.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
+using MilkTea.Domain.Catalog.Entities.Table;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
@@ -16,7 +17,7 @@ public sealed class GetTableByStatusQueryHandler(
         var result = new GetTableByStatusResult();
         result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
 
-        List<Domain.Catalog.Entities.TableEntity> tables;
+        List<TableEntity> tables;
 
         if (query.StatusId.HasValue)
         {

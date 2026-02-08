@@ -1,7 +1,7 @@
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Catalog.Entities;
+namespace MilkTea.Domain.Catalog.Entities.Table;
 
 public sealed class TableEntity : Aggregate<int>
 {

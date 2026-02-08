@@ -2,25 +2,25 @@
 using MilkTea.Domain.SharedKernel.Abstractions;
 using MilkTea.Domain.SharedKernel.Enums;
 
-namespace MilkTea.Domain.Catalog.Entities;
+namespace MilkTea.Domain.Catalog.Entities.Menu;
 
-public sealed class MenuGroup : Aggregate<int>
+public sealed class MenuGroupEntity : Aggregate<int>
 {
-    private readonly List<Menu> _vMenus = new();
-    public IReadOnlyList<Menu> Menus => _vMenus.AsReadOnly();
+    private readonly List<MenuEntity> _vMenus = new();
+    public IReadOnlyList<MenuEntity> Menus => _vMenus.AsReadOnly();
 
     public string Name { get; private set; } = null!;
     public CommonStatus Status { get; private set; }
     public bool IsActive => Status == CommonStatus.Active;
 
-    private MenuGroup() { }
+    private MenuGroupEntity() { }
 
-    public static MenuGroup Create(string name, int createdBy)
+    public static MenuGroupEntity Create(string name, int createdBy)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        return new MenuGroup
+        return new MenuGroupEntity
         {
             Name = name,
             Status = CommonStatus.Active,
@@ -56,7 +56,7 @@ public sealed class MenuGroup : Aggregate<int>
 
 
     // Action on Menu within this MenuGroup
-    public Menu AddMenu(
+    public MenuEntity AddMenu(
        string code,
        string name,
        int unitId,
@@ -73,7 +73,7 @@ public sealed class MenuGroup : Aggregate<int>
         if (_vMenus.Any(m => m.Code.Equals(code, StringComparison.OrdinalIgnoreCase)))
             throw new InvalidOperationException("Menu code already exists in this group.");
 
-        var menu = Menu.Create(code, name, this.Id, unitId, createdBy, formula, note, tasteQty, printSticker);
+        var menu = MenuEntity.Create(code, name, Id, unitId, createdBy, formula, note, tasteQty, printSticker);
         _vMenus.Add(menu);
         Touch(createdBy);
         return menu;
@@ -95,7 +95,7 @@ public sealed class MenuGroup : Aggregate<int>
         menu.Deactivate(by);
     }
 
-    private Menu FindMenu(int menuId)
+    private MenuEntity FindMenu(int menuId)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(menuId);
         var menu = _vMenus.FirstOrDefault(x => x.Id == menuId);

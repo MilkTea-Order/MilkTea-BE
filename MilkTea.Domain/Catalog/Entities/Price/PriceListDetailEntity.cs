@@ -1,24 +1,24 @@
 using MilkTea.Domain.SharedKernel.Abstractions;
 
-namespace MilkTea.Domain.Catalog.Entities;
+namespace MilkTea.Domain.Catalog.Entities.Price;
 
 /// <summary>
 /// Price list detail entity for menu item pricing.
 /// Child entity of PriceList aggregate.
 /// </summary>
-public sealed class PriceListDetail : Entity<int>
+public sealed class PriceListDetailEntity : Entity<int>
 {
     public int PriceListID { get; private set; }
-    public PriceList? PriceList { get; private set; }
+    public PriceListEntity? PriceList { get; private set; }
 
     public int MenuID { get; private set; }
     public int SizeID { get; private set; }
     public decimal Price { get; private set; }
 
     // For EF Core
-    private PriceListDetail() { }
+    private PriceListDetailEntity() { }
 
-    internal static PriceListDetail Create(
+    internal static PriceListDetailEntity Create(
         int priceListId,
         int menuId,
         int sizeId,
@@ -33,7 +33,7 @@ public sealed class PriceListDetail : Entity<int>
 
         var now = DateTime.UtcNow;
 
-        return new PriceListDetail
+        return new PriceListDetailEntity
         {
             PriceListID = priceListId,
             MenuID = menuId,

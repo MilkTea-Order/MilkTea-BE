@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Price;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
-public class PriceListDetailConfiguration : IEntityTypeConfiguration<PriceListDetail>
+public class PriceListDetailConfiguration : IEntityTypeConfiguration<PriceListDetailEntity>
 {
-    public void Configure(EntityTypeBuilder<PriceListDetail> builder)
+    public void Configure(EntityTypeBuilder<PriceListDetailEntity> builder)
     {
         builder.ToTable("PriceListDetail");
 

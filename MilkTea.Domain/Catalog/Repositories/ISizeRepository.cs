@@ -1,4 +1,4 @@
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Size;
 
 namespace MilkTea.Domain.Catalog.Repositories;
 
@@ -10,16 +10,16 @@ public interface ISizeRepository
     /// <summary>
     /// Gets a size by ID.
     /// </summary>
-    Task<Size?> GetByIdAsync(int id);
+    Task<SizeEntity?> GetByIdAsync(int id);
 
     /// <summary>
     /// Gets all sizes.
     /// </summary>
-    Task<List<Size>> GetAllAsync();
+    Task<List<SizeEntity>> GetAllAsync();
 
 
     /// <summary>
     /// Get sizes by their IDs.
     /// </summary>
-    Task<IReadOnlyDictionary<int, Size>> GetByIdsAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<int, SizeEntity>> GetByIdsAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default);
 }

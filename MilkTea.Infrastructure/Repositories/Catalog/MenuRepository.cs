@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Menu;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Enums;
@@ -14,14 +14,14 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
 {
     private readonly AppDbContext _vContext = context;
     /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetAllMenuGroupsAsync(CancellationToken cancellationToken)
+    public async Task<List<MenuGroupEntity>> GetAllMenuGroupsAsync(CancellationToken cancellationToken)
     {
         return await _vContext.MenuGroups
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
     /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetAlllActiveMenuGroupsAsync(CancellationToken cancellationToken)
+    public async Task<List<MenuGroupEntity>> GetAlllActiveMenuGroupsAsync(CancellationToken cancellationToken)
     {
         return await _vContext.MenuGroups
             .AsNoTracking()
@@ -31,7 +31,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
 
     #region Relationship
     /// <inheritdoc/>
-    public async Task<MenuGroup?> GetByIdWithMenuAsync(int groupId, CancellationToken cancellationToken)
+    public async Task<MenuGroupEntity?> GetByIdWithMenuAsync(int groupId, CancellationToken cancellationToken)
     {
         return await _vContext.MenuGroups
                         .AsNoTracking()
@@ -41,7 +41,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
     }
 
     /// <inheritdoc/>
-    public async Task<MenuGroup?> GetByIdWithMenuAsync(
+    public async Task<MenuGroupEntity?> GetByIdWithMenuAsync(
                                                     int groupId,
                                                     int? menuStatusId,
                                                     CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
     }
 
     /// <inheritdoc/>
-    public async Task<List<MenuGroup>> GetByStatusWithMenuAsync(
+    public async Task<List<MenuGroupEntity>> GetByStatusWithMenuAsync(
     int? statusId, int? itemStatusId, CancellationToken cancellationToken)
     {
         var query = _vContext.MenuGroups
@@ -94,7 +94,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
     }
 
     /// <inheritdoc/>
-    public async Task<MenuGroup?> GetByMenuIdWithRelationshipsAsync(int menuId, CancellationToken cancellationToken)
+    public async Task<MenuGroupEntity?> GetByMenuIdWithRelationshipsAsync(int menuId, CancellationToken cancellationToken)
     {
         var groupId = await _vContext.Menus
                                 .AsNoTracking()

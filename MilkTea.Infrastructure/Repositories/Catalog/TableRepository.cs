@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Table;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Infrastructure.Persistence;

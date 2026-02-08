@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog.Entities.Size;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
-public class SizeConfiguration : IEntityTypeConfiguration<Size>
+public class SizeConfiguration : IEntityTypeConfiguration<SizeEntity>
 {
-    public void Configure(EntityTypeBuilder<Size> builder)
+    public void Configure(EntityTypeBuilder<SizeEntity> builder)
     {
         builder.ToTable("Size");
 

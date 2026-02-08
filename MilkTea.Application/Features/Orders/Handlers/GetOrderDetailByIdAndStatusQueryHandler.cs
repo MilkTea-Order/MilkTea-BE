@@ -90,6 +90,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                                         Id = m.MenuId,
                                         Code = m.MenuCode,
                                         Name = m.MenuName,
+                                        MenuGroupId = m.MenuGroupId,
                                         MenuGroupName = m.MenuGroupName,
                                         StatusId = m.StatusId,
                                         StatusName = m.StatusName,
