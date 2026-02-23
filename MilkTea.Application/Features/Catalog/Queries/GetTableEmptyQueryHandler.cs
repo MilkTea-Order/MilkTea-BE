@@ -1,11 +1,15 @@
 using MediatR;
-using MilkTea.Application.Features.Catalog.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Repositories;
 using Shared.Extensions;
 
-namespace MilkTea.Application.Features.Catalog.Handlers;
+namespace MilkTea.Application.Features.Catalog.Queries;
+
+public sealed class GetTableEmptyQuery : IRequest<GetTableEmptyResult>
+{
+    public bool IsEmpty { get; set; } = true;
+}
 
 public sealed class GetTableEmptyQueryHandler(
     ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetTableEmptyQuery, GetTableEmptyResult>

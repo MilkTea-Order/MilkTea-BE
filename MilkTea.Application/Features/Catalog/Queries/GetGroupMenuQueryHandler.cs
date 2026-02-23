@@ -8,6 +8,13 @@ using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 
+
+public sealed class GetGroupMenuQuery : IRequest<GetGroupMenuResult>
+{
+    public int? StatusId { get; set; }
+    public int? ItemStatusId { get; set; }
+}
+
 public sealed class GetGroupMenuQueryHandler(
     ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetGroupMenuQuery, GetGroupMenuResult>
 {

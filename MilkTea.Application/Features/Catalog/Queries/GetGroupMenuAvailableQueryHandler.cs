@@ -8,6 +8,8 @@ using MilkTea.Shared.Domain.Constants;
 using Shared.Extensions;
 namespace MilkTea.Application.Features.Catalog.Queries;
 
+public sealed class GetGroupMenuAvailableQuery : IRequest<GetGroupMenuResult>;
+
 public sealed class GetGroupMenuAvailableQueryHandler(
     ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetGroupMenuAvailableQuery, GetGroupMenuResult>
 {

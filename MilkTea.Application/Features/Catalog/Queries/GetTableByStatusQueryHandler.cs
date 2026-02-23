@@ -1,5 +1,4 @@
 using MediatR;
-using MilkTea.Application.Features.Catalog.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Entities.Table;
@@ -7,8 +6,12 @@ using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Shared.Domain.Constants;
-namespace MilkTea.Application.Features.Catalog.Handlers;
+namespace MilkTea.Application.Features.Catalog.Queries;
 
+public sealed class GetTableByStatusQuery : IRequest<GetTableByStatusResult>
+{
+    public int? StatusId { get; set; }
+}
 public sealed class GetTableByStatusQueryHandler(
     ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetTableByStatusQuery, GetTableByStatusResult>
 {

@@ -169,7 +169,7 @@ public sealed class Order : Aggregate<int>
 
 
     /// <summary>
-    /// Cancels the order and all associated items, recording the user who performed the cancellation.
+    /// Cancels the order, recording the user who performed the cancellation.
     /// </summary>
     /// <param name="cancelledBy">The identifier of the user performing the cancellation.</param>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
@@ -179,11 +179,11 @@ public sealed class Order : Aggregate<int>
         UpdateStatus(OrderStatus.Cancelled, cancelledBy);
         CancelledBy = cancelledBy;
         CancelledDate = DateTime.UtcNow;
-        foreach (var item in _vOrderItems.Where(x => !x.IsCancelled))
-        {
-            item.Cancel(cancelledBy);
-        }
-        Touch(cancelledBy);
+        //foreach (var item in _vOrderItems.Where(x => !x.IsCancelled))
+        //{
+        //    item.Cancel(cancelledBy);
+        //}
+        //Touch(cancelledBy);
     }
 
 

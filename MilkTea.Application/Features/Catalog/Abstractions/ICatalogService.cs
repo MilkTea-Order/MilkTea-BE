@@ -1,6 +1,6 @@
 ﻿using MilkTea.Application.Models.Catalog;
 
-namespace MilkTea.Application.Features.Catalog.Services
+namespace MilkTea.Application.Features.Catalog.Abstractions
 {
     public interface ICatalogService
     {

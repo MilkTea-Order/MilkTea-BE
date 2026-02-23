@@ -7,6 +7,11 @@ using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 
+public sealed class GetMenuSizeOfMenuQuery : IRequest<GetMenuSizeOfMenuResult>
+{
+    public int MenuId { get; set; }
+}
+
 public sealed class GetMenuSizeOfMenuQueryHandler(
     ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetMenuSizeOfMenuQuery, GetMenuSizeOfMenuResult>
 {

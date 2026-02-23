@@ -1,5 +1,5 @@
 using MediatR;
-using MilkTea.Application.Features.Catalog.Services;
+using MilkTea.Application.Features.Catalog.Abstractions;
 using MilkTea.Application.Features.Orders.Queries;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;

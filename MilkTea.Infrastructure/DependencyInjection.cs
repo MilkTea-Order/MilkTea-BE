@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using MilkTea.Application.Features.Catalog.Services;
+using MilkTea.Application.Features.Catalog.Abstractions;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Domain.Catalog.Repositories;
@@ -8,6 +8,7 @@ using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Repositories;
+using MilkTea.Infrastructure.Catalog.Queries;
 using MilkTea.Infrastructure.Catalog.Services;
 using MilkTea.Infrastructure.Hash.Password;
 using MilkTea.Infrastructure.Hash.Permission;
@@ -38,9 +39,15 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
 
         // Catalog
+        // Repositories
         services.AddScoped<IMenuRepository, MenuRepository>();
         services.AddScoped<ISizeRepository, SizeRepository>();
         services.AddScoped<IUnitRepository, UnitRepository>();
+        // Queries
+        services.AddScoped<ICatalogQuery, CatalogQuery>();
+        //Service 
+        services.AddScoped<ICatalogService, CatalogService>();
+
 
         // TableManagement
         services.AddScoped<ITableRepository, TableRepository>();
@@ -72,8 +79,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, RC2PasswordHasher>();
         services.AddScoped<IPermissionHasher, RC2PermissionHasher>();
 
-        // Service 
-        services.AddScoped<ICatalogService, CatalogService>();
+
 
         return services;
     }

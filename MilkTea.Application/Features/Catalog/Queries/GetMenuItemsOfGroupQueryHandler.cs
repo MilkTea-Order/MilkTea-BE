@@ -1,6 +1,6 @@
 using MediatR;
+using MilkTea.Application.Features.Catalog.Dtos;
 using MilkTea.Application.Features.Catalog.Results;
-using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.Catalog.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
@@ -8,6 +8,12 @@ using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 
+
+public sealed class GetMenuItemsOfGroupQuery : IRequest<GetMenuItemsOfGroupResult>
+{
+    public int GroupId { get; set; }
+    public bool IsMenuActive { get; set; } = true;
+}
 public sealed class GetMenuItemsOfGroupQueryHandler(
     ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetMenuItemsOfGroupQuery, GetMenuItemsOfGroupResult>
 {
@@ -26,11 +32,11 @@ public sealed class GetMenuItemsOfGroupQueryHandler(
 
         if (menus == null)
         {
-            result.Menus = new List<MenuItemDto>();
+            result.Menus = new List<MenuDto>();
         }
         else
         {
-            result.Menus = menus.Menus.Select(m => new MenuItemDto
+            result.Menus = menus.Menus.Select(m => new MenuDto
             {
                 MenuId = m.Id,
                 MenuCode = m.Code,

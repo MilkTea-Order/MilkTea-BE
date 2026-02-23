@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Catalog.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Common;
+using MilkTea.Application.Features.Catalog.Dtos;
 using MilkTea.Application.Models.Catalog;
 
 namespace MilkTea.API.RestfulAPI.Mappings
@@ -28,11 +29,20 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }));
 
             // Menu Base
-            CreateMap<MenuItemDto, MenuBaseDto>()
+            //CreateMap<MenuItemDto, MenuBaseDto>()
+            //     .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuId))
+            //     .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuName))
+            //     .ForMember(d => d.Code, o => o.MapFrom(s => s.MenuCode))
+            //     .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }))
+            //     .ForMember(d => d.MenuGroupID, o => o.MapFrom(s => s.MenuGroupId))
+            //     .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
+
+            CreateMap<MenuDto, MenuBaseDto>()
                  .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuId))
                  .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuName))
                  .ForMember(d => d.Code, o => o.MapFrom(s => s.MenuCode))
                  .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }))
+                 .ForMember(d => d.Unit, o => o.MapFrom(s => new UnitBaseDto { ID = s.UnitId, Name = s.UnitName ?? string.Empty }))
                  .ForMember(d => d.MenuGroupID, o => o.MapFrom(s => s.MenuGroupId))
                  .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
@@ -62,14 +72,19 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion Get Menu Group Available
 
             #region Get Menu Item of Group
-            CreateMap<MenuItemDto, GetMenuItemOfGroupResponseDto>()
-                .IncludeBase<MenuItemDto, MenuBaseDto>();
+            CreateMap<MenuDto, GetMenuItemOfGroupResponseDto>()
+                .IncludeBase<MenuDto, MenuBaseDto>();
             #endregion Get Menu Item of Group
 
             #region Get Menu Item Available of Group
-            CreateMap<MenuItemDto, GetMenuItemAvailableOfGroupResponseDto>()
-                .IncludeBase<MenuItemDto, MenuBaseDto>();
+            CreateMap<MenuDto, GetMenuItemAvailableOfGroupResponseDto>()
+                .IncludeBase<MenuDto, MenuBaseDto>();
             #endregion Get Menu Item Available of Group
+
+            #region Get Menu Item Available of Group And Name
+            CreateMap<MenuDto, GetMenuItemAvailableOfGroupAndNameResponseDto>()
+                .IncludeBase<MenuDto, MenuBaseDto>();
+            #endregion Get Menu Item Available of Group And Name
 
             #region Menu size of Menu
             CreateMap<MenuSizePriceDto, GetMenuSizeOfMenuResponseDto>()

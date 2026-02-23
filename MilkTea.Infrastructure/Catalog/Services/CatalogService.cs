@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Application.Features.Catalog.Services;
+using MilkTea.Application.Features.Catalog.Abstractions;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog.Enums;
 using MilkTea.Domain.SharedKernel.Enums;
