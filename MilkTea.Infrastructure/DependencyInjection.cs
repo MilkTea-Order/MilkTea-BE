@@ -1,5 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using MilkTea.Application.Features.Catalog.Abstractions;
+using MilkTea.Application.Features.Catalog.Abstractions.Services;
+using MilkTea.Application.Features.Orders.Abstractions;
+using MilkTea.Application.Features.Orders.Abstractions.Services;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Domain.Catalog.Repositories;
@@ -12,6 +15,8 @@ using MilkTea.Infrastructure.Catalog.Queries;
 using MilkTea.Infrastructure.Catalog.Services;
 using MilkTea.Infrastructure.Hash.Password;
 using MilkTea.Infrastructure.Hash.Permission;
+using MilkTea.Infrastructure.Order.Queries;
+using MilkTea.Infrastructure.Order.Services;
 using MilkTea.Infrastructure.Repositories;
 using MilkTea.Infrastructure.Repositories.Catalog;
 using MilkTea.Infrastructure.Repositories.Configuration;
@@ -35,8 +40,12 @@ public static class DependencyInjection
         services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
         services.AddScoped<IConfigurationUnitOfWork, ConfigurationUnitOfWork>();
 
-        // Ordering
+        // Order
         services.AddScoped<IOrderRepository, OrderRepository>();
+        //Quries
+        services.AddScoped<IOrderQueries, OrderQueries>();
+        // Service
+        services.AddScoped<IOrderServices, OrderServices>();
 
         // Catalog
         // Repositories
@@ -47,6 +56,7 @@ public static class DependencyInjection
         services.AddScoped<ICatalogQuery, CatalogQuery>();
         //Service 
         services.AddScoped<ICatalogService, CatalogService>();
+        services.AddScoped<ITableServices, TableServices>();
 
 
         // TableManagement

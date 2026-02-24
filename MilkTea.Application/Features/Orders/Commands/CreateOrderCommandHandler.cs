@@ -1,5 +1,5 @@
+﻿using FluentValidation;
 using MilkTea.Application.Features.Catalog.Abstractions;
-using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
@@ -10,7 +10,65 @@ using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Abstractions.CQRS;
 using Shared.Extensions;
 
-namespace MilkTea.Application.Features.Orders.Handlers;
+namespace MilkTea.Application.Features.Orders.Commands;
+public class CreateOrderCommand : ICommand<CreateOrderResult>
+{
+    public int DinnerTableID { get; set; }
+    public List<OrderItemCommand> Items { get; set; } = new();
+    public int? OrderedBy { get; set; }
+    public string? Note { get; set; }
+}
+
+public class OrderItemCommand
+{
+    public int MenuID { get; set; }
+    public int SizeID { get; set; }
+    public int Quantity { get; set; }
+    public List<int>? ToppingIDs { get; set; }
+    public List<int>? KindOfHotpotIDs { get; set; }
+    public string? Note { get; set; }
+}
+
+public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
+{
+    public CreateOrderCommandValidator()
+    {
+        RuleFor(x => x.DinnerTableID)
+            .GreaterThan(0)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName("dinnerTableId");
+        RuleFor(x => x.Items)
+            .NotNull()
+            .NotEmpty()
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName("items");
+        RuleFor(x => x.OrderedBy)
+            .GreaterThan(0)
+            .When(x => x.OrderedBy.HasValue)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName("orderedBy");
+    }
+}
+
+//.DependentRules(() =>
+//{
+//    RuleForEach(x => x.Items)
+//        .ChildRules(item =>
+//        {
+//            item.RuleFor(i => i.MenuID)
+//                .GreaterThan(0)
+//                .WithMessage("MenuID phải lớn hơn 0");
+
+//            item.RuleFor(i => i.SizeID)
+//                .GreaterThan(0)
+//                .WithMessage("SizeID phải lớn hơn 0");
+
+//            item.RuleFor(i => i.Quantity)
+//                .GreaterThan(0)
+//                .WithMessage("Quantity phải lớn hơn 0");
+//        });
+//});
+
 
 public sealed class CreateOrderCommandHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
@@ -21,7 +79,7 @@ public sealed class CreateOrderCommandHandler(
     private readonly ICatalogService _vCatalogService = catalogService;
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
-        CreateOrderResult result = new CreateOrderResult();
+        CreateOrderResult result = new();
         var createdBy = currentUser.UserId;
         var orderedBy = command.OrderedBy ?? createdBy;
 
@@ -80,7 +138,7 @@ public sealed class CreateOrderCommandHandler(
         await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var order = Domain.Orders.Entities.Order.Create(
+            var order = Domain.Orders.Entities.OrderEntity.Create(
                 dinnerTableId: command.DinnerTableID,
                 orderBy: orderedBy,
                 createdBy: createdBy,

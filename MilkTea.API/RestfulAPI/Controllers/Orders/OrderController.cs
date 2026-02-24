@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MilkTea.API.RestfulAPI.DTOs.Catalog.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
@@ -170,6 +171,20 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
                 OrderDetailID = orderDetailId,
                 Quantity = request.Quantity,
                 Note = request.Note
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
+
+        [Authorize]
+        [HttpPatch("{orderId:int}/items/change-table")]
+        public async Task<ResponseDto> ChangeTable([FromRoute] int orderId, [FromBody] ChangeTableRequestDto request)
+        {
+            var command = new ChangeTableCommand
+            {
+                OrderID = orderId,
+                NewDinnerTableID = request.NewTableID
             };
             var result = await _vSender.Send(command);
             if (result.ResultData.HasData) return SendError(result.ResultData);

@@ -4,9 +4,9 @@ using MilkTea.Domain.Orders.Entities;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Ordering;
 
-public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
+public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItemEntity>
 {
-    public void Configure(EntityTypeBuilder<OrderItem> builder)
+    public void Configure(EntityTypeBuilder<OrderItemEntity> builder)
     {
         builder.ToTable("OrdersDetail");
 

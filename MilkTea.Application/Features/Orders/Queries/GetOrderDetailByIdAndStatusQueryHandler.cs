@@ -1,13 +1,19 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions;
-using MilkTea.Application.Features.Orders.Queries;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Extensions;
 
-namespace MilkTea.Application.Features.Orders.Handlers;
+namespace MilkTea.Application.Features.Orders.Queries;
+
+
+public sealed class GetOrderDetailByIdAndStatusQuery : IRequest<GetOrderDetailByIDAndStatusResult>
+{
+    public int OrderId { get; set; }
+    public bool IsCancelled { get; set; } = false;
+}
 
 public sealed class GetOrderDetailByIdAndStatusQueryHandler(
     IOrderingUnitOfWork orderingUnitOfWork,

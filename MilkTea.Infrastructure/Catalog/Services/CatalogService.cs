@@ -90,7 +90,6 @@ namespace MilkTea.Infrastructure.Catalog.Services
 
             return result;
         }
-
         public async Task<IReadOnlyDictionary<int, MenuItemDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default)
         {
             return await (

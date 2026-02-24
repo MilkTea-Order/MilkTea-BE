@@ -14,20 +14,20 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
-    public async Task AddAsync(Order order, CancellationToken cancellationToken = default)
+    public async Task AddAsync(OrderEntity order, CancellationToken cancellationToken = default)
     {
         await _vContext.Orders.AddAsync(order, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> UpdateAsync(Order order)
+    public async Task<bool> UpdateAsync(OrderEntity order)
     {
         _vContext.Orders.Update(order);
         return await _vContext.SaveChangesAsync() > 0;
     }
 
     /// <inheritdoc/>
-    public async Task<List<Order>> GetOrdersByOrderByAndStatusWithItemsAsync(int orderBy, OrderStatus? status)
+    public async Task<List<OrderEntity>> GetOrdersByOrderByAndStatusWithItemsAsync(int orderBy, OrderStatus? status)
     {
         var query = _vContext.Orders.AsNoTracking().Where(o => o.OrderBy == orderBy);
 
@@ -42,15 +42,14 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Order?> GetOrderByIdAsync(int orderId)
+    public async Task<OrderEntity?> GetOrderByIdAsync(int orderId)
     {
         return await _vContext.Orders
-            .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == orderId);
     }
 
     /// <inheritdoc/>
-    public async Task<Order?> GetOrderByIdWithItemsAsync(int orderId)
+    public async Task<OrderEntity?> GetOrderByIdWithItemsAsync(int orderId)
     {
         return await _vContext.Orders
             .Include(o => o.OrderItems)
@@ -69,7 +68,7 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Order?> GetOrderDetailByIDAndStatus(int orderId, bool? isCancelled)
+    public async Task<OrderEntity?> GetOrderDetailByIDAndStatus(int orderId, bool? isCancelled)
     {
         var query = _vContext.Orders
             .Where(o => o.Id == orderId)

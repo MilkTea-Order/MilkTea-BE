@@ -6,10 +6,10 @@ using MilkTea.Domain.SharedKernel.Abstractions;
 
 namespace MilkTea.Domain.Orders.Entities;
 
-public sealed class Order : Aggregate<int>
+public sealed class OrderEntity : Aggregate<int>
 {
-    private readonly List<OrderItem> _vOrderItems = new();
-    public IReadOnlyList<OrderItem> OrderItems => _vOrderItems.AsReadOnly();
+    private readonly List<OrderItemEntity> _vOrderItems = new();
+    public IReadOnlyList<OrderItemEntity> OrderItems => _vOrderItems.AsReadOnly();
 
     public int DinnerTableId { get; private set; }
     public int OrderBy { get; private set; }
@@ -37,7 +37,7 @@ public sealed class Order : Aggregate<int>
     public int? ActionBy { get; private set; }
     public DateTime? ActionDate { get; private set; }
 
-    public static Order Create(
+    public static OrderEntity Create(
         //BillNo billNo,
         int dinnerTableId,
         int orderBy,
@@ -46,7 +46,7 @@ public sealed class Order : Aggregate<int>
     {
         var now = DateTime.UtcNow;
 
-        var order = new Order
+        var order = new OrderEntity
         {
             //BillNo = billNo,
             DinnerTableId = dinnerTableId,
@@ -71,7 +71,7 @@ public sealed class Order : Aggregate<int>
     public void CreateOrderItem(MenuItem menuItem, int quantity, int createdBy, string? note = null)
     {
         EnsureCanEdit();
-        var orderItem = OrderItem.Create(menuItem, quantity, createdBy, note);
+        var orderItem = OrderItemEntity.Create(menuItem, quantity, createdBy, note);
         _vOrderItems.Add(orderItem);
         Touch(updatedBy: createdBy);
     }
@@ -195,13 +195,22 @@ public sealed class Order : Aggregate<int>
         Touch(updatedBy);
     }
 
-    public void AssignTable(int dinnerTableId, int updatedBy)
+    /// <summary>
+    /// Updates the dinner table identifier and records the user and timestamp of the change.
+    /// </summary>
+    /// <param name="dinnerTableId">The identifier of the dinner table to assign.</param>
+    /// <param name="updatedBy">The identifier of the user making the change.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="dinnerTableId"/> or <paramref name="updatedBy"/> is less than or equal to zero.</exception>
+    /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
+    public void ChangTable(int dinnerTableId, int updatedBy)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dinnerTableId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
-
+        EnsureCanEdit();
+        ChangeBy = updatedBy;
+        ChangeDate = DateTime.UtcNow;
         DinnerTableId = dinnerTableId;
-        Touch(updatedBy);
+        //Touch(updatedBy);
     }
 
     public void FinalizeAndPublishCreated()
@@ -348,7 +357,4 @@ public sealed class Order : Aggregate<int>
             TotalAmount = subtotal;
         }
     }
-
-
-
 }

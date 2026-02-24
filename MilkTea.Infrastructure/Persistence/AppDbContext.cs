@@ -17,8 +17,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     #region DbSet
 
     // ===== Order =====
-    public DbSet<Order> Orders { get; set; }
-    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<OrderEntity> Orders { get; set; }
+    public DbSet<OrderItemEntity> OrderItems { get; set; }
 
     // ===== Catalog =====
     #region Catalog

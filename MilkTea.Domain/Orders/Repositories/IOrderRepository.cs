@@ -11,22 +11,22 @@ public interface IOrderRepository
     /// <summary>
     /// Adds an order (aggregate with details) to the context.
     /// </summary>
-    Task AddAsync(Order order, CancellationToken cancellationToken = default);
+    Task AddAsync(OrderEntity order, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an order.
     /// </summary>
-    Task<bool> UpdateAsync(Order order);
+    Task<bool> UpdateAsync(OrderEntity order);
 
     /// <summary>
     /// Gets an order by its ID.
     /// </summary>
-    Task<Order?> GetOrderByIdAsync(int orderId);
+    Task<OrderEntity?> GetOrderByIdAsync(int orderId);
 
     /// <summary>
     /// Gets an order by its ID with order items (Can update).
     /// </summary>
-    Task<Order?> GetOrderByIdWithItemsAsync(int orderId);
+    Task<OrderEntity?> GetOrderByIdWithItemsAsync(int orderId);
 
     /// <summary>
     /// Gets the total count of orders created on a specific date.
@@ -36,12 +36,12 @@ public interface IOrderRepository
     /// <summary>
     /// Gets orders filtered by order creator and optional status.
     /// </summary>
-    Task<List<Order>> GetOrdersByOrderByAndStatusWithItemsAsync(int orderBy, OrderStatus? status);
+    Task<List<OrderEntity>> GetOrdersByOrderByAndStatusWithItemsAsync(int orderBy, OrderStatus? status);
 
     /// <summary>
     /// Gets an order with details by ID and cancellation status.
     /// </summary>
-    Task<Order?> GetOrderDetailByIDAndStatus(int orderID, bool? isCancelled);
+    Task<OrderEntity?> GetOrderDetailByIDAndStatus(int orderID, bool? isCancelled);
 
     /// <summary>
     /// Gets all order item IDs for a specific order.

@@ -1,4 +1,4 @@
-using MilkTea.Application.Features.Orders.Commands;
+using FluentValidation;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Exceptions;
@@ -6,11 +6,38 @@ using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Abstractions.CQRS;
 
-namespace MilkTea.Application.Features.Orders.Handlers;
+namespace MilkTea.Application.Features.Orders.Commands;
 
+
+public class CancelOrderDetailsCommand : ICommand<CancelOrderDetailsResult>
+{
+    public int OrderID { get; set; }
+    public List<int> OrderDetailIDs { get; set; } = new();
+}
+
+public sealed class CancelOrderDetailsCommandValidator : AbstractValidator<CancelOrderDetailsCommand>
+{
+    public CancelOrderDetailsCommandValidator()
+    {
+        // Check null, empty, and less than or equal to 0
+        RuleFor(x => x.OrderID)
+            .GreaterThan(0)
+            .WithErrorCode(ErrorCode.E0001)
+            .OverridePropertyName("OrderID");
+
+        // check null and not empty and all greater than 0
+        RuleFor(x => x.OrderDetailIDs)
+            .NotNull()
+            .NotEmpty()
+            .Must(x => x.All(id => id > 0))
+            .WithErrorCode(ErrorCode.E0001)
+            .OverridePropertyName("OrderDetailIDs");
+
+    }
+}
 public sealed class CancelOrderDetailsCommandHandler(
-    IOrderingUnitOfWork orderingUnitOfWork,
-    ICurrentUser currentUser) : ICommandHandler<CancelOrderDetailsCommand, CancelOrderDetailsResult>
+                                IOrderingUnitOfWork orderingUnitOfWork,
+                                ICurrentUser currentUser) : ICommandHandler<CancelOrderDetailsCommand, CancelOrderDetailsResult>
 {
     private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     public async Task<CancelOrderDetailsResult> Handle(CancelOrderDetailsCommand command, CancellationToken cancellationToken)

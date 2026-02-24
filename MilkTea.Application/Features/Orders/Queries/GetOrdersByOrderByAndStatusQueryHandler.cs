@@ -1,14 +1,16 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions;
-using MilkTea.Application.Features.Orders.Queries;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Repositories;
 using Shared.Extensions;
-using Order = MilkTea.Application.Models.Orders.Order;
+namespace MilkTea.Application.Features.Orders.Queries;
 
-namespace MilkTea.Application.Features.Orders.Handlers;
+public sealed class GetOrdersByOrderByAndStatusQuery : IRequest<GetOrdersByOrderByAndStatusResult>
+{
+    public int StatusId { get; set; }
+}
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
     IOrderingUnitOfWork orderingUnitOfWork,

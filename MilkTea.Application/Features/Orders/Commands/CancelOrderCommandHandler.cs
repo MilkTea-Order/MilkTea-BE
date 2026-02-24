@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Users;
@@ -6,6 +7,23 @@ using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Constants;
 
 namespace MilkTea.Application.Features.Orders.Commands;
+
+
+public class CancelOrderCommand : IRequest<CancelOrderResult>
+{
+    public int OrderID { get; set; }
+}
+
+public sealed class CancelOrderCommandValidator : AbstractValidator<CancelOrderCommand>
+{
+    public CancelOrderCommandValidator()
+    {
+        RuleFor(x => x.OrderID)
+            .GreaterThan(0)
+            .WithErrorCode(ErrorCode.E0001)
+            .OverridePropertyName("OrderID");
+    }
+}
 
 public sealed class CancelOrderCommandHandler(
     IOrderingUnitOfWork orderingUnitOfWork,
@@ -22,13 +40,13 @@ public sealed class CancelOrderCommandHandler(
             return SendError(result, ErrorCode.E0001, nameof(command.OrderID));
         }
 
-        await _vOrderingUnitOfWork.BeginTransactionAsync();
+        await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var cancelledBy = currentUser.UserId;
             order.Cancel(cancelledBy);
             await _vOrderingUnitOfWork.Orders.UpdateAsync(order);
-            await _vOrderingUnitOfWork.CommitTransactionAsync();
+            await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
         }
         catch (OrderNotEditableException)

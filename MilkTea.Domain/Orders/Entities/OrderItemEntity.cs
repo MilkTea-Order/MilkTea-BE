@@ -8,10 +8,10 @@ namespace MilkTea.Domain.Orders.Entities;
 /// Order item entity (child of Order aggregate).
 /// Maps to ordersdetail table.
 /// </summary>
-public sealed class OrderItem : Entity<int>
+public sealed class OrderItemEntity : Entity<int>
 {
     public int OrderId { get; private set; }
-    internal Order? Order { get; private set; }
+    internal OrderEntity? Order { get; private set; }
 
     public MenuItem MenuItem { get; private set; } = default!;
 
@@ -27,9 +27,9 @@ public sealed class OrderItem : Entity<int>
     public bool IsCancelled => CancelledBy.HasValue;
 
     // For EF
-    private OrderItem() { }
+    private OrderItemEntity() { }
 
-    internal static OrderItem Create(
+    internal static OrderItemEntity Create(
         MenuItem menuItem,
         int quantity,
         int createdBy,
@@ -41,7 +41,7 @@ public sealed class OrderItem : Entity<int>
 
         var now = DateTime.UtcNow;
 
-        return new OrderItem
+        return new OrderItemEntity
         {
             MenuItem = menuItem,
             Quantity = quantity,
