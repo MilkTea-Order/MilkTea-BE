@@ -85,7 +85,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AppDbContext).Assembly,
             type => type.Namespace != null && (
-                type.Namespace.Contains(".Configurations.Ordering") ||
+                type.Namespace.Contains(".Configurations.Order") ||
                 type.Namespace.Contains(".Configurations.Catalog") ||
                 type.Namespace.Contains(".Configurations.TableManagement") ||
                 type.Namespace.Contains(".Configurations.Inventory") ||

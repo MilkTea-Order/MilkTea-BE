@@ -38,13 +38,13 @@ namespace MilkTea.Application.Features.Orders.Commands
                 return SendError(result, ErrorCode.E0001, "OrderID");
             }
             // Check new table 
-            var isInUsingTable = await _vTableServices.IsTableInUsing(command.NewDinnerTableID);
+            var isInUsingTable = await _vTableServices.IsTableInUsing(command.NewDinnerTableID, cancellationToken);
             // Not exist or not in using table
             if (!isInUsingTable)
             {
                 return SendError(result, ErrorCode.E0042, "NewDinnerTableID");
             }
-            var isAvailableTable = await _vOrderQueries.IsTableAvailable(command.NewDinnerTableID);
+            var isAvailableTable = await _vOrderQueries.IsTableAvailable(command.NewDinnerTableID, cancellationToken);
             //Table is used by other order
             if (!isAvailableTable)
             {

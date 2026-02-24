@@ -213,6 +213,29 @@ public sealed class OrderEntity : Aggregate<int>
         //Touch(updatedBy);
     }
 
+    /// <summary>
+    /// Merges order items from a source order into the current order and records the merge operation.
+    /// The source order must be in an unpaid status to be eligible for merging.
+    /// </summary>
+    /// <param name="orderSource">The source order whose items will be merged into the current order.</param>
+    /// <param name="mergedBy">The identifier of the user performing the merge operation.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="mergedBy"/> is less than or equal to zero.</exception>
+    /// <exception cref="OrderNotEditableException">Thrown when the current order is not in an editable state.</exception>
+    /// <exception cref="OrderSourceCannotMergeException">Thrown when the source order status is not Unpaid and cannot be merged.</exception>
+    public void MergeFrom(OrderEntity orderSource, int mergedBy)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(mergedBy);
+        EnsureCanEdit();
+        if (orderSource.Status != OrderStatus.Unpaid) throw new OrderSourceCannotMergeException();
+        MergedBy = mergedBy;
+        MergedDate = DateTime.UtcNow;
+        // Update orderID
+        foreach (var item in orderSource.OrderItems)
+        {
+            item.UpdateOrderId(Id);
+        }
+    }
+
     public void FinalizeAndPublishCreated()
     {
         AddDomainEvent(new OrderCreatedDomainEvent(this));
@@ -341,6 +364,7 @@ public sealed class OrderEntity : Aggregate<int>
     {
         if (Status != OrderStatus.Unpaid) throw new OrderNotEditableException();
     }
+
 
 
     private void RecalculateTotalAmount()

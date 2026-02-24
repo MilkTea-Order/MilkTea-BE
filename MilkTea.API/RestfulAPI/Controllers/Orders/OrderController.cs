@@ -178,13 +178,26 @@ namespace MilkTea.API.RestfulAPI.Controllers.Orders
         }
 
         [Authorize]
-        [HttpPatch("{orderId:int}/items/change-table")]
+        [HttpPatch("{orderId:int}/change-table")]
         public async Task<ResponseDto> ChangeTable([FromRoute] int orderId, [FromBody] ChangeTableRequestDto request)
         {
             var command = new ChangeTableCommand
             {
                 OrderID = orderId,
                 NewDinnerTableID = request.NewTableID
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
+        [Authorize]
+        [HttpPatch("{orderId:int}/merge-table")]
+        public async Task<ResponseDto> MergeTable([FromRoute] int orderId, [FromBody] MergeTableRequestDto request)
+        {
+            var command = new MergeTableCommand
+            {
+                OrderID = orderId,
+                SourceTableId = request.TargetTableID
             };
             var result = await _vSender.Send(command);
             if (result.ResultData.HasData) return SendError(result.ResultData);

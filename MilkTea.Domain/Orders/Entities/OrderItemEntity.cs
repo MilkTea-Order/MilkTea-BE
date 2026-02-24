@@ -80,6 +80,12 @@ public sealed class OrderItemEntity : Entity<int>
         UpdatedDate = DateTime.UtcNow;
     }
 
+    public void UpdateOrderId(int orderId)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderId);
+        OrderId = orderId;
+    }
+
     /// <summary>
     ///  Cancels the order item.
     /// </summary>

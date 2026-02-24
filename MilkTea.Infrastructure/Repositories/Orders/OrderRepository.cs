@@ -20,6 +20,12 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     }
 
     /// <inheritdoc/>
+    public void Remove(OrderEntity order)
+    {
+        _vContext.Orders.Remove(order);
+    }
+
+    /// <inheritdoc/>
     public async Task<bool> UpdateAsync(OrderEntity order)
     {
         _vContext.Orders.Update(order);
@@ -111,5 +117,15 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
         return await _vContext.Orders
             .AsNoTracking()
             .AnyAsync(o => o.DinnerTableId == dinnerTableId && o.Status == OrderStatus.Unpaid, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<OrderEntity?> GetOrderByTableAndStatusWithItemsAsync(int tableId, OrderStatus? status, CancellationToken cancellationToken = default)
+    {
+        return await _vContext.Orders
+                        .Where(o => o.DinnerTableId == tableId && (!status.HasValue || o.Status == status.Value))
+                        .Include(o => o.OrderItems)
+                        .OrderByDescending(x => x.CreatedDate)
+                        .FirstOrDefaultAsync(cancellationToken);
     }
 }

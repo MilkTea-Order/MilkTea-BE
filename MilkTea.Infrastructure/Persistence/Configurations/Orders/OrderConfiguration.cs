@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Orders.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Ordering;
+namespace MilkTea.Infrastructure.Persistence.Configurations.Order;
 
 public sealed class OrderConfiguration : IEntityTypeConfiguration<OrderEntity>
 {

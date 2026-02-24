@@ -8,7 +8,7 @@ using MilkTea.Application.Features.Catalog.Queries;
 namespace MilkTea.API.RestfulAPI.Controllers.Catalog
 {
     [ApiController]
-    [Route("api/catalog/tables")]
+    [Route("api/catalog")]
     public class TableController(ISender sender, IMapper mapper) : BaseController
     {
         private readonly ISender _vSender = sender;
@@ -28,7 +28,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Catalog
         //    return SendSuccess(response);
         //}
 
-        [HttpGet("empty")]
+        [HttpGet("tables")]
         public async Task<ResponseDto> GetTableEmpty([FromQuery] bool isEmpty = true)
         {
             var query = new GetTableEmptyQuery { IsEmpty = isEmpty };

@@ -26,6 +26,12 @@ namespace MilkTea.Domain.Orders.Exceptions
             : base("Order item not found.") { }
     }
 
+    public sealed class OrderSourceCannotMergeException : DomainException
+    {
+        public OrderSourceCannotMergeException()
+            : base("Order cannot be merged.") { }
+    }
+
     public sealed class NotExistOrderStatus : DomainException
     {
         public NotExistOrderStatus()

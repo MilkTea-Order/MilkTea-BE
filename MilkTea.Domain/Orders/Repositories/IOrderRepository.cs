@@ -19,6 +19,14 @@ public interface IOrderRepository
     Task<bool> UpdateAsync(OrderEntity order);
 
     /// <summary>
+    /// Deletes an order.
+    /// </summary>
+    /// <param name="order">The order entity to delete.</param>
+    /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    void Remove(OrderEntity order);
+
+    /// <summary>
     /// Gets an order by its ID.
     /// </summary>
     Task<OrderEntity?> GetOrderByIdAsync(int orderId);
@@ -27,6 +35,16 @@ public interface IOrderRepository
     /// Gets an order by its ID with order items (Can update).
     /// </summary>
     Task<OrderEntity?> GetOrderByIdWithItemsAsync(int orderId);
+
+    /// <summary>
+    /// Retrieves an order for the specified table and status, including its items. (Can Update)
+    /// </summary>
+    /// <param name="tableId">The identifier of the table.</param>
+    /// <param name="status">The status of the order to filter by.</param>
+    /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the matching order with items, or
+    /// null if not found.</returns>
+    Task<OrderEntity?> GetOrderByTableAndStatusWithItemsAsync(int tableId, OrderStatus? status, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the total count of orders created on a specific date.
