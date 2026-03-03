@@ -11,7 +11,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
-    public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<UserEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _vContext.Users
             .AsNoTracking()
@@ -19,7 +19,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     }
 
     /// <inheritdoc/>
-    public async Task<User?> GetByUserNameAsync(string userName)
+    public async Task<UserEntity?> GetByUserNameAsync(string userName)
     {
         return await _vContext.Users
             .AsNoTracking()
@@ -32,7 +32,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// Entity is tracked by EF Core change tracker for updates.
     /// Use this method when you need to modify and save the entity.
     /// </remarks>
-    public async Task<User?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<UserEntity?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _vContext.Users
             .Include(u => u.RefreshTokens)
@@ -45,7 +45,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// Entity is tracked by EF Core change tracker for updates.
     /// Use this method when you need to modify and save the entity.
     /// </remarks>
-    public async Task<User?> GetByUserNameForUpdateAsync(string userName, CancellationToken cancellationToken = default)
+    public async Task<UserEntity?> GetByUserNameForUpdateAsync(string userName, CancellationToken cancellationToken = default)
     {
         return await _vContext.Users
             .FirstOrDefaultAsync(u => u.UserName.value == userName, cancellationToken);

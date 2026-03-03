@@ -12,7 +12,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="id">The user ID to search for.</param>
     /// <returns>The user if found, otherwise null.</returns>
-    Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<UserEntity?> GetByIdAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a user by their unique identifier with change tracking enabled.
@@ -20,14 +20,14 @@ public interface IUserRepository
     /// </summary>
     /// <param name="id">The user ID to search for.</param>
     /// <returns>The tracked user if found, otherwise null.</returns>
-    Task<User?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken);
+    Task<UserEntity?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a user by their username (read-only, not tracked).
     /// </summary>
     /// <param name="userName">The username to search for.</param>
     /// <returns>The user if found, otherwise null.</returns>
-    Task<User?> GetByUserNameAsync(string userName);
+    Task<UserEntity?> GetByUserNameAsync(string userName);
 
     /// <summary>
     /// Gets a user by their username with change tracking enabled.
@@ -35,7 +35,7 @@ public interface IUserRepository
     /// </summary>
     /// <param name="userName">The username to search for.</param>
     /// <returns>The tracked user if found, otherwise null.</returns>
-    Task<User?> GetByUserNameForUpdateAsync(string userName, CancellationToken cancellationToken);
+    Task<UserEntity?> GetByUserNameForUpdateAsync(string userName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a refresh token by its token value.

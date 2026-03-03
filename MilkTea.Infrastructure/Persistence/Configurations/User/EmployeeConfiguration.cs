@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
+namespace MilkTea.Infrastructure.Persistence.Configurations.User;
 
 public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 {

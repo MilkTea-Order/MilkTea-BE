@@ -55,7 +55,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MenuMaterialRecipe> MenuMaterialRecipes { get; set; }
 
     // ===== Users =====
-    public DbSet<User> Users { get; set; }
+    public DbSet<UserEntity> Users { get; set; }
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Gender> Genders { get; set; }
     public DbSet<Position> Positions { get; set; }
@@ -89,7 +89,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 type.Namespace.Contains(".Configurations.Catalog") ||
                 type.Namespace.Contains(".Configurations.TableManagement") ||
                 type.Namespace.Contains(".Configurations.Inventory") ||
-                type.Namespace.Contains(".Configurations.Users") ||
+                type.Namespace.Contains(".Configurations.User") ||
                 type.Namespace.Contains(".Configurations.Configuration")
             )
         );

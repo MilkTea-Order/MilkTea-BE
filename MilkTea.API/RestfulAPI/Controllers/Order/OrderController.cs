@@ -11,7 +11,7 @@ using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Queries;
 
-namespace MilkTea.API.RestfulAPI.Controllers.Orders
+namespace MilkTea.API.RestfulAPI.Controllers.Order
 {
     [ApiController]
     [Route("api/orders")]

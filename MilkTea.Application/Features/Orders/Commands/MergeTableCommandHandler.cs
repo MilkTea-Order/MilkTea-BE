@@ -48,7 +48,7 @@ namespace MilkTea.Application.Features.Orders.Commands
             }
             if (rootOrder.DinnerTableId == command.SourceTableId)
             {
-                return SendError(result, ErrorCode.E0002, "OrderID");
+                return SendError(result, ErrorCode.E0002, "SourceTableId");
             }
 
             // Check source table is inUsing and exist

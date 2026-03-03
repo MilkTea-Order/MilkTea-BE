@@ -6,7 +6,7 @@ using MilkTea.Domain.Users.ValueObject;
 
 namespace MilkTea.Domain.Users.Entities;
 
-public sealed class User : Aggregate<int>
+public sealed class UserEntity : Aggregate<int>
 {
     // Refresh tokens associated with the user
     private readonly List<RefreshToken> _vRefreshTokens = new();
@@ -37,9 +37,9 @@ public sealed class User : Aggregate<int>
     public bool IsActive => Status == UserStatus.Active;
 
 
-    private User() { }
+    private UserEntity() { }
 
-    public static User Create(
+    public static UserEntity Create(
         int employeesId,
         string userName,
         string passwordHash,
@@ -52,7 +52,7 @@ public sealed class User : Aggregate<int>
 
         var now = DateTime.UtcNow;
 
-        return new User
+        return new UserEntity
         {
             EmployeeID = employeesId,
             UserName = UserName.Of(userName),

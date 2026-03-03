@@ -13,10 +13,12 @@ namespace MilkTea.API.RestfulAPI.DTOs.Common
         [JsonPropertyOrder(4)]
         public string Name { get; set; } = string.Empty;
         [JsonPropertyOrder(5)]
-        public StatusBaseDto? Status { get; set; }
+        public string Image { get; set; } = null!;
         [JsonPropertyOrder(6)]
-        public UnitBaseDto? Unit { get; set; }
+        public StatusBaseDto? Status { get; set; }
         [JsonPropertyOrder(7)]
+        public UnitBaseDto? Unit { get; set; }
+        [JsonPropertyOrder(8)]
         public string? Note { get; set; }
     }
 }

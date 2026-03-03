@@ -41,6 +41,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                  .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuId))
                  .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuName))
                  .ForMember(d => d.Code, o => o.MapFrom(s => s.MenuCode))
+                 .ForMember(d => d.Image, o => o.MapFrom(s => s.MenuImage))
                  .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }))
                  .ForMember(d => d.Unit, o => o.MapFrom(s => new UnitBaseDto { ID = s.UnitId, Name = s.UnitName ?? string.Empty }))
                  .ForMember(d => d.MenuGroupID, o => o.MapFrom(s => s.MenuGroupId))

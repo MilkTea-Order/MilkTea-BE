@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MilkTea.Domain.Users.Entities;
 
-namespace MilkTea.Infrastructure.Persistence.Configurations.Users;
+namespace MilkTea.Infrastructure.Persistence.Configurations.User;
 
 public class UserAndPermissionDetailConfiguration : IEntityTypeConfiguration<UserAndPermissionDetail>
 {
