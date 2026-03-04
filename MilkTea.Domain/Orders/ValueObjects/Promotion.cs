@@ -7,27 +7,15 @@ namespace MilkTea.Domain.Orders.ValueObjects;
 /// </summary>
 public sealed class Promotion : IEquatable<Promotion>
 {
-    public int PromotionId { get; }
-    public int? Percent { get; }
-    public decimal? Amount { get; }
+    public int PromotionId { get; private set; }
+    public int? Percent { get; private set; }
+    public decimal? Amount { get; private set; }
 
     private Promotion(int promotionId, int? percent, decimal? amount)
     {
         PromotionId = promotionId;
         Percent = percent;
         Amount = amount;
-    }
-
-    /// <summary>
-    /// Creates a percentage-based promotion.
-    /// </summary>
-    public static Promotion CreatePercent(int promotionId, int percent)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(promotionId);
-        if (percent <= 0 || percent > 100)
-            throw new ArgumentOutOfRangeException(nameof(percent), "Percent must be between 1 and 100.");
-
-        return new Promotion(promotionId, percent, null);
     }
 
     /// <summary>
@@ -60,6 +48,14 @@ public sealed class Promotion : IEquatable<Promotion>
         return 0;
     }
 
+
+    public void AssignAmount(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be greater than zero.");
+        Amount = amount;
+    }
+
     /// <summary>
     /// Gets the final amount after applying promotion discount.
     /// </summary>
@@ -90,3 +86,15 @@ public sealed class Promotion : IEquatable<Promotion>
 
     public static bool operator !=(Promotion? left, Promotion? right) => !(left == right);
 }
+
+///// <summary>
+///// Creates a percentage-based promotion.
+///// </summary>
+//public static Promotion CreatePercent(int promotionId, int percent)
+//{
+//    ArgumentOutOfRangeException.ThrowIfNegativeOrZero(promotionId);
+//    if (percent <= 0 || percent > 100)
+//        throw new ArgumentOutOfRangeException(nameof(percent), "Percent must be between 1 and 100.");
+
+//    return new Promotion(promotionId, percent, null);
+//}

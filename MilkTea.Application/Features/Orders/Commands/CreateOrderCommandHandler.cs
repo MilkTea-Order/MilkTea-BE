@@ -71,11 +71,11 @@ public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderC
 
 
 public sealed class CreateOrderCommandHandler(
-    IOrderingUnitOfWork orderingUnitOfWork,
+    IOrderUnitOfWork orderingUnitOfWork,
     ICatalogService catalogService,
     ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
-    private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+    private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     private readonly ICatalogService _vCatalogService = catalogService;
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {

@@ -26,10 +26,10 @@ public sealed class CancelOrderCommandValidator : AbstractValidator<CancelOrderC
 }
 
 public sealed class CancelOrderCommandHandler(
-    IOrderingUnitOfWork orderingUnitOfWork,
+    IOrderUnitOfWork orderingUnitOfWork,
     ICurrentUser currentUser) : IRequestHandler<CancelOrderCommand, CancelOrderResult>
 {
-    private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+    private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     public async Task<CancelOrderResult> Handle(CancelOrderCommand command, CancellationToken cancellationToken)
     {
         var result = new CancelOrderResult();

@@ -57,9 +57,8 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     /// <inheritdoc/>
     public async Task<OrderEntity?> GetOrderByIdWithItemsAsync(int orderId)
     {
-        return await _vContext.Orders
-            .Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.Id == orderId);
+        return await _vContext.Orders.Include(o => o.OrderItems)
+                                     .FirstOrDefaultAsync(o => o.Id == orderId);
     }
 
     /// <inheritdoc/>

@@ -16,12 +16,12 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
 
     public sealed class ChangeTableCommandHandler(
-                                            IOrderingUnitOfWork orderingUnitOfWork,
+                                            IOrderUnitOfWork orderingUnitOfWork,
                                             IOrderQuery orderQueries,
                                             ICurrentUser currentUser,
                                             ITableService tableServices) : ICommandHandler<ChangeTableCommand, ChangeTableResult>
     {
-        private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+        private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
         private readonly IOrderQuery _vOrderQueries = orderQueries;
         private readonly ICurrentUser _vCurrentUser = currentUser;
         private readonly ITableService _vTableServices = tableServices;

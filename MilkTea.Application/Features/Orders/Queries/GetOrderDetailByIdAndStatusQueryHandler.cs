@@ -16,11 +16,11 @@ public sealed class GetOrderDetailByIdAndStatusQuery : IRequest<GetOrderDetailBy
 }
 
 public sealed class GetOrderDetailByIdAndStatusQueryHandler(
-    IOrderingUnitOfWork orderingUnitOfWork,
+    IOrderUnitOfWork orderingUnitOfWork,
     ICatalogService catalogService) : IRequestHandler<GetOrderDetailByIdAndStatusQuery, GetOrderDetailByIDAndStatusResult>
 {
     private readonly ICatalogService _vCatalogQuery = catalogService;
-    private readonly IOrderingUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
+    private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
     public async Task<GetOrderDetailByIDAndStatusResult> Handle(GetOrderDetailByIdAndStatusQuery query, CancellationToken cancellationToken)
     {
         var result = new GetOrderDetailByIDAndStatusResult();

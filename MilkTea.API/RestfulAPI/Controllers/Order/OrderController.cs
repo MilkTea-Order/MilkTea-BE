@@ -204,5 +204,19 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             if (result.ResultData.HasData) return SendError(result.ResultData);
             return SendSuccess();
         }
+
+        [Authorize]
+        [HttpPost("{orderId:int}/payment")]
+        public async Task<ResponseDto> ProcessPayment([FromRoute] int orderId, [FromBody] ProcessPaymentRequestDto request)
+        {
+            var command = new ProcessPaymentCommand
+            {
+                OrderID = orderId,
+                PaymentMethod = request.PaymentMethod,
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
     }
 }

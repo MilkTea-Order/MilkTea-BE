@@ -37,4 +37,22 @@ namespace MilkTea.Domain.Orders.Exceptions
         public NotExistOrderStatus()
             : base("Order status is not exist.") { }
     }
+
+    public sealed class NotExistBillPrefix : DomainException
+    {
+        public NotExistBillPrefix()
+            : base("Bill prefix does not exist.") { }
+    }
+
+    public sealed class NotExistPaymentType : DomainException
+    {
+        public NotExistPaymentType()
+            : base("Payment type does not exist.") { }
+    }
+
+    public sealed class NotExistActionBy : DomainException
+    {
+        public NotExistActionBy()
+            : base("Action by does not exist.") { }
+    }
 }

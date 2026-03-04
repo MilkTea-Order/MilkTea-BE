@@ -15,13 +15,13 @@ public sealed class GetOrdersByOrderByAndStatusQuery : IRequest<GetOrdersByOrder
 }
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
-    IOrderingUnitOfWork orderingUnitOfWork,
+    IOrderUnitOfWork orderingUnitOfWork,
     ICurrentUser currentUser,
     ICatalogService catalogService,
     IOrderQuery orderQuery,
     ITableService tableService) : IRequestHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
 {
-    private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+    private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     private readonly ICatalogService _vCatalogQuery = catalogService;
     private readonly IOrderQuery _vOrderQuery = orderQuery;
     private readonly ITableService _vTableService = tableService;

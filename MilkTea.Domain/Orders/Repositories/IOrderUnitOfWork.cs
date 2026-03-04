@@ -4,7 +4,7 @@ namespace MilkTea.Domain.Orders.Repositories;
 /// Unit of Work interface for Ordering module.
 /// Manages transactions and provides access to Ordering repositories.
 /// </summary>
-public interface IOrderingUnitOfWork
+public interface IOrderUnitOfWork
 {
     IOrderRepository Orders { get; }
 

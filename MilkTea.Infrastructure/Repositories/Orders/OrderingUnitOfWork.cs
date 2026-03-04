@@ -9,7 +9,7 @@ namespace MilkTea.Infrastructure.Repositories.Orders;
 /// </summary>
 public class OrderingUnitOfWork(
     AppDbContext context,
-    IOrderRepository orders) : IOrderingUnitOfWork
+    IOrderRepository orders) : IOrderUnitOfWork
 {
     private readonly AppDbContext _vContext = context;
     private IDbContextTransaction? _vTransaction;

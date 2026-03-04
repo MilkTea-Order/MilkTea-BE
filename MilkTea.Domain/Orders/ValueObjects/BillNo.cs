@@ -1,14 +1,13 @@
+using MilkTea.Domain.Orders.Exceptions;
+
 namespace MilkTea.Domain.Orders.ValueObjects;
 
 public sealed record BillNo(string Value)
 {
-    public static BillNo Create(string prefix, DateTime date, int createdBy, int sequence)
+    public static BillNo Create(string prefix, DateTime time)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(prefix);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
-        if (sequence < 1) throw new ArgumentOutOfRangeException(nameof(sequence));
-
-        var value = $"{prefix}{date:yyyyMMdd}{createdBy}{sequence}";
+        if (string.IsNullOrWhiteSpace(prefix)) throw new NotExistBillPrefix();
+        var value = $"{prefix}{time:yyyyMMddHHmmss}";
         return new BillNo(value);
     }
 

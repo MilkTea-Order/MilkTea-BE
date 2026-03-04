@@ -235,49 +235,50 @@ public sealed class OrderEntity : Aggregate<int>
             item.UpdateOrderId(Id);
         }
     }
-
-    public void FinalizeAndPublishCreated()
+    private void AssignBillNo(string? prefix, DateTime time)
     {
-        AddDomainEvent(new OrderCreatedDomainEvent(this));
+        EnsureCanEdit();
+        if (BillNo is null) BillNo = BillNo.Create(prefix!, time);
     }
 
-
-    public void AssignBillNo(
-    string prefix,
-    int sequence,
-    int assignedBy,
-    DateTime? date = null)
+    /// <summary>
+    /// Marks the order as paid, assigns bill number, updates payment details, applies promotion discount, and sets
+    /// order status to NotCollected.
+    /// </summary>
+    /// <param name="prefix">The prefix to use when assigning the bill number.</param>
+    /// <param name="payBy">The identifier of the user making the payment.</param>
+    /// <param name="paymentType">The type of payment used.</param>
+    /// <exception cref="NotExistBillPrefix">Thrown when the bill prefix does not exist.</exception>
+    /// <exception cref="NotExistActionBy">Thrown when the action by does not exist.</exception>
+    /// <exception cref="NotExistPaymentType">Thrown when the payment type does not exist.</exception>
+    /// <exception cref="OrderNotEditableException">Thrown when the order cannot be edited because its status is not Unpaid.</exception>
+    public void MarkAsPaid(string prefix, int payBy, string paymentType)
     {
         EnsureCanEdit();
 
-        if (BillNo is not null) throw new InvalidOperationException("BillNo already assigned.");
+        if (payBy <= 0) throw new NotExistActionBy();
+        if (string.IsNullOrWhiteSpace(paymentType)) throw new NotExistPaymentType();
 
-        var billDate = date ?? DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        AssignBillNo(prefix, now);
 
-        BillNo = BillNo.Create(prefix, billDate, assignedBy, sequence);
+        var totalAmount = GetTotalAmountForPay();
+        var discount = GetPromotionDiscount();
 
-        Touch(assignedBy);
-    }
-
-    public void MarkAsPaid(int paidBy, decimal total, string paymentType)
-    {
-        if (Status == OrderStatus.Paid)
-            throw new InvalidOperationException("Order is already paid.");
-
-        if (total < 0)
-            throw new ArgumentOutOfRangeException(nameof(total), "Payment total cannot be negative.");
-
-        ArgumentException.ThrowIfNullOrWhiteSpace(paymentType);
-
-        Status = OrderStatus.Paid;
-        PaymentedBy = paidBy;
-        PaymentedDate = DateTime.UtcNow;
-        PaymentedTotal = total;
+        PaymentedBy = payBy;
+        PaymentedDate = now;
+        PaymentedTotal = totalAmount - discount;
         PaymentedType = paymentType;
 
-        Touch(paidBy);
+        if (Promotion is not null) Promotion.AssignAmount(discount);
 
-        AddDomainEvent(new OrderPaidDomainEvent(this));
+        TotalAmount = totalAmount;
+
+        Status = OrderStatus.NotCollected;
+
+        ActionBy = payBy;
+        ActionDate = now;
+        //AddDomainEvent(new OrderPaidDomainEvent(this));
     }
 
     public void ApplyPromotion(Promotion promotion, int appliedBy)
@@ -291,6 +292,11 @@ public sealed class OrderEntity : Aggregate<int>
         Touch(updatedBy: appliedBy);
     }
 
+
+    public void FinalizeAndPublishCreated()
+    {
+        AddDomainEvent(new OrderCreatedDomainEvent(this));
+    }
     public void RemovePromotion(int updatedBy)
     {
         EnsureCanEdit();
@@ -320,15 +326,18 @@ public sealed class OrderEntity : Aggregate<int>
     /// Get Total Amount for Pay (excluding cancelled items)
     /// </summary>
     /// <returns></returns>
-    public decimal GetTotalAmountForPay()
+    private decimal GetTotalAmountForPay()
     {
         var subtotal = _vOrderItems.Where(x => !x.IsCancelled).Sum(x => x.TotalAmount);
-        if (Promotion is not null)
-        {
-            var discount = Promotion.CalculateDiscount(subtotal);
-            subtotal = Math.Max(0, subtotal - discount);
-        }
         return subtotal;
+    }
+
+    private decimal GetPromotionDiscount()
+    {
+        if (Promotion is null) return 0m;
+        var subtotal = GetTotalAmountForPay();
+        var discount = Promotion.CalculateDiscount(subtotal);
+        return discount;
     }
 
     private void Touch(int updatedBy)

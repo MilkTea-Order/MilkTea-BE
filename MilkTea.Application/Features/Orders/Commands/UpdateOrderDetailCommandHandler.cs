@@ -39,10 +39,10 @@ namespace MilkTea.Application.Features.Orders.Commands
         }
     }
     public class UpdateOrderDetailCommandHandler
-        (IOrderingUnitOfWork orderingUnitOfWork,
+        (IOrderUnitOfWork orderingUnitOfWork,
         ICurrentUser currentUser) : IRequestHandler<UpdateOrderDetailCommand, UpdateOrderDetailResult>
     {
-        private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+        private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
         public async Task<UpdateOrderDetailResult> Handle(UpdateOrderDetailCommand command, CancellationToken cancellationToken)
         {
             var result = new UpdateOrderDetailResult();

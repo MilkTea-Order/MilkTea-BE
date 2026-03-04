@@ -34,12 +34,12 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
 
     public class AddOrderDetailCommandHandler(
-        IOrderingUnitOfWork orderingUnitOfWork,
+        IOrderUnitOfWork orderingUnitOfWork,
         ICatalogService catalogSalesService,
         ICurrentUser currentUser
     ) : ICommandHandler<AddOrderDetailCommand, AddOrderDetailResult>
     {
-        private readonly IOrderingUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
+        private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
         private readonly ICatalogService _vCatalogService = catalogSalesService;
         private readonly ICurrentUser _vCurrentUser = currentUser;
 

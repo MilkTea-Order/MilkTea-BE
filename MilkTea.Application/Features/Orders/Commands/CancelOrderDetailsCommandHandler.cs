@@ -36,10 +36,10 @@ public sealed class CancelOrderDetailsCommandValidator : AbstractValidator<Cance
     }
 }
 public sealed class CancelOrderDetailsCommandHandler(
-                                IOrderingUnitOfWork orderingUnitOfWork,
+                                IOrderUnitOfWork orderingUnitOfWork,
                                 ICurrentUser currentUser) : ICommandHandler<CancelOrderDetailsCommand, CancelOrderDetailsResult>
 {
-    private readonly IOrderingUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
+    private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     public async Task<CancelOrderDetailsResult> Handle(CancelOrderDetailsCommand command, CancellationToken cancellationToken)
     {
         var result = new CancelOrderDetailsResult();

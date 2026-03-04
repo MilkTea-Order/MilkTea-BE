@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MilkTea.Application.Features.Catalog.Abstractions;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
+using MilkTea.Application.Features.Configuration.Abstractions.Services;
 using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
 using MilkTea.Application.Ports.Hash.Password;
@@ -14,6 +15,7 @@ using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Infrastructure.Catalog.Queries;
 using MilkTea.Infrastructure.Catalog.Services;
+using MilkTea.Infrastructure.Configuration.Services;
 using MilkTea.Infrastructure.Hash.Password;
 using MilkTea.Infrastructure.Hash.Permission;
 using MilkTea.Infrastructure.Order.Queries;
@@ -36,7 +38,7 @@ public static class DependencyInjection
 
         // Module-specific Unit of Work
         services.AddScoped<ICatalogUnitOfWork, CatalogUnitOfWork>();
-        services.AddScoped<IOrderingUnitOfWork, OrderingUnitOfWork>();
+        services.AddScoped<IOrderUnitOfWork, OrderingUnitOfWork>();
         services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
         services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
         services.AddScoped<IConfigurationUnitOfWork, ConfigurationUnitOfWork>();
@@ -74,6 +76,9 @@ public static class DependencyInjection
 
         //Configuration
         services.AddScoped<IDefinitionRepository, DefinitionRepository>();
+        //Service
+        services.AddScoped<IConfigurationService, ConfigurationService>();
+
 
         //Pricing
         services.AddScoped<IPriceListRepository, PriceListRepository>();
