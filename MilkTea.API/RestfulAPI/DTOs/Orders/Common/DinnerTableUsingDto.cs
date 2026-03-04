@@ -7,5 +7,6 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Common
     {
         [JsonPropertyOrder(8)]
         public string? UsingImg { get; set; }
+
     }
 }

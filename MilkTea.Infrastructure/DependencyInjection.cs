@@ -44,7 +44,7 @@ public static class DependencyInjection
         // Order
         services.AddScoped<IOrderRepository, OrderRepository>();
         //Quries
-        services.AddScoped<IOrderQueries, OrderQueries>();
+        services.AddScoped<IOrderQuery, OrderQuery>();
         // Service
         services.AddScoped<IOrderServices, OrderServices>();
 
@@ -58,7 +58,7 @@ public static class DependencyInjection
         services.AddScoped<ITableQuery, TableQuery>();
         //Service 
         services.AddScoped<ICatalogService, CatalogService>();
-        services.AddScoped<ITableServices, TableServices>();
+        services.AddScoped<ITableService, TableService>();
 
 
         // TableManagement

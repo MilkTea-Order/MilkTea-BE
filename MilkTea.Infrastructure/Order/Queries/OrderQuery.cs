@@ -1,0 +1,67 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MilkTea.Application.Features.Orders.Abstractions;
+using MilkTea.Application.Features.Orders.Dtos;
+using MilkTea.Domain.Orders.Enums;
+using MilkTea.Infrastructure.Persistence;
+using Shared.Extensions;
+
+namespace MilkTea.Infrastructure.Order.Queries
+{
+    public class OrderQuery(AppDbContext context) : IOrderQuery
+    {
+        private readonly AppDbContext _vContext = context;
+
+        public async Task<bool> IsTableAvailable(int tableId, CancellationToken cancellationToken = default)
+        {
+            var hasUnpaidOrder = await _vContext.Orders.AsNoTracking()
+                                                        .AnyAsync(x => x.DinnerTableId == tableId &&
+                                                                    x.Status == OrderStatus.Unpaid,
+                                                        cancellationToken);
+            return !hasUnpaidOrder;
+        }
+
+        public async Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, int dayAgo = 0, CancellationToken cancellationToken = default)
+        {
+
+            var targetDate = DateTime.Today.AddDays(-dayAgo);
+
+            var query =
+                from o in _vContext.Orders.AsNoTracking()
+                join d in _vContext.OrderItems.AsNoTracking()
+                    on o.Id equals d.OrderId
+                where o.OrderBy == orderBy
+                    && (!status.HasValue || (int)o.Status == status.Value)
+                    && o.CreatedDate >= targetDate
+                    && o.CreatedDate < targetDate.AddDays(1)
+                group d by new
+                {
+                    o.Id,
+                    o.DinnerTableId,
+                    o.OrderDate,
+                    o.OrderBy,
+                    o.CreatedDate,
+                    o.CreatedBy,
+                    o.Status,
+                    o.Note
+                } into g
+                select new OrderDto
+                {
+                    OrderId = g.Key.Id,
+                    DinnerTableId = g.Key.DinnerTableId,
+                    OrderDate = g.Key.OrderDate,
+                    OrderBy = g.Key.OrderBy,
+                    CreatedDate = g.Key.CreatedDate,
+                    CreatedBy = g.Key.CreatedBy,
+                    Status = new OrderStatusDto
+                    {
+                        Id = (int)g.Key.Status,
+                        Name = g.Key.Status.GetDescription()
+                    },
+                    Note = g.Key.Note,
+                    TotalAmount = g.Sum(x => x.Quantity * x.MenuItem.Price)
+                };
+            return await query.ToListAsync(cancellationToken);
+
+        }
+    }
+}
