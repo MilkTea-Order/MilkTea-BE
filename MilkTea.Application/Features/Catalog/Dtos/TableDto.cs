@@ -1,6 +1,6 @@
 ﻿namespace MilkTea.Application.Features.Catalog.Dtos
 {
-    internal class TableDto
+    public class TableDto
     {
         public int Id { get; set; }
         public string? Code { get; set; }

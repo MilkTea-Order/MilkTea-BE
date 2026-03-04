@@ -4,6 +4,7 @@ using MilkTea.API.RestfulAPI.DTOs.Common;
 using MilkTea.Application.Features.Catalog.Dtos;
 using MilkTea.Application.Models.Catalog;
 
+
 namespace MilkTea.API.RestfulAPI.Mappings
 {
 
@@ -13,7 +14,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
         {
             #region Common
             // Dinner Table Base
-            CreateMap<TableDto, DinnerTableBaseDto>()
+            CreateMap<MilkTea.Application.Features.Catalog.Dtos.TableDto, DinnerTableBaseDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
@@ -27,15 +28,6 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuGroupId))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuGroupName))
                 .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }));
-
-            // Menu Base
-            //CreateMap<MenuItemDto, MenuBaseDto>()
-            //     .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuId))
-            //     .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuName))
-            //     .ForMember(d => d.Code, o => o.MapFrom(s => s.MenuCode))
-            //     .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }))
-            //     .ForMember(d => d.MenuGroupID, o => o.MapFrom(s => s.MenuGroupId))
-            //     .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
             CreateMap<MenuDto, MenuBaseDto>()
                  .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuId))
@@ -93,11 +85,12 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.Price, o => o.MapFrom(s => s));
             #endregion Menu size of Menu
 
-            #region Get Table Empty
-            CreateMap<TableDto, GetTableEmptyResponseDto>()
-                .IncludeBase<TableDto, DinnerTableBaseDto>()
-                .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg));
-            #endregion Get Table Empty
+            #region Get Table 
+            CreateMap<MilkTea.Application.Features.Catalog.Dtos.TableDto, GetTableResponseDto>()
+                .IncludeBase<MilkTea.Application.Features.Catalog.Dtos.TableDto, DinnerTableBaseDto>()
+                .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg))
+                .ForMember(d => d.UsingImg, o => o.MapFrom(s => s.UsingImg));
+            #endregion Get Table 
 
             #region Get Table By status
             //CreateMap<TableDto, DTOs.Responses.DinnerTableDto>()

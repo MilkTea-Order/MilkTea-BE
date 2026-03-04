@@ -9,15 +9,20 @@ namespace MilkTea.Infrastructure.Order.Services
     {
         private readonly AppDbContext _vContext = context;
 
-        public async Task<bool> IsTableAvailable(int tableId, CancellationToken cancellationToken = default)
+        public async Task<List<int>> GetTablesByAvailability(List<int> tableIds,
+                                                                bool isAvailable,
+                                                                CancellationToken cancellationToken = default)
         {
-            var hasUnpaidOrder = await _vContext.Orders
-                .AsNoTracking()
-                .AnyAsync(x => x.DinnerTableId == tableId
-                            && x.Status == OrderStatus.Unpaid,
-                          cancellationToken);
+            var busyTables = await _vContext.Orders.AsNoTracking()
+                                                    .Where(o => tableIds.Contains(o.DinnerTableId)
+                                                             && o.Status == OrderStatus.Unpaid)
+                                                    .Select(o => o.DinnerTableId)
+                                                    .Distinct()
+                                                    .ToListAsync(cancellationToken);
 
-            return !hasUnpaidOrder;
+            return isAvailable
+                ? tableIds.Except(busyTables).ToList()
+                : tableIds.Intersect(busyTables).ToList();
         }
 
     }

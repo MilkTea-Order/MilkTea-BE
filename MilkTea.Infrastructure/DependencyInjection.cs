@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MilkTea.Application.Features.Catalog.Abstractions;
+using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
@@ -54,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitRepository, UnitRepository>();
         // Queries
         services.AddScoped<ICatalogQuery, CatalogQuery>();
+        services.AddScoped<ITableQuery, TableQuery>();
         //Service 
         services.AddScoped<ICatalogService, CatalogService>();
         services.AddScoped<ITableServices, TableServices>();

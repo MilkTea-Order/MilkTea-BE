@@ -13,29 +13,30 @@ namespace MilkTea.API.RestfulAPI.Controllers.Catalog
     {
         private readonly ISender _vSender = sender;
         private readonly IMapper _vMapper = mapper;
-
-        //[HttpGet]
-        //public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
-        //{
-        //    var query = new GetTableByStatusQuery { StatusId = statusID };
-        //    var result = await _vSender.Send(query);
-
-        //    if (result.ResultData.HasData)
-        //    {
-        //        return SendError(result.ResultData);
-        //    }
-        //    var response = _vMapper.Map<List<DinnerTableDto>>(result.Tables);
-        //    return SendSuccess(response);
-        //}
-
         [HttpGet("tables")]
-        public async Task<ResponseDto> GetTableEmpty([FromQuery] bool isEmpty = true)
+        public async Task<ResponseDto> GetTable([FromQuery] bool isEmpty = true)
         {
-            var query = new GetTableEmptyQuery { IsEmpty = isEmpty };
+            var query = new GetTableQuery { IsEmpty = isEmpty };
             var result = await _vSender.Send(query);
 
-            var response = _vMapper.Map<List<GetTableEmptyResponseDto>>(result.Tables);
+            var response = _vMapper.Map<List<GetTableResponseDto>>(result.Tables);
             return SendSuccess(response);
         }
     }
 }
+
+
+
+//[HttpGet]
+//public async Task<ResponseDto> GetTableByStatus([FromQuery] int? statusID)
+//{
+//    var query = new GetTableByStatusQuery { StatusId = statusID };
+//    var result = await _vSender.Send(query);
+
+//    if (result.ResultData.HasData)
+//    {
+//        return SendError(result.ResultData);
+//    }
+//    var response = _vMapper.Map<List<DinnerTableDto>>(result.Tables);
+//    return SendSuccess(response);
+//}
