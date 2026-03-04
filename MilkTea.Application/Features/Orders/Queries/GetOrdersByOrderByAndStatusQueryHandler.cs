@@ -59,6 +59,10 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
                 };
             }
         }
+        if (query.StatusId == (int)Domain.Orders.Enums.OrderStatus.Unpaid)
+        {
+            orders = orders.OrderBy(o => o.DinnerTableId).ToList();
+        }
         result.Orders = orders;
         return result;
     }

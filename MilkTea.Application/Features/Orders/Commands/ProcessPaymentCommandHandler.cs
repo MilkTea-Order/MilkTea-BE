@@ -58,7 +58,7 @@ namespace MilkTea.Application.Features.Orders.Commands
             catch (OrderNotEditableException)
             {
                 await _vOrderUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "StatusId");
+                return SendError(result, ErrorCode.E0042, nameof(request.OrderID));
             }
             catch (Exception)
             {

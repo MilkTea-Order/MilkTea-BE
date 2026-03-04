@@ -60,7 +60,7 @@ namespace MilkTea.Infrastructure.Order.Queries
                     Note = g.Key.Note,
                     TotalAmount = g.Sum(x => x.Quantity * x.MenuItem.Price)
                 };
-            return await query.ToListAsync(cancellationToken);
+            return await query.OrderByDescending(o => o.CreatedDate).ToListAsync(cancellationToken);
 
         }
     }
