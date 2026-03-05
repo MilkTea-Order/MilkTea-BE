@@ -97,14 +97,15 @@ namespace MilkTea.API.RestfulAPI.Mappings
               .ForMember(d => d.Menu, o => o.MapFrom(s => s.Menu))
               .ForMember(d => d.Size, o => o.MapFrom(s => s.Size));
 
-            CreateMap<Table, DinnerTableUsingDto>()
+            CreateMap<Table, DinnerTableDto>()
               .IncludeBase<Table, DinnerTableBaseDto>()
-              .ForMember(d => d.UsingImg, o => o.MapFrom(s => s.UsingImg));
+              .ForMember(d => d.UsingImg, o => o.MapFrom(s => s.UsingImg))
+              .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg));
 
-            CreateMap<TableDto, DinnerTableUsingDto>()
+            CreateMap<TableDto, DinnerTableDto>()
               .IncludeBase<TableDto, DinnerTableBaseDto>()
-              .ForMember(d => d.UsingImg, o => o.MapFrom(s => s.UsingImg));
-
+              .ForMember(d => d.UsingImg, o => o.MapFrom(s => s.UsingImg))
+              .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg));
             #endregion Common order
 
             #region GetOrdersByOrderByAndStatusResponseDto

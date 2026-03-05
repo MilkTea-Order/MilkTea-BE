@@ -1,40 +1,46 @@
-using MediatR;
-using MilkTea.Application.Features.Catalog.Abstractions;
+using FluentValidation;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Dtos;
 using MilkTea.Application.Features.Orders.Results;
 using MilkTea.Application.Ports.Users;
-using MilkTea.Domain.Orders.Repositories;
+using MilkTea.Domain.Orders.Enums;
+using MilkTea.Domain.SharedKernel.Constants;
+using Shared.Abstractions.CQRS;
 namespace MilkTea.Application.Features.Orders.Queries;
 
-public sealed class GetOrdersByOrderByAndStatusQuery : IRequest<GetOrdersByOrderByAndStatusResult>
+public sealed class GetOrdersByOrderByAndStatusQuery : IQuery<GetOrdersByOrderByAndStatusResult>
 {
     public int StatusId { get; set; }
-    public int DayAgo { get; set; } = 0;
+    public int? DayAgo { get; set; } = null;
+}
+
+public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidator<GetOrdersByOrderByAndStatusQuery>
+{
+    public GetOrdersByOrderByAndStatusQueryValidator()
+    {
+        RuleFor(x => x.StatusId)
+            .Must(x => Enum.IsDefined(typeof(OrderStatus), x))
+            .WithErrorCode(ErrorCode.E0001)
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.StatusId));
+        RuleFor(x => x.DayAgo)
+            .GreaterThanOrEqualTo(0)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.DayAgo));
+    }
 }
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
-    IOrderUnitOfWork orderingUnitOfWork,
-    ICurrentUser currentUser,
-    ICatalogService catalogService,
-    IOrderQuery orderQuery,
-    ITableService tableService) : IRequestHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
+                                                ICurrentUser currentUser,
+                                                IOrderQuery orderQuery,
+                                                ITableService tableService) : IQueryHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
 {
-    private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
-    private readonly ICatalogService _vCatalogQuery = catalogService;
     private readonly IOrderQuery _vOrderQuery = orderQuery;
     private readonly ITableService _vTableService = tableService;
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
     {
         GetOrdersByOrderByAndStatusResult result = new();
-
-        var status = Domain.Orders.Enums.OrderStatus.Unpaid;
-        if (Enum.IsDefined(typeof(Domain.Orders.Enums.OrderStatus), query.StatusId))
-        {
-            status = (Domain.Orders.Enums.OrderStatus)query.StatusId;
-        }
-        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, (int)status, query.DayAgo, cancellationToken);
+        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, query.StatusId, query.DayAgo, cancellationToken);
         var tableIds = orders.Select(o => o.DinnerTableId).Distinct().ToList();
 
         var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);
@@ -59,11 +65,17 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
                 };
             }
         }
-        if (query.StatusId == (int)Domain.Orders.Enums.OrderStatus.Unpaid)
+        if (query.StatusId == (int)OrderStatus.Unpaid)
         {
             orders = orders.OrderBy(o => o.DinnerTableId).ToList();
         }
         result.Orders = orders;
+        return result;
+    }
+    private static GetOrdersByOrderByAndStatusResult SendError(GetOrdersByOrderByAndStatusResult result, string errorCode, params string[] values)
+    {
+        if (values is { Length: > 0 })
+            result.ResultData.Add(errorCode, values.ToList());
         return result;
     }
 }

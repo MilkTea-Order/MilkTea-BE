@@ -21,6 +21,6 @@ namespace MilkTea.Application.Features.Orders.Abstractions
         /// <param name="dayAgo">Limits orders to those created within the specified number of days ago.</param>
         /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of order DTOs.</returns>
-        Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, int dayAgo = 0, CancellationToken cancellationToken = default);
+        Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, int? dayAgo, CancellationToken cancellationToken = default);
     }
 }

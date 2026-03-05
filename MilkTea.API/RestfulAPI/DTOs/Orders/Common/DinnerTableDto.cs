@@ -3,10 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace MilkTea.API.RestfulAPI.DTOs.Orders.Common
 {
-    public class DinnerTableUsingDto : DinnerTableBaseDto
+    public class DinnerTableDto : DinnerTableBaseDto
     {
         [JsonPropertyOrder(8)]
         public string? UsingImg { get; set; }
-
+        [JsonPropertyOrder(9)]
+        public string? EmptyImg { get; set; }
     }
 }

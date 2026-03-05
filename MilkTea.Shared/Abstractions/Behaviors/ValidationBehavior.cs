@@ -1,7 +1,6 @@
 using FluentValidation;
 using MediatR;
 using MilkTea.Shared.Extensions;
-using Shared.Abstractions.CQRS;
 using Shared.Abstractions.Exceptions;
 
 namespace Shared.Abstractions.Behaviors;
@@ -9,7 +8,8 @@ namespace Shared.Abstractions.Behaviors;
 public sealed class ValidationBehavior<TRequest, TResponse>
                                     (IEnumerable<IValidator<TRequest>> validators)
                                     : IPipelineBehavior<TRequest, TResponse>
-                                    where TRequest : ICommand<TResponse>
+                                    //where TRequest : ICommand<TResponse>
+                                    where TRequest : IRequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _vValidators = validators;
 

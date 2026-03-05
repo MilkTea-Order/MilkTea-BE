@@ -20,46 +20,63 @@ namespace MilkTea.Infrastructure.Order.Queries
             return !hasUnpaidOrder;
         }
 
-        public async Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, int dayAgo = 0, CancellationToken cancellationToken = default)
+        public async Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, int? dayAgo, CancellationToken cancellationToken = default)
         {
 
-            var targetDate = DateTime.Today.AddDays(-dayAgo);
+            DateTime? startDate = null;
+            DateTime? endDate = null;
 
-            var query =
-                from o in _vContext.Orders.AsNoTracking()
-                join d in _vContext.OrderItems.AsNoTracking()
-                    on o.Id equals d.OrderId
-                where o.OrderBy == orderBy
-                    && (!status.HasValue || (int)o.Status == status.Value)
-                    && o.CreatedDate >= targetDate
-                    && o.CreatedDate < targetDate.AddDays(1)
-                group d by new
+            var tz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var todayLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).Date;
+            var utc = TimeZoneInfo.ConvertTimeToUtc(todayLocal, tz);
+
+            if (dayAgo.HasValue)
+            {
+                if (dayAgo.Value == 0)
                 {
-                    o.Id,
-                    o.DinnerTableId,
-                    o.OrderDate,
-                    o.OrderBy,
-                    o.CreatedDate,
-                    o.CreatedBy,
-                    o.Status,
-                    o.Note
-                } into g
-                select new OrderDto
+                    startDate = utc;
+                    endDate = utc.AddDays(1);
+                }
+                else
                 {
-                    OrderId = g.Key.Id,
-                    DinnerTableId = g.Key.DinnerTableId,
-                    OrderDate = g.Key.OrderDate,
-                    OrderBy = g.Key.OrderBy,
-                    CreatedDate = g.Key.CreatedDate,
-                    CreatedBy = g.Key.CreatedBy,
-                    Status = new OrderStatusDto
-                    {
-                        Id = (int)g.Key.Status,
-                        Name = g.Key.Status.GetDescription()
-                    },
-                    Note = g.Key.Note,
-                    TotalAmount = g.Sum(x => x.Quantity * x.MenuItem.Price)
-                };
+                    startDate = utc.AddDays(-dayAgo.Value);
+                    endDate = utc;
+                }
+            }
+            var query = from o in _vContext.Orders.AsNoTracking()
+                        join d in _vContext.OrderItems.AsNoTracking()
+                            on o.Id equals d.OrderId
+                        where o.OrderBy == orderBy
+                            && (!status.HasValue || (int)o.Status == status.Value)
+                            && (!dayAgo.HasValue || (o.CreatedDate >= startDate && o.CreatedDate < endDate))
+                        group d by new
+                        {
+                            o.Id,
+                            o.DinnerTableId,
+                            o.OrderDate,
+                            o.OrderBy,
+                            o.CreatedDate,
+                            o.CreatedBy,
+                            o.Status,
+                            o.Note
+                        } into g
+                        select new OrderDto
+                        {
+                            OrderId = g.Key.Id,
+                            DinnerTableId = g.Key.DinnerTableId,
+                            OrderDate = g.Key.OrderDate,
+                            OrderBy = g.Key.OrderBy,
+                            CreatedDate = g.Key.CreatedDate,
+                            CreatedBy = g.Key.CreatedBy,
+                            Status = new OrderStatusDto
+                            {
+                                Id = (int)g.Key.Status,
+                                Name = g.Key.Status.GetDescription()
+                            },
+                            Note = g.Key.Note,
+                            TotalAmount = g.Sum(x => (x.CancelledBy != null && x.CancelledDate != null ? 0 : x.Quantity * x.MenuItem.Price))
+                        };
+            //Console.WriteLine(query.ToQueryString());
             return await query.OrderByDescending(o => o.CreatedDate).ToListAsync(cancellationToken);
 
         }

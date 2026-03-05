@@ -12,7 +12,7 @@ namespace MilkTea.API.RestfulAPI.DTOs.Order.Responses
         public int CreatedBy { get; set; }
         public string? Note { get; set; }
         public decimal TotalAmount { get; set; }
-        public DinnerTableUsingDto? DinnerTable { get; set; }
+        public DinnerTableDto? DinnerTable { get; set; }
         public StatusBaseDto? Status { get; set; }
         //public List<OrderDetailDto> OrderDetails { get; set; } = new List<OrderDetailDto>();
     }
