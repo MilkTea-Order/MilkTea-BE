@@ -91,6 +91,7 @@ public sealed class OrderEntity : Aggregate<int>
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (item is null) throw new OrderItemNotFoundException();
         item.Cancel(removedBy);
+        if (_vOrderItems.All(x => x.IsCancelled)) Cancel(removedBy);
         Touch(removedBy);
     }
 
