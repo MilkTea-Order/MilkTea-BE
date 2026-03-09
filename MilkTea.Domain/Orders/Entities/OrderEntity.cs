@@ -38,17 +38,14 @@ public sealed class OrderEntity : Aggregate<int>
     public DateTime? ActionDate { get; private set; }
 
     public static OrderEntity Create(
-        //BillNo billNo,
         int dinnerTableId,
         int orderBy,
         int createdBy,
         string? note = null)
     {
         var now = DateTime.UtcNow;
-
         var order = new OrderEntity
         {
-            //BillNo = billNo,
             DinnerTableId = dinnerTableId,
             OrderBy = orderBy,
             OrderDate = now,
@@ -56,15 +53,13 @@ public sealed class OrderEntity : Aggregate<int>
             CreatedDate = now,
             Status = OrderStatus.Unpaid,
             Note = note
-            //TotalAmount = 0m
         };
 
-        if (!string.IsNullOrWhiteSpace(note))
-        {
-            order.AddNoteBy = createdBy;
-            order.AddNoteDate = now;
-        }
-
+        //if (!string.IsNullOrWhiteSpace(note))
+        //{
+        //    order.AddNoteBy = createdBy;
+        //    order.AddNoteDate = now;
+        //}
         return order;
     }
 
@@ -213,7 +208,6 @@ public sealed class OrderEntity : Aggregate<int>
         DinnerTableId = dinnerTableId;
         //Touch(updatedBy);
     }
-
     /// <summary>
     /// Merges order items from a source order into the current order and records the merge operation.
     /// The source order must be in an unpaid status to be eligible for merging.
@@ -236,11 +230,6 @@ public sealed class OrderEntity : Aggregate<int>
             item.UpdateOrderId(Id);
         }
     }
-    private void AssignBillNo(string? prefix, DateTime time)
-    {
-        EnsureCanEdit();
-        if (BillNo is null) BillNo = BillNo.Create(prefix!, time);
-    }
 
     /// <summary>
     /// Marks the order as paid, assigns bill number, updates payment details, applies promotion discount, and sets
@@ -253,7 +242,7 @@ public sealed class OrderEntity : Aggregate<int>
     /// <exception cref="NotExistActionBy">Thrown when the action by does not exist.</exception>
     /// <exception cref="NotExistPaymentType">Thrown when the payment type does not exist.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order cannot be edited because its status is not Unpaid.</exception>
-    public void MarkAsPaid(string prefix, int payBy, string paymentType)
+    public void Payment(string prefix, int payBy, string paymentType)
     {
         EnsureCanEdit();
 
@@ -282,6 +271,25 @@ public sealed class OrderEntity : Aggregate<int>
         //AddDomainEvent(new OrderPaidDomainEvent(this));
     }
 
+    /// <summary>
+    /// Marks the order as collected and updates its status to Paid.
+    /// </summary>
+    /// <param name="collectedBy">Identifier of the user who collected the order.</param>
+    /// <exception cref="NotExistActionBy">Thrown when the collectedBy identifier is invalid.</exception>
+    /// <exception cref="OrderNotEditableException">Thrown when the order cannot be edited due to its current status.</exception>
+    public void MaskAsCollected(int collectedBy)
+    {
+        if (collectedBy <= 0) throw new NotExistActionBy();
+        if (this.Status != OrderStatus.NotCollected)
+        {
+            throw new OrderNotEditableException();
+        }
+        Status = OrderStatus.Paid;
+        ActionBy = collectedBy;
+        ActionDate = DateTime.UtcNow;
+    }
+
+
     public void ApplyPromotion(Promotion promotion, int appliedBy)
     {
         ArgumentNullException.ThrowIfNull(promotion);
@@ -293,11 +301,6 @@ public sealed class OrderEntity : Aggregate<int>
         Touch(updatedBy: appliedBy);
     }
 
-
-    public void FinalizeAndPublishCreated()
-    {
-        AddDomainEvent(new OrderCreatedDomainEvent(this));
-    }
     public void RemovePromotion(int updatedBy)
     {
         EnsureCanEdit();
@@ -306,7 +309,6 @@ public sealed class OrderEntity : Aggregate<int>
         //RecalculateTotalAmount();
         Touch(updatedBy);
     }
-
 
     /// <summary>
     /// Get Total Amount before payment (no excluded cancelled items)
@@ -347,7 +349,6 @@ public sealed class OrderEntity : Aggregate<int>
         UpdatedDate = DateTime.UtcNow;
     }
 
-
     /// <summary>
     /// Updates the order status to the specified value.
     /// </summary>
@@ -357,7 +358,9 @@ public sealed class OrderEntity : Aggregate<int>
     private void UpdateStatus(OrderStatus newStatus, int changedBy)
     {
         if (!Enum.IsDefined(typeof(OrderStatus), newStatus))
+        {
             throw new NotExistOrderStatus();
+        }
         Status = newStatus;
     }
     private void EnsureNotCancelled()
@@ -375,6 +378,26 @@ public sealed class OrderEntity : Aggregate<int>
         if (Status != OrderStatus.Unpaid) throw new OrderNotEditableException();
     }
 
+    private void AssignBillNo(string? prefix, DateTime time)
+    {
+        EnsureCanEdit();
+        if (BillNo is null) BillNo = BillNo.Create(prefix!, time);
+    }
+
+
+    public void FinalizeAndPublishCreated()
+    {
+        AddDomainEvent(new OrderCreatedDomainEvent(this));
+    }
+
+    public void FinalizeAndPublishCollected()
+    {
+        AddDomainEvent(new OrderCollectedDomainEvent(Id,
+                            OrderItems
+                            .Where(x => !x.IsCancelled)
+                            .Select(x => new OrderCollectedItem(x.MenuItem.MenuId, x.MenuItem.SizeId, x.Quantity)).ToList()
+                        ));
+    }
 
 
     private void RecalculateTotalAmount()

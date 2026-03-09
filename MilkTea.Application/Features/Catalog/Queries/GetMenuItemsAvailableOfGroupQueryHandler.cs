@@ -1,5 +1,5 @@
 using MediatR;
-using MilkTea.Application.Features.Catalog.Abstractions;
+using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Dtos;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Shared.Domain.Constants;

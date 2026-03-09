@@ -2,53 +2,22 @@ using MilkTea.Domain.Inventory.Entities;
 
 namespace MilkTea.Domain.Inventory.Repositories;
 
-/// <summary>
-/// Repository interface for warehouse operations.
-/// </summary>
 public interface IWarehouseRepository
 {
     /// <summary>
-    /// Gets warehouse entry by ID.
+    /// Retrieves a warehouse entity by its unique identifier asynchronously.
     /// </summary>
-    Task<Warehouse?> GetByIdAsync(int id);
+    /// <param name="id">The unique identifier of the warehouse entity.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the warehouse entity if found;
+    /// otherwise, null.</returns>
+    Task<WarehouseEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets warehouse entry by material ID.
+    /// Retrieves warehouse entities associated with the specified material IDs asynchronously.
     /// </summary>
-    Task<Warehouse?> GetByMaterialIdAsync(int materialId);
-
-    /// <summary>
-    /// Gets all active warehouse entries.
-    /// </summary>
-    Task<List<Warehouse>> GetAllActiveAsync();
-
-    /// <summary>
-    /// Updates a warehouse entry.
-    /// </summary>
-    Task<bool> UpdateAsync(Warehouse warehouse);
-
-    /// <summary>
-    /// Adds a rollback record.
-    /// </summary>
-    Task AddRollbackAsync(WarehouseRollback rollback);
-
-    /// <summary>
-    /// Checks if materials are in stock for a menu item.
-    /// </summary>
-    Task<bool> CheckStockForMenuItemAsync(int menuId, int quantity);
-
-    /// <summary>
-    /// Gets recipe (materials) for a menu item and size.
-    /// </summary>
-    Task<List<MenuMaterialRecipe>?> GetRecipeAsync(int menuId, int sizeId);
-
-    /// <summary>
-    /// Gets material stock by material IDs.
-    /// </summary>
-    Task<Dictionary<int, decimal>> GetMaterialStockAsync(List<int> materialIds);
-
-    /// <summary>
-    /// Gets material names by material IDs.
-    /// </summary>
-    Task<Dictionary<int, string>> GetMaterialsAsync(List<int> materialIds);
+    /// <param name="materialIds">A collection of material IDs to filter warehouse entities.</param>
+    /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
+    /// <returns>A task representing the asynchronous operation, containing a list of matching warehouse entities.</returns>
+    Task<List<WarehouseEntity>> GetActiveByMaterialIdsAsync(IEnumerable<int> materialIds, CancellationToken cancellationToken = default);
 }

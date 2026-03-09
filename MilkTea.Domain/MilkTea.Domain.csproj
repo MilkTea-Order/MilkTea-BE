@@ -10,4 +10,9 @@
     <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Catalog\Size\Enums\" />
+    <Folder Include="Catalog\Unit\Enums\" />
+  </ItemGroup>
+
 </Project>

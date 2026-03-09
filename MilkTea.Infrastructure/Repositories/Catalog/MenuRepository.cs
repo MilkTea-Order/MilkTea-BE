@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities.Menu;
-using MilkTea.Domain.Catalog.Enums;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog.Menu.Entities;
+using MilkTea.Domain.Catalog.Menu.Enums;
+using MilkTea.Domain.Catalog.Menu.Repositories;
 using MilkTea.Domain.SharedKernel.Enums;
 using MilkTea.Infrastructure.Persistence;
 

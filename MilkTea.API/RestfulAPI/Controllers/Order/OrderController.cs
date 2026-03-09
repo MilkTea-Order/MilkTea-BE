@@ -218,5 +218,18 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             if (result.ResultData.HasData) return SendError(result.ResultData);
             return SendSuccess();
         }
+
+        [Authorize]
+        [HttpPost("{orderId:int}/collected")]
+        public async Task<ResponseDto> CollectOrder([FromRoute] int orderId)
+        {
+            var command = new OrderCollectedCommand
+            {
+                OrderId = orderId,
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
     }
 }

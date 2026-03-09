@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MilkTea.Application.Features.Configuration.Abstractions.Services;
-using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.Repositories;
@@ -47,7 +47,7 @@ namespace MilkTea.Application.Features.Orders.Commands
             await _vOrderUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                order.MarkAsPaid(billPrefix!, _vCurrentUser.UserId, request.PaymentMethod);
+                order.Payment(billPrefix!, _vCurrentUser.UserId, request.PaymentMethod);
                 await _vOrderUnitOfWork.CommitTransactionAsync(cancellationToken);
             }
             catch (NotExistPaymentType)

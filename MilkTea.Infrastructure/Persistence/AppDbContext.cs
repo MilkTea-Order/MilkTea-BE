@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities;
-using MilkTea.Domain.Catalog.Entities.Menu;
-using MilkTea.Domain.Catalog.Entities.Price;
-using MilkTea.Domain.Catalog.Entities.Size;
-using MilkTea.Domain.Catalog.Entities.Table;
-using MilkTea.Domain.Catalog.Entities.Unit;
+using MilkTea.Domain.Catalog;
+using MilkTea.Domain.Catalog.Material.Entities;
+using MilkTea.Domain.Catalog.Menu.Entities;
+using MilkTea.Domain.Catalog.Price.Entities;
+using MilkTea.Domain.Catalog.Size.Entities;
+using MilkTea.Domain.Catalog.Table.Entities;
+using MilkTea.Domain.Catalog.Unit.Entities;
 using MilkTea.Domain.Configuration.Entities;
 using MilkTea.Domain.Inventory.Entities;
 using MilkTea.Domain.Orders.Entities;
@@ -45,14 +46,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     // ===== Unit =====
     public DbSet<UnitEntity> Units { get; set; }
+
+    // ==== Material =====
+    public DbSet<MaterialEntity> Materials { get; set; }
+    public DbSet<MaterialsGroupEntity> MaterialsGroups { get; set; }
+    public DbSet<MenuMaterialRecipeEntity> MenuMaterialRecipes { get; set; }
     #endregion Catalog
 
     // ===== Inventory =====
-    public DbSet<Material> Materials { get; set; }
-    public DbSet<MaterialsGroup> MaterialsGroups { get; set; }
-    public DbSet<Warehouse> Warehouses { get; set; }
-    public DbSet<WarehouseRollback> WarehouseRollbacks { get; set; }
-    public DbSet<MenuMaterialRecipe> MenuMaterialRecipes { get; set; }
+    public DbSet<WarehouseEntity> Warehouses { get; set; }
+    public DbSet<WarehouseRollbackEntity> WarehouseRollbacks { get; set; }
+
 
     // ===== Users =====
     public DbSet<UserEntity> Users { get; set; }
@@ -80,8 +84,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
-        // Apply configurations from the new namespaces only
-        // Filter to only include configurations from the new module-based folders
+
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AppDbContext).Assembly,
             type => type.Namespace != null && (

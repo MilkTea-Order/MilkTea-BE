@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using MilkTea.Application.Features.Catalog.Abstractions;
-using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Application.Features.Catalog.Abstractions.Services;
+using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
-using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.Orders.ValueObjects;
 using MilkTea.Domain.SharedKernel.Constants;
@@ -70,10 +70,9 @@ public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderC
 //});
 
 
-public sealed class CreateOrderCommandHandler(
-    IOrderUnitOfWork orderingUnitOfWork,
-    ICatalogService catalogService,
-    ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
+public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWork,
+                                                ICatalogService catalogService,
+                                                ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
     private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     private readonly ICatalogService _vCatalogService = catalogService;

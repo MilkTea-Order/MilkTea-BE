@@ -2,8 +2,8 @@ using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
-using MilkTea.Domain.Catalog.Enums;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog;
+using MilkTea.Domain.Catalog.Table.Enums;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
 

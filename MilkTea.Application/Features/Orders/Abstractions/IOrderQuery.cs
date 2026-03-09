@@ -1,4 +1,4 @@
-﻿using MilkTea.Application.Features.Orders.Dtos;
+﻿using MilkTea.Application.Features.Orders.Models.Dtos;
 
 namespace MilkTea.Application.Features.Orders.Abstractions
 {

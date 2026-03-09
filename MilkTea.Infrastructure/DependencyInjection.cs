@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using MilkTea.Application.Features.Catalog.Abstractions;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Configuration.Abstractions.Services;
@@ -7,17 +6,22 @@ using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Application.Ports.Hash.Permission;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog;
+using MilkTea.Domain.Catalog.Menu.Repositories;
+using MilkTea.Domain.Catalog.Price.Repositories;
+using MilkTea.Domain.Catalog.Size.Repositories;
+using MilkTea.Domain.Catalog.Table.Repositories;
+using MilkTea.Domain.Catalog.Unit.Repositories;
 using MilkTea.Domain.Configuration.Repositories;
 using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Repositories;
+using MilkTea.Infrastructure.BuildingBlocks.Hash.Password;
+using MilkTea.Infrastructure.BuildingBlocks.Hash.Permission;
 using MilkTea.Infrastructure.Catalog.Queries;
 using MilkTea.Infrastructure.Catalog.Services;
 using MilkTea.Infrastructure.Configuration.Services;
-using MilkTea.Infrastructure.Hash.Password;
-using MilkTea.Infrastructure.Hash.Permission;
 using MilkTea.Infrastructure.Order.Queries;
 using MilkTea.Infrastructure.Order.Services;
 using MilkTea.Infrastructure.Repositories;
@@ -36,16 +40,16 @@ public static class DependencyInjection
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Module-specific Unit of Work
+        // Unit of Work
         services.AddScoped<ICatalogUnitOfWork, CatalogUnitOfWork>();
-        services.AddScoped<IOrderUnitOfWork, OrderingUnitOfWork>();
+        services.AddScoped<IOrderUnitOfWork, OrderUnitOfWork>();
         services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
         services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
         services.AddScoped<IConfigurationUnitOfWork, ConfigurationUnitOfWork>();
 
         // Order
         services.AddScoped<IOrderRepository, OrderRepository>();
-        //Quries
+        //Queries
         services.AddScoped<IOrderQuery, OrderQuery>();
         // Service
         services.AddScoped<IOrderServices, OrderServices>();

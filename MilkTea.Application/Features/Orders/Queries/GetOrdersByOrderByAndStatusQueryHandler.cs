@@ -1,8 +1,8 @@
 using FluentValidation;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Orders.Abstractions;
-using MilkTea.Application.Features.Orders.Dtos;
-using MilkTea.Application.Features.Orders.Results;
+using MilkTea.Application.Features.Orders.Models.Dtos;
+using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Orders.Enums;
 using MilkTea.Domain.SharedKernel.Constants;

@@ -5,9 +5,9 @@ using MilkTea.API.RestfulAPI.Middlewares;
 using MilkTea.Application;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Infrastructure;
-using MilkTea.Infrastructure.Authentication.JWT;
-using MilkTea.Infrastructure.Database;
-using MilkTea.Infrastructure.Database.MySQL;
+using MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT;
+using MilkTea.Infrastructure.BuildingBlocks.Database;
+using MilkTea.Infrastructure.BuildingBlocks.Database.MySQL;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);

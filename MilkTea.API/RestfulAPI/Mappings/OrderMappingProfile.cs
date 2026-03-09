@@ -3,7 +3,7 @@ using MilkTea.API.RestfulAPI.DTOs.Common;
 using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Common;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
-using MilkTea.Application.Features.Orders.Dtos;
+using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Application.Models.Orders;
 
 namespace MilkTea.API.RestfulAPI.Mappings

@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog.Menu.Repositories;
+using MilkTea.Domain.Catalog.Price.Repositories;
+using MilkTea.Domain.Catalog.Size.Repositories;
+using MilkTea.Domain.Catalog.Table.Repositories;
 using MilkTea.Domain.Configuration.Repositories;
 using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
@@ -50,7 +53,9 @@ public class UnitOfWork(
         {
             await _vContext.SaveChangesAsync(cancellationToken);
             if (_vTransaction != null)
+            {
                 await _vTransaction.CommitAsync(cancellationToken);
+            }
         }
         catch
         {
@@ -71,7 +76,6 @@ public class UnitOfWork(
     {
         if (_vTransaction != null)
         {
-            Console.WriteLine("Rolling back transaction...");
             await _vTransaction.RollbackAsync(cancellationToken);
             await _vTransaction.DisposeAsync();
             _vTransaction = null;
@@ -79,5 +83,7 @@ public class UnitOfWork(
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => _vContext.SaveChangesAsync(cancellationToken);
+    {
+        return _vContext.SaveChangesAsync(cancellationToken);
+    }
 }

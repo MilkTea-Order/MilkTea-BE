@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Application.Features.Catalog.Abstractions;
+using MilkTea.Application.Features.Catalog.Abstractions.Constracts;
+using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Models.Catalog;
-using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.Catalog.Menu.Enums;
+using MilkTea.Domain.Catalog.Price.Enums;
+using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Domain.SharedKernel.Enums;
 using MilkTea.Infrastructure.Persistence;
 using Shared.Extensions;
@@ -90,6 +93,57 @@ namespace MilkTea.Infrastructure.Catalog.Services
 
             return result;
         }
+
+        public async Task<IReadOnlyList<RecipeConstractDto>> GetMenuRecipesAsync(IReadOnlyList<OrderItemsConstractDto> items, CancellationToken cancellationToken)
+        {
+            if (!items.Any()) return [];
+
+            var groupedItems = items
+                .GroupBy(x => new { x.MenuId, x.SizeId })
+                .Select(g => new
+                {
+                    g.Key.MenuId,
+                    g.Key.SizeId,
+                    Quantity = g.Sum(x => x.Quantity)
+                })
+                .ToList();
+
+            var menuIds = groupedItems
+                .Select(x => x.MenuId)
+                .Distinct()
+                .ToList();
+
+            var recipes = await (from mam in _vContext.MenuMaterialRecipes.AsNoTracking()
+                                 join m in _vContext.Materials.AsNoTracking()
+                                     on mam.MaterialID equals m.Id
+                                 where menuIds.Contains(mam.MenuID)
+                                 select new
+                                 {
+                                     mam.MenuID,
+                                     mam.SizeID,
+                                     mam.MaterialID,
+                                     mam.Quantity,
+                                     m.Name
+                                 })
+            .ToListAsync(cancellationToken);
+
+            var result = from mam in recipes
+                         join oi in groupedItems
+                             on new { mam.MenuID, mam.SizeID }
+                             equals new { MenuID = oi.MenuId, SizeID = oi.SizeId }
+                         group new { mam, oi }
+                         by new { mam.MaterialID, mam.Name } into g
+                         select new RecipeConstractDto
+                         {
+                             Id = g.Key.MaterialID,
+                             Name = g.Key.Name,
+                             Quantity = g.Sum(x => x.mam.Quantity * x.oi.Quantity)
+                         };
+
+            return result.ToList();
+        }
+
+
         public async Task<IReadOnlyDictionary<int, MenuItemDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default)
         {
             return await (
@@ -188,7 +242,7 @@ namespace MilkTea.Infrastructure.Catalog.Services
             var row = await _vContext.Tables
                             .AsNoTracking()
                             .Where(t => t.Id == tableId && t.Status == TableStatus.InUsing)
-                            .FirstOrDefaultAsync();
+                            .FirstOrDefaultAsync(cancellationToken);
             return row != null;
         }
     }

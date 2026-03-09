@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Application.Features.Orders.Abstractions;
-using MilkTea.Application.Features.Orders.Dtos;
+using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Domain.Orders.Enums;
 using MilkTea.Infrastructure.Persistence;
 using Shared.Extensions;

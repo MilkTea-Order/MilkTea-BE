@@ -4,12 +4,8 @@ using MilkTea.Infrastructure.Persistence;
 
 namespace MilkTea.Infrastructure.Repositories.Inventory;
 
-/// <summary>
-/// Unit of Work implementation for Inventory module.
-/// </summary>
-public class InventoryUnitOfWork(
-    AppDbContext context,
-    IWarehouseRepository warehouses) : IInventoryUnitOfWork
+public class InventoryUnitOfWork(AppDbContext context,
+                                    IWarehouseRepository warehouses) : IInventoryUnitOfWork
 {
     private readonly AppDbContext _vContext = context;
     private IDbContextTransaction? _vTransaction;

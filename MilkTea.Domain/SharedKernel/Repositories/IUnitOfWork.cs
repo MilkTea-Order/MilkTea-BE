@@ -1,4 +1,7 @@
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog.Menu.Repositories;
+using MilkTea.Domain.Catalog.Price.Repositories;
+using MilkTea.Domain.Catalog.Size.Repositories;
+using MilkTea.Domain.Catalog.Table.Repositories;
 using MilkTea.Domain.Configuration.Repositories;
 using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;

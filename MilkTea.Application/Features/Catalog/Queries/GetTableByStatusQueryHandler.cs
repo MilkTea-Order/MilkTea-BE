@@ -1,9 +1,9 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Results;
 using MilkTea.Application.Models.Catalog;
-using MilkTea.Domain.Catalog.Entities.Table;
-using MilkTea.Domain.Catalog.Enums;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog;
+using MilkTea.Domain.Catalog.Table.Entities;
+using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Shared.Domain.Constants;
 namespace MilkTea.Application.Features.Catalog.Queries;

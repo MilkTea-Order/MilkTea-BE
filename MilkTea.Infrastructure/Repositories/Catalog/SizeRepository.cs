@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities.Size;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog.Size.Entities;
+using MilkTea.Domain.Catalog.Size.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
 namespace MilkTea.Infrastructure.Repositories.Catalog;

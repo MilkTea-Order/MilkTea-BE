@@ -24,7 +24,7 @@ public sealed class OrderItemEntity : Entity<int>
     // Cancellation
     public int? CancelledBy { get; private set; }
     public DateTime? CancelledDate { get; private set; }
-    public bool IsCancelled => CancelledBy.HasValue;
+    public bool IsCancelled => CancelledBy.HasValue && CancelledDate.HasValue;
 
     // For EF
     private OrderItemEntity() { }

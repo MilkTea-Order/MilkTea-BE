@@ -4,16 +4,14 @@ using MilkTea.Domain.Inventory.Entities;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Inventory;
 
-public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
+public class WarehouseConfiguration : IEntityTypeConfiguration<WarehouseEntity>
 {
-    public void Configure(EntityTypeBuilder<Warehouse> builder)
+    public void Configure(EntityTypeBuilder<WarehouseEntity> builder)
     {
         builder.ToTable("Warehouse");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id)
-            .HasColumnName("ID")
-            .ValueGeneratedOnAdd();
+        builder.Property(x => x.Id).HasColumnName("ID").ValueGeneratedOnAdd();
 
         builder.Property(x => x.MaterialsID).HasColumnName("MaterialsID").IsRequired();
         builder.Property(x => x.QuantityImport).HasColumnName("QuantityImport").IsRequired();
@@ -22,23 +20,24 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
         builder.Property(x => x.AmountTotal).HasColumnName("AmountTotal").IsRequired();
         builder.Property(x => x.ImportFromSuppliersID).HasColumnName("ImportFromSuppliersID").IsRequired();
 
-        // Map enum to existing StatusID column
         builder.Property(x => x.Status)
             .HasColumnName("StatusID")
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
-        builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
+        builder.HasMany(x => x.WarehouseRollbacks)
+                .WithOne()
+                .HasForeignKey(x => x.WarehouseID)
+                .OnDelete(DeleteBehavior.Cascade);
 
-        // Relationships
-        builder.HasOne(w => w.Material)
-            .WithMany()
-            .HasForeignKey(w => w.MaterialsID)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(x => x.WarehouseRollbacks)
+                .HasField("_vWarehouseRollbacks")
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Ignore(x => x.DomainEvents);
+        builder.Ignore(x => x.CreatedBy);
+        builder.Ignore(x => x.CreatedDate);
+        builder.Ignore(x => x.UpdatedBy);
+        builder.Ignore(x => x.UpdatedDate);
+
     }
 }

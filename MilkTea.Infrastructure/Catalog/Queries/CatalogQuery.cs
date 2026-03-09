@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Application.Features.Catalog.Abstractions;
+using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Dtos;
-using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.Catalog.Menu.Enums;
+using MilkTea.Domain.Catalog.Price.Enums;
 using MilkTea.Domain.SharedKernel.Enums;
 using MilkTea.Infrastructure.Persistence;
 using Shared.Extensions;

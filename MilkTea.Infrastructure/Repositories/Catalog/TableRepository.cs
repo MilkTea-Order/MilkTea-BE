@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkTea.Domain.Catalog.Entities.Table;
-using MilkTea.Domain.Catalog.Enums;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog.Table.Entities;
+using MilkTea.Domain.Catalog.Table.Enums;
+using MilkTea.Domain.Catalog.Table.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
 namespace MilkTea.Infrastructure.Repositories.Catalog;

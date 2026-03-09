@@ -1,8 +1,5 @@
 namespace MilkTea.Domain.SharedKernel.Exceptions;
 
-/// <summary>
-/// Exception for domain rule violations.
-/// </summary>
 public class DomainException : Exception
 {
     public DomainException(string message) : base(message) { }

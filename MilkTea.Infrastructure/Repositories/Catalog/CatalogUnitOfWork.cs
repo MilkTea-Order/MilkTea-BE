@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using MilkTea.Domain.Catalog.Repositories;
+using MilkTea.Domain.Catalog;
+using MilkTea.Domain.Catalog.Menu.Repositories;
+using MilkTea.Domain.Catalog.Price.Repositories;
+using MilkTea.Domain.Catalog.Size.Repositories;
+using MilkTea.Domain.Catalog.Table.Repositories;
+using MilkTea.Domain.Catalog.Unit.Repositories;
 using MilkTea.Infrastructure.Persistence;
 
 namespace MilkTea.Infrastructure.Repositories.Catalog;

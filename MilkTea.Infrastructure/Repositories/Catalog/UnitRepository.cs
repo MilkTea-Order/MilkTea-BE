@@ -1,4 +1,4 @@
-﻿using MilkTea.Domain.Catalog.Repositories;
+﻿using MilkTea.Domain.Catalog.Unit.Repositories;
 
 namespace MilkTea.Infrastructure.Repositories.Catalog
 {

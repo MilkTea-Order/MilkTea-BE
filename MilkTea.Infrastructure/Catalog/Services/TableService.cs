@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Catalog.Dtos;
-using MilkTea.Domain.Catalog.Enums;
+using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Infrastructure.Persistence;
 using Shared.Extensions;
 
@@ -52,7 +52,7 @@ namespace MilkTea.Infrastructure.Catalog.Services
         {
             return await _vContext.Tables.AsNoTracking()
                                     .Where(x => x.Id == tableId &&
-                                           x.Status == Domain.Catalog.Enums.TableStatus.InUsing)
+                                           x.Status == TableStatus.InUsing)
                                     .AnyAsync(cancellationToken);
         }
 

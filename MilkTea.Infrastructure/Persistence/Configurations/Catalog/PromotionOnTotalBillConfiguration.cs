@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MilkTea.Domain.Catalog.Entities;
+using MilkTea.Domain.Catalog;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.Catalog;
 
