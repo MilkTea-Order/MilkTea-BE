@@ -59,7 +59,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
                 //}
                 //catch
                 //{
-                //    // N?u gi?i mã th?t b?i, có th? giá tr? chua du?c mã hóa, dùng tr?c ti?p
+                //    // If decryption fails, the value might not be encrypted, use it directly
                 //}
 
                 if (string.IsNullOrEmpty(vServer) || string.IsNullOrEmpty(vUsername) ||
@@ -73,8 +73,8 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
                        ";Database=" + vDatabase +
                        ";Port=" + vPort +
                        ";User Id=" + vUsername +
-                       ";Password=" + vPassword +
-                       ";SslMode=None;";
+                       ";Password=" + vPassword;
+                //";SslMode=None;";
             }
             catch (Exception ex)
             {
