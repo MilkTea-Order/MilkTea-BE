@@ -47,7 +47,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
                     return "";
                 }
 
-                //// Th? gi?i mã RSA (n?u là chu?i dã mã hóa, s? có format d?c bi?t)
+                //// RSA decryption: Attempt to decrypt each value; if decryption fails, use the original value
                 //// N?u gi?i mã thành công, dùng giá tr? dã gi?i mã; n?u không, dùng giá tr? g?c
                 //try
                 //{
