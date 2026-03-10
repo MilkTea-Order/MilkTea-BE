@@ -13,5 +13,12 @@ namespace MilkTea.Infrastructure.Configuration.Services
         {
             return await _vContext.Definitions.Where(d => d.Code == Denifitions.BILL_PREFIX_CODE).Select(d => d.Value).FirstOrDefaultAsync();
         }
+
+        public async Task<bool> IsWarehouseManagementMode(CancellationToken cancellationToken)
+        {
+            return await _vContext.Definitions.Where(d => d.Code == Denifitions.WAREHOUSE_MANAGEMENT_MODE_CODE)
+                                                .Select(d => d.Value)
+                                                .FirstOrDefaultAsync(cancellationToken) == "ON";
+        }
     }
 }

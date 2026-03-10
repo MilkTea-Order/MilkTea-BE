@@ -3,5 +3,6 @@
     public interface IConfigurationService
     {
         Task<string?> GetBillPrefix();
+        Task<bool> IsWarehouseManagementMode(CancellationToken cancellationToken = default);
     }
 }

@@ -19,9 +19,16 @@ public class WarehouseRepository(AppDbContext context) : IWarehouseRepository
     /// <inheritdoc/>
     public async Task<List<WarehouseEntity>> GetActiveByMaterialIdsAsync(IEnumerable<int> materialIds, CancellationToken cancellationToken)
     {
-        return await _vContext.Warehouses.Where(x => materialIds.Contains(x.MaterialsID) && x.Status == InventoryStatus.InStock && x.QuantityCurrent > 0)
-                                          .GroupBy(x => x.MaterialsID)
-                                          .Select(g => g.OrderBy(x => x.Id).First())
-                                          .ToListAsync(cancellationToken);
+        //return await _vContext.Warehouses.Where(x => materialIds.Contains(x.MaterialsID) && x.Status == InventoryStatus.InStock && x.QuantityCurrent > 0)
+        //                                  .GroupBy(x => x.MaterialsID)
+        //                                  .Select(g => g.OrderBy(x => x.Id).First())
+        //                                  .ToListAsync(cancellationToken);
+
+        return await _vContext.Warehouses.Where(x => materialIds.Contains(x.MaterialsID)
+                                                         && x.Status == InventoryStatus.InStock
+                                                         && x.QuantityCurrent > 0)
+                                            .OrderBy(x => x.MaterialsID)
+                                            .ThenBy(x => x.Id)
+                                            .ToListAsync(cancellationToken);
     }
 }
