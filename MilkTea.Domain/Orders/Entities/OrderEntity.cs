@@ -265,9 +265,6 @@ public sealed class OrderEntity : Aggregate<int>
         TotalAmount = totalAmount;
 
         Status = OrderStatus.NotCollected;
-
-        ActionBy = payBy;
-        ActionDate = now;
         //AddDomainEvent(new OrderPaidDomainEvent(this));
     }
 

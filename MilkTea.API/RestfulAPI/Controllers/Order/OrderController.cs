@@ -23,18 +23,17 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
         [Authorize]
         [HttpGet]
-        public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int statusId = 1, [FromQuery] int? dayAgo = null)
+        //public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int statusId = 1, [FromQuery] int? dayAgo = null)
+        public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int statusId = 1, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
         {
             var query = new GetOrdersByOrderByAndStatusQuery
             {
                 StatusId = statusId,
-                DayAgo = dayAgo
+                FromDate = fromDate,
+                ToDate = toDate
             };
-
             var result = await _vSender.Send(query);
-
             if (result.ResultData.HasData) return SendError(result.ResultData);
-
             var response = result.Orders.Select(order => _vMapper.Map<GetOrdersByOrderByAndStatusResponseDto>(order)).ToList();
             return SendSuccess(response);
         }

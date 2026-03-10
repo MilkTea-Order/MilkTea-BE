@@ -12,9 +12,10 @@ namespace MilkTea.Application.Features.Orders.Queries;
 public sealed class GetOrdersByOrderByAndStatusQuery : IQuery<GetOrdersByOrderByAndStatusResult>
 {
     public int StatusId { get; set; }
-    public int? DayAgo { get; set; } = null;
+    //public int? DayAgo { get; set; } = null;
+    public DateTime? FromDate { get; set; }
+    public DateTime? ToDate { get; set; }
 }
-
 public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidator<GetOrdersByOrderByAndStatusQuery>
 {
     public GetOrdersByOrderByAndStatusQueryValidator()
@@ -23,10 +24,29 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
             .Must(x => Enum.IsDefined(typeof(OrderStatus), x))
             .WithErrorCode(ErrorCode.E0001)
             .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.StatusId));
-        RuleFor(x => x.DayAgo)
-            .GreaterThanOrEqualTo(0)
+        //RuleFor(x => x.DayAgo)
+        //    .GreaterThanOrEqualTo(0)
+        //    .WithErrorCode(ErrorCode.E0036)
+        //    .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.DayAgo));
+
+        RuleFor(x => x.FromDate)
+            .NotNull()
+            .When(x => x.ToDate.HasValue)
             .WithErrorCode(ErrorCode.E0036)
-            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.DayAgo));
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.FromDate));
+
+        RuleFor(x => x.ToDate)
+            .NotNull()
+            .When(x => x.FromDate.HasValue)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.ToDate));
+
+        RuleFor(x => x.FromDate)
+            .LessThanOrEqualTo(x => x.ToDate)
+            .When(x => x.FromDate.HasValue && x.ToDate.HasValue)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.FromDate) + nameof(GetOrdersByOrderByAndStatusQuery.ToDate));
+
     }
 }
 
@@ -40,7 +60,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
     {
         GetOrdersByOrderByAndStatusResult result = new();
-        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, query.StatusId, query.DayAgo, cancellationToken);
+        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, query.StatusId, query.FromDate, query.ToDate, cancellationToken);
         var tableIds = orders.Select(o => o.DinnerTableId).Distinct().ToList();
 
         var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);
@@ -64,10 +84,6 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
                     EmptyImg = t.EmptyImg,
                 };
             }
-        }
-        if (query.StatusId == (int)OrderStatus.Unpaid)
-        {
-            orders = orders.OrderBy(o => o.DinnerTableId).ToList();
         }
         result.Orders = orders;
         return result;
