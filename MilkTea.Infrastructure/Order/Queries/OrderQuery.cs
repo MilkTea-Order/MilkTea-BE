@@ -22,80 +22,55 @@ namespace MilkTea.Infrastructure.Order.Queries
 
         public async Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default)
         {
-            var query = _vContext.Orders
-                .AsNoTracking()
-                .Where(o => o.OrderBy == orderBy);
+            var query = _vContext.Orders.AsNoTracking()
+                                        .Where(o => o.OrderBy == orderBy);
 
             if (status.HasValue)
-            {
                 query = query.Where(o => (int)o.Status == status.Value);
-                if (status.Value == (int)OrderStatus.Unpaid)
-                {
-                    query = query.OrderBy(o => o.DinnerTableId);
-                }
-                else if (status.Value == (int)OrderStatus.NotCollected)
-                {
-                    query = query.OrderByDescending(o => o.PaymentedDate);
-                }
-                else if (status.Value == (int)OrderStatus.Paid)
-                {
-                    query = query.OrderByDescending(o => o.ActionDate);
-                }
-                else if (status.Value == (int)OrderStatus.Cancelled)
-                {
-                    query = query.OrderByDescending(o => o.CancelledDate);
-                }
-            }
 
             if (fromDate.HasValue)
-            {
                 query = query.Where(o => o.CreatedDate >= fromDate.Value);
-            }
 
             if (toDate.HasValue)
-            {
-                query = query.Where(o => o.CreatedDate < toDate.Value);
-            }
+                query = query.Where(o => o.CreatedDate <= toDate.Value);
 
-            var result = await query
-                .Join(
-                    _vContext.OrderItems.AsNoTracking(),
-                    o => o.Id,
-                    d => d.OrderId,
-                    (o, d) => new { o, d }
-                )
-                .GroupBy(x => new
+            var resultQuery = query
+                .Select(o => new OrderDto
                 {
-                    x.o.Id,
-                    x.o.DinnerTableId,
-                    x.o.OrderDate,
-                    x.o.OrderBy,
-                    x.o.CreatedDate,
-                    x.o.CreatedBy,
-                    x.o.Status,
-                    x.o.Note
-                })
-                .Select(g => new OrderDto
-                {
-                    OrderId = g.Key.Id,
-                    DinnerTableId = g.Key.DinnerTableId,
-                    OrderDate = g.Key.OrderDate,
-                    OrderBy = g.Key.OrderBy,
-                    CreatedDate = g.Key.CreatedDate,
-                    CreatedBy = g.Key.CreatedBy,
+                    OrderId = o.Id,
+                    DinnerTableId = o.DinnerTableId,
+                    OrderDate = o.OrderDate,
+                    OrderBy = o.OrderBy,
+                    CreatedDate = o.CreatedDate,
+                    CreatedBy = o.CreatedBy,
+                    PaymentDate = o.PaymentedDate,
+                    ActionDate = o.ActionDate,
+                    Note = o.Note,
                     Status = new OrderStatusDto
                     {
-                        Id = (int)g.Key.Status,
-                        Name = g.Key.Status.GetDescription()
+                        Id = (int)o.Status,
+                        Name = o.Status.GetDescription()
                     },
-                    Note = g.Key.Note,
-                    TotalAmount = g.Sum(x =>
-                        (x.d.CancelledBy != null && x.d.CancelledDate != null
-                            ? 0
-                            : x.d.Quantity * x.d.MenuItem.Price))
-                })
-                .ToListAsync(cancellationToken);
-            return result;
+
+                    TotalAmount = _vContext.OrderItems
+                        .Where(d => d.OrderId == o.Id
+                                 && !(d.CancelledBy != null && d.CancelledDate != null))
+                        .Sum(d => d.Quantity * d.MenuItem.Price)
+                });
+
+            if (status == (int)OrderStatus.Unpaid)
+                resultQuery = resultQuery.OrderBy(x => x.DinnerTableId);
+
+            else if (status == (int)OrderStatus.NotCollected)
+                resultQuery = resultQuery.OrderByDescending(x => x.PaymentDate);
+
+            else if (status == (int)OrderStatus.Paid)
+                resultQuery = resultQuery.OrderByDescending(x => x.ActionDate);
+
+            else if (status == (int)OrderStatus.Cancelled)
+                resultQuery = resultQuery.OrderByDescending(x => x.CreatedDate);
+
+            return await resultQuery.ToListAsync(cancellationToken);
         }
 
 

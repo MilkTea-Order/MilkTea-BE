@@ -8,6 +8,8 @@
         public int? OrderBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public int? CreatedBy { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public DateTime? ActionDate { get; set; }
         public string? Note { get; set; }
         public decimal TotalAmount { get; set; }
         public TableDto? DinnerTable { get; set; }
