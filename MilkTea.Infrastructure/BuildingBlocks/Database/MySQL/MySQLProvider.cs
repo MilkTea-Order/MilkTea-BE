@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using MilkTea.Infrastructure.BuildingBlocks.Database;
 using MilkTea.Shared.Utils;
 // AppConfig removed - use IConfiguration directly
 
@@ -70,7 +69,12 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
                     return "";
                 }
 
-                return "Server='" + vServer + "';AllowLoadLocalInfile=true;Database=" + vDatabase + ";port=" + vPort + ";User Id=" + vUsername + ";password=" + vPassword;
+                return "Server=" + vServer +
+                       ";Database=" + vDatabase +
+                       ";Port=" + vPort +
+                       ";User Id=" + vUsername +
+                       ";Password=" + vPassword +
+                       ";SslMode=None;";
             }
             catch (Exception ex)
             {
