@@ -5,7 +5,7 @@ using MilkTea.Domain.Users.Entities;
 
 namespace MilkTea.Infrastructure.Persistence.Configurations.User;
 
-public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
+public class EmployeeConfiguration : IEntityTypeConfiguration<EmployeeEntity>
 {
     // Save: "" -> NULL
     // Load: NULL -> ""
@@ -17,7 +17,7 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             v => v ?? string.Empty
         );
 
-    public void Configure(EntityTypeBuilder<Employee> builder)
+    public void Configure(EntityTypeBuilder<EmployeeEntity> builder)
     {
         builder.ToTable("Employees");
 
@@ -27,6 +27,7 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(x => x.Code).HasColumnName("Code");
         builder.Property(x => x.FullName).HasColumnName("FullName").IsRequired();
         builder.Property(x => x.GenderID).HasColumnName("GenderID").IsRequired();
+        builder.Property(p => p.Avatar).HasColumnName("Avatar").IsRequired(false);
 
         builder.Property(x => x.IdentityCode).HasColumnName("IdentityCode");
         builder.Property(x => x.Address).HasColumnName("Address");

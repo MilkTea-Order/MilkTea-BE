@@ -6,6 +6,8 @@ namespace MilkTea.API.RestfulAPI.DTOs.Requests
 
         public int? GenderID { get; set; } = null!;
 
+        public IFormFile? Avatar { get; set; } = null!;
+
         public string? BirthDay { get; set; } = null!;
 
         public string? IdentityCode { get; set; } = null!;

@@ -4,16 +4,17 @@ using MilkTea.Domain.Users.ValueObject;
 
 namespace MilkTea.Domain.Users.Entities;
 
-public class Employee : Aggregate<int>
+public class EmployeeEntity : Aggregate<int>
 {
     public string? Code { get; private set; }
     public string FullName { get; private set; } = null!;
     public int GenderID { get; private set; }
 
     public BirthDay BirthDay { get; private set; } = BirthDay.Empty();
-    public string? IdentityCode { get; private set; }
-
     public Email Email { get; private set; } = Email.Empty();
+
+    public byte[]? Avatar { get; private set; }
+    public string? IdentityCode { get; private set; }
     public string? Address { get; private set; }
 
     public DateTime? StartWorkingDate { get; private set; }
@@ -43,9 +44,9 @@ public class Employee : Aggregate<int>
     public Gender? Gender { get; set; }
     public Position? Position { get; set; }
 
-    private Employee() { }
+    private EmployeeEntity() { }
 
-    public static Employee Create(
+    public static EmployeeEntity Create(
         string fullName,
         int genderId,
         int positionId,
@@ -61,7 +62,7 @@ public class Employee : Aggregate<int>
 
         var now = DateTime.UtcNow;
 
-        return new Employee
+        return new EmployeeEntity
         {
             FullName = fullName.Trim(),
             GenderID = genderId,
@@ -149,6 +150,13 @@ public class Employee : Aggregate<int>
             return true;
         }
         return false;
+    }
+
+    public bool UpdateAvatarInternal(byte[]? avatar)
+    {
+        if (avatar is null) return false;
+        Avatar = avatar;
+        return true;
     }
 
     private bool UpdateCellPhoneInternal(string? cellPhone)
@@ -342,6 +350,7 @@ public class Employee : Aggregate<int>
         string? bankAccountName = null,
         string? bankName = null,
         byte[]? bankQRCode = null,
+        byte[]? avatar = null,
         int updatedBy = 0)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
@@ -359,6 +368,9 @@ public class Employee : Aggregate<int>
             if (UpdateGenderInternal(genderId.Value))
                 hasUpdate = true;
         }
+
+        if (UpdateAvatarInternal(avatar))
+            hasUpdate = true;
 
         if (UpdateBirthDayInternal(birthDay))
             hasUpdate = true;

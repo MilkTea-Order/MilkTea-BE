@@ -54,6 +54,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
             var command = new EmployeeUpdateProfileCommand
             {
                 FullName = request.FullName,
+                Avatar = request.Avatar,
                 GenderID = request.GenderID,
                 BirthDay = request.BirthDay,
                 IdentityCode = request.IdentityCode,

@@ -21,7 +21,6 @@ public sealed class EmployeeUpdateProfileCommandHandler(
         var result = new EmployeeUpdateProfileResult();
         var userId = _vCurrentUser.UserId;
 
-        Console.WriteLine(command.ToString());
 
         var user = await _vUserUnitOfWork.Users.GetByIdAsync(userId, cancellationToken);
         // No Authorization => logout
@@ -78,6 +77,24 @@ public sealed class EmployeeUpdateProfileCommandHandler(
                 return SendError(result, ErrorCode.E0036, "bankQRCode");
             }
         }
+
+        byte[]? avatar = null;
+        if (command.Avatar != null)
+        {
+            try
+            {
+                using var inputStream = command.Avatar.OpenReadStream();
+                using var image = Image.Load(inputStream);
+                using var pngStream = new MemoryStream();
+                image.Save(pngStream, new PngEncoder());
+                avatar = pngStream.ToArray();
+            }
+            catch
+            {
+                return SendError(result, ErrorCode.E0036, "avatar");
+            }
+        }
+
         // if having error validation, return error
         if (result.ResultData.HasData) return result;
 
@@ -87,6 +104,7 @@ public sealed class EmployeeUpdateProfileCommandHandler(
             // Update all fields using UpdateProfile method
             var hasUpdate = employee.UpdateProfile(
                 fullName: !string.IsNullOrWhiteSpace(command.FullName) ? command.FullName.Trim() : null,
+                avatar: avatar,
                 genderId: command.GenderID,
                 birthDay: !string.IsNullOrWhiteSpace(command.BirthDay) ? command.BirthDay.Trim() : null,
                 identityCode: !string.IsNullOrWhiteSpace(command.IdentityCode) ? command.IdentityCode.Trim() : null,

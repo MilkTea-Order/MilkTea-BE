@@ -60,7 +60,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     // ===== Users =====
     public DbSet<UserEntity> Users { get; set; }
-    public DbSet<Employee> Employees { get; set; }
+    public DbSet<EmployeeEntity> Employees { get; set; }
     public DbSet<Gender> Genders { get; set; }
     public DbSet<Position> Positions { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }

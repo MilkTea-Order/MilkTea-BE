@@ -14,7 +14,7 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
     private readonly AppDbContext _vContext = context;
 
     /// <inheritdoc/>
-    public async Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<EmployeeEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _vContext.Employees
             .AsNoTracking()
@@ -22,7 +22,7 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
     }
 
     /// <inheritdoc/>
-    public async Task<List<Employee>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<EmployeeEntity>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _vContext.Employees
             .AsNoTracking()
@@ -53,14 +53,14 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Employee?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<EmployeeEntity?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _vContext.Employees
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<Employee?> GetByIdWithGenderAndPositionAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<EmployeeEntity?> GetByIdWithGenderAndPositionAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _vContext.Employees
             .AsNoTracking()

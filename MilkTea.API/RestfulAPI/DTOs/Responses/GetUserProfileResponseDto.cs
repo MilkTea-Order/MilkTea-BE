@@ -5,6 +5,8 @@ namespace MilkTea.API.RestfulAPI.DTOs.Responses
         public int UserId { get; set; }
         public string UserName { get; set; } = null!;
         public int EmployeeId { get; set; }
+
+        public string? Avatar { get; set; } = null!;
         public string? EmployeeCode { get; set; }
         public string FullName { get; set; } = null!;
         public int GenderID { get; set; }

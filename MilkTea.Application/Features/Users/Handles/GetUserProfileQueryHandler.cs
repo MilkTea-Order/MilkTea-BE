@@ -35,6 +35,9 @@ public sealed class GetUserProfileQueryHandler(
             UserId = user.Id,
             UserName = user.UserName.value,
             EmployeeId = employee.Id,
+            Avatar = employee.Avatar == null
+                ? null
+                : $"data:image/png;base64,{Convert.ToBase64String(employee.Avatar)}",
             EmployeeCode = employee.Code,
             FullName = employee.FullName,
             GenderId = employee.GenderID,

@@ -12,27 +12,27 @@ public interface IEmployeeRepository
     /// </summary>
     /// <param name="id">The employee ID to search for.</param>
     /// <returns>The employee if found, otherwise null.</returns>
-    Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<EmployeeEntity?> GetByIdAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets an employee by their unique identifier with change tracking enabled.
     /// </summary>
     /// <param name="id">The employee ID to search for.</param>
     /// <returns>The tracked employee if found, otherwise null.</returns>
-    Task<Employee?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken);
+    Task<EmployeeEntity?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets all employees from the database (read-only, not tracked).
     /// </summary>
     /// <returns>A list of all employees.</returns>
-    Task<List<Employee>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<EmployeeEntity>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets an employee by ID including its <see cref="Gender"/> and <see cref="Position"/> navigation properties.
     /// </summary>
     /// <param name="id">The employee ID to search for.</param>
     /// <returns>The employee with related entities if found, otherwise null.</returns>
-    Task<Employee?> GetByIdWithGenderAndPositionAsync(int id, CancellationToken cancellationToken);
+    Task<EmployeeEntity?> GetByIdWithGenderAndPositionAsync(int id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Checks if an email address already exists for another employee.

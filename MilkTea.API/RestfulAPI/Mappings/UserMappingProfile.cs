@@ -15,6 +15,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.UserId, o => o.MapFrom(s => s.UserId))
                 .ForMember(d => d.UserName, o => o.MapFrom(s => s.UserName ?? string.Empty))
                 .ForMember(d => d.EmployeeId, o => o.MapFrom(s => s.EmployeeId))
+                .ForMember(d => d.Avatar, o => o.MapFrom(s => s.Avatar))
                 .ForMember(d => d.EmployeeCode, o => o.MapFrom(s => s.EmployeeCode))
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.FullName ?? string.Empty))
                 .ForMember(d => d.GenderID, o => o.MapFrom(s => s.GenderId))

@@ -12,6 +12,8 @@ namespace MilkTea.Application.Features.Users.Commands;
 public class EmployeeUpdateProfileCommand : ICommand<EmployeeUpdateProfileResult>
 {
     public string? FullName { get; set; } = null!;
+
+    public IFormFile? Avatar { get; set; } = null!;
     public int? GenderID { get; set; } = null!;
     public string? BirthDay { get; set; } = null!;
     public string? IdentityCode { get; set; } = null!;
@@ -34,6 +36,11 @@ public sealed class EmployeeUpdateProfileCommandValidator : AbstractValidator<Em
                 name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length >= 2)
             .WithErrorCode(ErrorCode.E0036)
             .OverridePropertyName("fullName");
+
+        RuleFor(x => x.Avatar)
+            .Must(IsValidAvatarFile)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName("avatar");
 
         RuleFor(x => x.GenderID)
             .Must(v => !v.HasValue || v.Value > 0)
@@ -69,6 +76,7 @@ public sealed class EmployeeUpdateProfileCommandValidator : AbstractValidator<Em
             .Must(IsValidBankQrFile)
             .WithErrorCode(ErrorCode.E0036)
             .OverridePropertyName("bankQRCode");
+
         // If any bank info is provided -> require BankName + BankAccountName + BankAccountNumber (non-empty)
         RuleFor(x => x)
             .Custom((cmd, context) =>
@@ -134,11 +142,25 @@ public sealed class EmployeeUpdateProfileCommandValidator : AbstractValidator<Em
         if (file is null) return true;
 
         if (file.Length <= 0 || file.Length > 5 * 1024 * 1024)
+        {
             return false;
+        }
 
         var permittedExtensions = new[] { ".jpg", ".jpeg", ".png" };
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
+        return permittedExtensions.Contains(extension);
+    }
+
+    private static bool IsValidAvatarFile(IFormFile? file)
+    {
+        if (file is null) return true;
+        if (file.Length <= 0 || file.Length > 5 * 1024 * 1024)
+        {
+            return false;
+        }
+        var permittedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         return permittedExtensions.Contains(extension);
     }
 }
