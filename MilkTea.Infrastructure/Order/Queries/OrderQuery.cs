@@ -73,6 +73,79 @@ namespace MilkTea.Infrastructure.Order.Queries
             return await resultQuery.ToListAsync(cancellationToken);
         }
 
+        public async Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default)
+        {
+            var baseQuery = _vContext.Orders.AsNoTracking().Where(x => x.Status == OrderStatus.NotCollected);
+
+            if (orderBy.HasValue)
+                baseQuery = baseQuery.Where(x => x.OrderBy == orderBy);
+
+            if (FromDate.HasValue)
+                baseQuery = baseQuery.Where(x => x.CreatedDate >= FromDate.Value);
+
+            if (ToDate.HasValue)
+                baseQuery = baseQuery.Where(x => x.CreatedDate <= ToDate.Value);
+
+            var orderQuery = baseQuery;
+            if (!string.IsNullOrWhiteSpace(PaymentMethod))
+                orderQuery = orderQuery.Where(x => x.PaymentedType == PaymentMethod);
+
+            var orders = await orderQuery
+                .Select(x => new OrderDto
+                {
+                    OrderId = x.Id,
+                    DinnerTableId = x.DinnerTableId,
+                    CreatedDate = x.CreatedDate,
+                    PaymentDate = x.PaymentedDate,
+                    PaymentAmount = x.PaymentedTotal,
+                    TotalAmount = x.TotalAmount ?? 0,
+                })
+                .OrderByDescending(x => x.PaymentDate)
+                .ToListAsync(cancellationToken);
+
+            var staticsData = await baseQuery
+                .GroupBy(x => x.PaymentedType)
+                .Select(g => new
+                {
+                    PaymentMethod = g.Key,
+                    Total = g.Sum(x => x.PaymentedTotal)
+                })
+                .ToListAsync(cancellationToken);
+
+            var resultStatic = new StaticDto();
+
+            foreach (var item in staticsData)
+            {
+                switch (item.PaymentMethod)
+                {
+                    case Domain.Orders.Enums.PaymentMethod.CASH:
+                        resultStatic.TotalAmountCash = item.Total ?? 0;
+                        break;
+                    case Domain.Orders.Enums.PaymentMethod.BANK:
+                        resultStatic.TotalAmountBank = item.Total ?? 0;
+                        break;
+                    case Domain.Orders.Enums.PaymentMethod.GRAB:
+                        resultStatic.TotalAmountGrab = item.Total ?? 0;
+                        break;
+                    case Domain.Orders.Enums.PaymentMethod.SHOPEE:
+                        resultStatic.TotalAmountShopee = item.Total ?? 0;
+                        break;
+                }
+            }
+
+            resultStatic.TotalAmount =
+                resultStatic.TotalAmountCash +
+                resultStatic.TotalAmountBank +
+                resultStatic.TotalAmountGrab +
+                resultStatic.TotalAmountShopee;
+
+            return new ReportOrderDto
+            {
+                Orders = orders,
+                Statics = resultStatic
+            };
+        }
+
 
         //public async Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, int? dayAgo, CancellationToken cancellationToken = default)
         //{

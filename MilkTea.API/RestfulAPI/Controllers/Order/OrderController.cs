@@ -230,5 +230,20 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             if (result.ResultData.HasData) return SendError(result.ResultData);
             return SendSuccess();
         }
+
+        [Authorize]
+        [HttpGet("report")]
+        public async Task<ResponseDto> GetOrderReport([FromQuery] string? paymentMethod, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        {
+            var query = new GetOrderReportQuery
+            {
+                PaymentMethod = paymentMethod,
+                FromDate = fromDate,
+                ToDate = toDate
+            };
+            var result = await _vSender.Send(query);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess(result.Static);
+        }
     }
 }
