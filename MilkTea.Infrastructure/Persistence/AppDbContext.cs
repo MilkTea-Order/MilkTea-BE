@@ -56,6 +56,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     // ===== Inventory =====
     public DbSet<WarehouseEntity> Warehouses { get; set; }
     public DbSet<WarehouseRollbackEntity> WarehouseRollbacks { get; set; }
+    public DbSet<ImportFromSupplierEntity> ImportFromSuppliers { get; set; }
 
 
     // ===== Users =====

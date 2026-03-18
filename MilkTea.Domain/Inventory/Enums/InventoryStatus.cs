@@ -4,9 +4,9 @@ namespace MilkTea.Domain.Inventory.Enums
 {
     public enum InventoryStatus
     {
-        [Description("Đang chờ duyệt")]
+        [Description("Chờ duyệt")]
         InActive = 1,
-        [Description("Còn hàng")]
+        [Description("Đã nhập kho")]
         InStock = 2,
     }
 }

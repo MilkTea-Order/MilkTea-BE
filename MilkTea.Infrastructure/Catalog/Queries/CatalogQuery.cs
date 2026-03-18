@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
-using MilkTea.Application.Features.Catalog.Dtos;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
 using MilkTea.Domain.Catalog.Menu.Enums;
 using MilkTea.Domain.Catalog.Price.Enums;
 using MilkTea.Domain.SharedKernel.Enums;

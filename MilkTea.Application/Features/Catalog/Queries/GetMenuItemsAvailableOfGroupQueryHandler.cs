@@ -1,7 +1,7 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
-using MilkTea.Application.Features.Catalog.Dtos;
-using MilkTea.Application.Features.Catalog.Results;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
+using MilkTea.Application.Features.Catalog.Models.Results;
 using MilkTea.Shared.Domain.Constants;
 namespace MilkTea.Application.Features.Catalog.Queries;
 

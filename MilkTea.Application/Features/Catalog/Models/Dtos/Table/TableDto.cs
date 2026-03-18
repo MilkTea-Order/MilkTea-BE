@@ -1,4 +1,4 @@
-﻿namespace MilkTea.Application.Features.Catalog.Dtos
+﻿namespace MilkTea.Application.Features.Catalog.Models.Dtos.Table
 {
     public class TableDto
     {

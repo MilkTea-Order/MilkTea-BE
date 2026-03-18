@@ -1,11 +1,11 @@
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Shared.Domain.Services;
 
-namespace MilkTea.Application.Features.Catalog.Results
+namespace MilkTea.Application.Features.Catalog.Models.Results
 {
-    public class GetGroupMenuResult
+    public class GetTableByStatusResult
     {
-        public List<MenuGroupDto> GroupMenu { get; set; } = new();
+        public List<TableDto> Tables { get; set; } = new();
         public StringListEntry ResultData { get; set; } = new();
     }
 }

@@ -1,5 +1,5 @@
 using MediatR;
-using MilkTea.Application.Features.Catalog.Results;
+using MilkTea.Application.Features.Catalog.Models.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Table.Entities;

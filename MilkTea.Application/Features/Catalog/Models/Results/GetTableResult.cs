@@ -1,8 +1,7 @@
-
-using MilkTea.Application.Features.Catalog.Dtos;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Table;
 using MilkTea.Shared.Domain.Services;
 
-namespace MilkTea.Application.Features.Catalog.Results
+namespace MilkTea.Application.Features.Catalog.Models.Results
 {
     public sealed class GetTableResult
     {

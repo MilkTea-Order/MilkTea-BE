@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Catalog.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Common;
-using MilkTea.Application.Features.Catalog.Dtos;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
 using MilkTea.Application.Models.Catalog;
 
 
@@ -14,7 +14,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
         {
             #region Common
             // Dinner Table Base
-            CreateMap<MilkTea.Application.Features.Catalog.Dtos.TableDto, DinnerTableBaseDto>()
+            CreateMap<Application.Features.Catalog.Models.Dtos.Table.TableDto, DinnerTableBaseDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
@@ -86,8 +86,8 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion Menu size of Menu
 
             #region Get Table 
-            CreateMap<MilkTea.Application.Features.Catalog.Dtos.TableDto, GetTableResponseDto>()
-                .IncludeBase<MilkTea.Application.Features.Catalog.Dtos.TableDto, DinnerTableBaseDto>()
+            CreateMap<Application.Features.Catalog.Models.Dtos.Table.TableDto, GetTableResponseDto>()
+                .IncludeBase<Application.Features.Catalog.Models.Dtos.Table.TableDto, DinnerTableBaseDto>()
                 .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg))
                 .ForMember(d => d.UsingImg, o => o.MapFrom(s => s.UsingImg));
             #endregion Get Table 

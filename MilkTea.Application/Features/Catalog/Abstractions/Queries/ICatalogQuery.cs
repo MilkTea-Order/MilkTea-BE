@@ -1,4 +1,4 @@
-﻿using MilkTea.Application.Features.Catalog.Dtos;
+﻿using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
 
 namespace MilkTea.Application.Features.Catalog.Abstractions.Queries
 {

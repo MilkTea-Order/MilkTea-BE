@@ -1,6 +1,6 @@
 using MediatR;
-using MilkTea.Application.Features.Catalog.Dtos;
-using MilkTea.Application.Features.Catalog.Results;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
+using MilkTea.Application.Features.Catalog.Models.Results;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Menu.Enums;
 using MilkTea.Domain.SharedKernel.Constants;

@@ -20,10 +20,9 @@ public class MaterialConfiguration : IEntityTypeConfiguration<MaterialEntity>
         builder.Property(x => x.StyleQuantity).HasColumnName("StyleQuantity");
         builder.Property(x => x.MaterialsGroupID).HasColumnName("MaterialsGroupID").IsRequired();
 
-        builder.Property(x => x.Status)
-            .HasColumnName("StatusID")
-            .HasConversion<int>()
-            .IsRequired();
+        builder.Property(x => x.Status).HasColumnName("StatusID")
+                                        .HasConversion<int>()
+                                        .IsRequired();
 
         builder.Ignore(x => x.CreatedBy);
         builder.Ignore(x => x.CreatedDate);
