@@ -8,6 +8,7 @@
         public int? OrderBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public int? CreatedBy { get; set; }
+        public int? PaymentBy { get; set; }
         public DateTime? PaymentDate { get; set; }
         public decimal? PaymentAmount { get; set; }
         public DateTime? ActionDate { get; set; }

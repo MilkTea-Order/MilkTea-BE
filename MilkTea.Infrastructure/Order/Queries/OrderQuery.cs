@@ -95,10 +95,19 @@ namespace MilkTea.Infrastructure.Order.Queries
                 {
                     OrderId = x.Id,
                     DinnerTableId = x.DinnerTableId,
+                    OrderDate = x.OrderDate,
+                    OrderBy = x.OrderBy,
+                    CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
                     PaymentDate = x.PaymentedDate,
                     PaymentAmount = x.PaymentedTotal,
                     TotalAmount = x.TotalAmount ?? 0,
+                    Status = new OrderStatusDto
+                    {
+                        Id = (int)x.Status,
+                        Name = x.Status.GetDescription()
+                    },
+                    Note = x.Note
                 })
                 .OrderByDescending(x => x.PaymentDate)
                 .ToListAsync(cancellationToken);

@@ -243,7 +243,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             };
             var result = await _vSender.Send(query);
             if (result.ResultData.HasData) return SendError(result.ResultData);
-            return SendSuccess(result.Static);
+            var response = _vMapper.Map<GetOrderReportResponseDto>(result.Static);
+            return SendSuccess(response);
         }
     }
 }
