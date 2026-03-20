@@ -83,7 +83,6 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion
 
             #region Common order
-
             CreateMap<MilkTea.Application.Features.Orders.Models.Dtos.OrderDto, MilkTea.API.RestfulAPI.DTOs.Orders.Common.OrderDto>()
             .ForMember(dest => dest.OrderID, opt => opt.MapFrom(src => src.OrderId))
             //Order

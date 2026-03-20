@@ -12,7 +12,8 @@ namespace MilkTea.Infrastructure.Inventory.Queries
         {
             var query = _vContext.Warehouses
                                     .AsNoTracking()
-                                    .Where(w => w.Status == Domain.Inventory.Enums.InventoryStatus.InStock && w.QuantityCurrent > 0)
+                                    //.Where(w => w.Status == Domain.Inventory.Enums.InventoryStatus.InStock && w.QuantityCurrent > 0)
+                                    .Where(w => w.Status == Domain.Inventory.Enums.InventoryStatus.InStock)
                                     .Join(
                                         _vContext.ImportFromSuppliers.AsNoTracking(),
                                         w => w.ImportFromSuppliersID,
