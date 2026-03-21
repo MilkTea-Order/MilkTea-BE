@@ -28,6 +28,7 @@ namespace MilkTea.Infrastructure.Inventory.Queries
                                         }
                                     )
                                     .GroupBy(x => x.MaterialsID)
+                                    .Where(x => x.Sum(y => y.QuantityCurrent) > 0)
                                     .Select(g => new InventoryStockDto
                                     {
                                         MaterialId = g.Key,
@@ -37,6 +38,7 @@ namespace MilkTea.Infrastructure.Inventory.Queries
                                                             .Select(x => x.PriceImport)
                                                             .FirstOrDefault()
                                     });
+            Console.WriteLine(query.ToQueryString());
             return await query.ToListAsync();
         }
     }
