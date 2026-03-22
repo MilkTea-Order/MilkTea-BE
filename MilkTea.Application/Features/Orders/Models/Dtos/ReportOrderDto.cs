@@ -2,8 +2,17 @@
 {
     public class ReportOrderDto
     {
-        public List<OrderDto> Orders { get; set; } = new();
+        public List<OrderDateGroupDto> DateGroup { get; set; } = new();
         public StaticDto Statics { get; set; } = new();
+    }
+
+    public class OrderDateGroupDto
+    {
+        public DateOnly Date { get; set; }
+
+        public decimal TotalAmount { get; set; }
+
+        public List<OrderDto> Orders { get; set; } = new();
     }
     public class StaticDto
     {

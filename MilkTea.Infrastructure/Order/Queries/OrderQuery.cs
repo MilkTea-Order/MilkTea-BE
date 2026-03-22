@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Models.Dtos;
+using MilkTea.Application.Ports.Time;
 using MilkTea.Domain.Orders.Enums;
 using MilkTea.Infrastructure.Persistence;
 using Shared.Extensions;
 
 namespace MilkTea.Infrastructure.Order.Queries
 {
-    public class OrderQuery(AppDbContext context) : IOrderQuery
+    public class OrderQuery(AppDbContext context, ITimeZoneServicePort timeZoneServicePort) : IOrderQuery
     {
         private readonly AppDbContext _vContext = context;
+        private readonly ITimeZoneServicePort _vTimeZoneServicePort = timeZoneServicePort;
 
         public async Task<bool> IsTableAvailable(int tableId, CancellationToken cancellationToken = default)
         {
@@ -75,7 +77,11 @@ namespace MilkTea.Infrastructure.Order.Queries
 
         public async Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, OrderStatus OrderStatus, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default)
         {
+
+            var tz = _vTimeZoneServicePort.GetTimeZone();
+
             var baseQuery = _vContext.Orders.AsNoTracking().Where(x => x.Status == OrderStatus);
+
 
             if (orderBy.HasValue)
                 baseQuery = baseQuery.Where(x => x.OrderBy == orderBy);
@@ -111,6 +117,25 @@ namespace MilkTea.Infrastructure.Order.Queries
                 })
                 .OrderByDescending(x => x.PaymentDate)
                 .ToListAsync(cancellationToken);
+
+            var dateGroups = orders.GroupBy(x =>
+                                           {
+                                               var time = x.PaymentDate.HasValue ? x.PaymentDate.Value
+                                                                                    : x.CreatedDate!.Value;
+                                               return TimeZoneInfo.ConvertTimeFromUtc(time, tz).Date;
+                                           })
+                                           .OrderByDescending(g => g.Key)
+                                           .Select(g => new OrderDateGroupDto
+                                           {
+                                               Date = DateOnly.FromDateTime(g.Key),
+
+                                               TotalAmount = g.Sum(x => x.TotalAmount),
+
+                                               Orders = g
+                                                   .OrderByDescending(x => x.PaymentDate)
+                                                   .ToList()
+                                           })
+                                           .ToList();
 
             var staticsData = await baseQuery
                 .GroupBy(x => x.PaymentedType)
@@ -150,7 +175,7 @@ namespace MilkTea.Infrastructure.Order.Queries
 
             return new ReportOrderDto
             {
-                Orders = orders,
+                DateGroup = dateGroups,
                 Statics = resultStatic
             };
         }

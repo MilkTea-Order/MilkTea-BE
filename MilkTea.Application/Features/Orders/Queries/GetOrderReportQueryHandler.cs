@@ -70,27 +70,32 @@ namespace MilkTea.Application.Features.Orders.Queries
                                                                 (OrderStatus)query.OrderStatusId,
                                                                 query.FromDate, query.ToDate, query.PaymentMethod, cancellationToken);
 
-            var tableIds = reports.Orders.Select(o => o.DinnerTableId).Distinct().ToList();
+            //var tableIds = reports.Orders.Select(o => o.DinnerTableId).Distinct().ToList();
+            var tableIds = reports.DateGroup.SelectMany(g => g.Orders).Select(o => o.DinnerTableId).Distinct().ToList();
             var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);
+
             var tableDict = table.ToDictionary(x => x.Id);
 
-            foreach (var o in reports.Orders)
+            foreach (var group in reports.DateGroup)
             {
-                if (tableDict.TryGetValue(o.DinnerTableId, out var t))
+                foreach (var o in group.Orders)
                 {
-                    o.DinnerTable = new TableDto
+                    if (tableDict.TryGetValue(o.DinnerTableId, out var t))
                     {
-                        Id = t.Id,
-                        Name = t.Name,
-                        Code = t.Code,
-                        Position = t.Position,
-                        NumberOfSeats = t.NumberOfSeats,
-                        StatusId = t.StatusId,
-                        StatusName = t.StatusName,
-                        Note = t.Note,
-                        UsingImg = t.UsingImg,
-                        EmptyImg = t.EmptyImg,
-                    };
+                        o.DinnerTable = new TableDto
+                        {
+                            Id = t.Id,
+                            Name = t.Name,
+                            Code = t.Code,
+                            Position = t.Position,
+                            NumberOfSeats = t.NumberOfSeats,
+                            StatusId = t.StatusId,
+                            StatusName = t.StatusName,
+                            Note = t.Note,
+                            UsingImg = t.UsingImg,
+                            EmptyImg = t.EmptyImg,
+                        };
+                    }
                 }
             }
 
@@ -105,3 +110,24 @@ namespace MilkTea.Application.Features.Orders.Queries
         }
     }
 }
+
+
+//foreach (var o in reports.DateGroup)
+//{
+//    if (tableDict.TryGetValue(o.DinnerTableId, out var t))
+//    {
+//        o.DinnerTable = new TableDto
+//        {
+//            Id = t.Id,
+//            Name = t.Name,
+//            Code = t.Code,
+//            Position = t.Position,
+//            NumberOfSeats = t.NumberOfSeats,
+//            StatusId = t.StatusId,
+//            StatusName = t.StatusName,
+//            Note = t.Note,
+//            UsingImg = t.UsingImg,
+//            EmptyImg = t.EmptyImg,
+//        };
+//    }
+//}

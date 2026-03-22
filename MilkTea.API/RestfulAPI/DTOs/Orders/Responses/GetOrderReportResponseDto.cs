@@ -4,8 +4,15 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Responses
 {
     public class GetOrderReportResponseDto
     {
-        public List<OrderDto> Orders { get; set; } = new List<OrderDto>();
+        public List<DateGroupOrderReportResponseDto> Dates { get; set; } = new List<DateGroupOrderReportResponseDto>();
         public StaticOrderReportResponseDto Statics { get; set; } = new StaticOrderReportResponseDto();
+    }
+
+    public class DateGroupOrderReportResponseDto
+    {
+        public DateOnly Date { get; set; }
+        public decimal TotalAmount { get; set; }
+        public List<OrderDto> Orders { get; set; } = new List<OrderDto>();
     }
 
     public class StaticOrderReportResponseDto

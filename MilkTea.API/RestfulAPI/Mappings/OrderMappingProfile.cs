@@ -179,8 +179,13 @@ namespace MilkTea.API.RestfulAPI.Mappings
             .ForMember(d => d.TotalAmountGrab, o => o.MapFrom(s => s.TotalAmountGrab))
             .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount));
 
+            CreateMap<OrderDateGroupDto, DateGroupOrderReportResponseDto>()
+            .ForMember(d => d.Date, o => o.MapFrom(s => s.Date))
+            .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount))
+            .ForMember(d => d.Orders, o => o.MapFrom(s => s.Orders));
+
             CreateMap<ReportOrderDto, GetOrderReportResponseDto>()
-            .ForMember(d => d.Orders, o => o.MapFrom(s => s.Orders))
+            .ForMember(d => d.Dates, o => o.MapFrom(s => s.DateGroup))
             .ForMember(d => d.Statics, o => o.MapFrom(s => s.Statics));
             #endregion
         }
