@@ -7,6 +7,7 @@ using MilkTea.Domain.Catalog.Size.Entities;
 using MilkTea.Domain.Catalog.Table.Entities;
 using MilkTea.Domain.Catalog.Unit.Entities;
 using MilkTea.Domain.Configuration.Entities;
+using MilkTea.Domain.Finance.Entities;
 using MilkTea.Domain.Inventory.Entities;
 using MilkTea.Domain.Orders.Entities;
 using MilkTea.Domain.Users.Entities;
@@ -79,6 +80,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Definition> Definitions { get; set; }
     public DbSet<DefinitionGroup> DefinitionGroups { get; set; }
 
+    // ===== Finance =====
+    public DbSet<CollectAndSpendGroupEntity> CollectAndSpendGroups { get; set; }
+    public DbSet<CollectAndSpendEntity> CollectAndSpends { get; set; }
+
     #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -94,7 +99,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 type.Namespace.Contains(".Configurations.TableManagement") ||
                 type.Namespace.Contains(".Configurations.Inventory") ||
                 type.Namespace.Contains(".Configurations.User") ||
-                type.Namespace.Contains(".Configurations.Configuration")
+                type.Namespace.Contains(".Configurations.Configuration") ||
+                type.Namespace.Contains(".Configurations.Finance")
             )
         );
     }

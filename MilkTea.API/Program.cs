@@ -3,11 +3,13 @@ using Microsoft.OpenApi.Models;
 using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.Middlewares;
 using MilkTea.Application;
+using MilkTea.Application.Ports.Time;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Infrastructure;
 using MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT;
 using MilkTea.Infrastructure.BuildingBlocks.Database;
 using MilkTea.Infrastructure.BuildingBlocks.Database.MySQL;
+using MilkTea.Infrastructure.BuildingBlocks.Time;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,7 @@ builder.Services.AddAuthenticationJWTMicrosoft(builder.Configuration, builder.En
 // Current user abstraction (Application port)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
+builder.Services.AddScoped<ITimeZoneServicePort, TimeZoneServicePort>();
 
 // Add connect database service
 builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(builder.Configuration));
@@ -144,6 +147,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<TimeZoneMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

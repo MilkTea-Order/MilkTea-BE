@@ -21,4 +21,8 @@
     <ProjectReference Include="..\MilkTea.Shared\MilkTea.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Finance\Abstractions\Services\" />
+  </ItemGroup>
+
 </Project>
