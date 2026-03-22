@@ -34,7 +34,6 @@ public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
             {
                 // For new entities, set both created and modified timestamps
                 entry.Entity.CreatedDate = now;
-                entry.Entity.UpdatedDate = now;
             }
             else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
             {

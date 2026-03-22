@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Material.Entities;
 using MilkTea.Domain.Catalog.Menu.Entities;
@@ -90,6 +91,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(new UtcDateTimeConverter());
+                }
+
+                if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(new NullableUtcDateTimeConverter());
+                }
+            }
+        }
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AppDbContext).Assembly,
@@ -103,5 +119,29 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 type.Namespace.Contains(".Configurations.Finance")
             )
         );
+    }
+
+    private class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+    {
+        public UtcDateTimeConverter()
+            : base(
+                v => v,
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+            )
+        {
+        }
+    }
+
+    private class NullableUtcDateTimeConverter : ValueConverter<DateTime?, DateTime?>
+    {
+        public NullableUtcDateTimeConverter()
+            : base(
+                v => v,
+                v => v.HasValue
+                    ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)
+                    : v
+            )
+        {
+        }
     }
 }
