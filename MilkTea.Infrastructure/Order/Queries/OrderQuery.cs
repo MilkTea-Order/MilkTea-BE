@@ -73,9 +73,9 @@ namespace MilkTea.Infrastructure.Order.Queries
             return await resultQuery.ToListAsync(cancellationToken);
         }
 
-        public async Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default)
+        public async Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, OrderStatus OrderStatus, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default)
         {
-            var baseQuery = _vContext.Orders.AsNoTracking().Where(x => x.Status == OrderStatus.NotCollected);
+            var baseQuery = _vContext.Orders.AsNoTracking().Where(x => x.Status == OrderStatus);
 
             if (orderBy.HasValue)
                 baseQuery = baseQuery.Where(x => x.OrderBy == orderBy);

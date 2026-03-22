@@ -233,11 +233,12 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
         [Authorize]
         [HttpGet("report")]
-        public async Task<ResponseDto> GetOrderReport([FromQuery] string? paymentMethod, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        public async Task<ResponseDto> GetOrderReport([FromQuery] string? paymentMethod, [FromQuery] int orderStatusId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
         {
             var query = new GetOrderReportQuery
             {
                 PaymentMethod = paymentMethod,
+                OrderStatusId = orderStatusId,
                 FromDate = fromDate,
                 ToDate = toDate
             };

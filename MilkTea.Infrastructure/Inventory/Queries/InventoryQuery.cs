@@ -38,7 +38,6 @@ namespace MilkTea.Infrastructure.Inventory.Queries
                                                             .Select(x => x.PriceImport)
                                                             .FirstOrDefault()
                                     });
-            Console.WriteLine(query.ToQueryString());
             return await query.ToListAsync();
         }
     }

@@ -14,6 +14,7 @@ namespace MilkTea.Application.Features.Orders.Queries
     public sealed class GetOrderReportQuery : IRequest<GetOrderReportResult>
     {
         public string? PaymentMethod { get; set; }
+        public int OrderStatusId { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
     }
@@ -22,6 +23,11 @@ namespace MilkTea.Application.Features.Orders.Queries
     {
         public GetOrderReportQueryValidator()
         {
+            RuleFor(x => x.OrderStatusId)
+                .GreaterThanOrEqualTo(0)
+                .WithErrorCode(ErrorCode.E0036)
+                .OverridePropertyName(nameof(GetOrderReportQuery.OrderStatusId));
+
             RuleFor(x => x.PaymentMethod)
                 .Must(x => PaymentMethod.All.Contains(x!))
                 .When(x => !string.IsNullOrWhiteSpace(x.PaymentMethod))
@@ -55,7 +61,13 @@ namespace MilkTea.Application.Features.Orders.Queries
         {
             GetOrderReportResult result = new();
 
+            if (query.OrderStatusId != (int)OrderStatus.NotCollected && query.OrderStatusId != (int)OrderStatus.Paid)
+            {
+                return SendError(result, ErrorCode.E0036, nameof(GetOrderReportQuery.OrderStatusId));
+            }
+
             var reports = await _vOrderQuery.GetOrderReportAsync(_vCurrentUser.UserId,
+                                                                (OrderStatus)query.OrderStatusId,
                                                                 query.FromDate, query.ToDate, query.PaymentMethod, cancellationToken);
 
             var tableIds = reports.Orders.Select(o => o.DinnerTableId).Distinct().ToList();
@@ -83,6 +95,12 @@ namespace MilkTea.Application.Features.Orders.Queries
             }
 
             result.Static = reports;
+            return result;
+        }
+        private static GetOrderReportResult SendError(GetOrderReportResult result, string errorCode, params string[] values)
+        {
+            if (values is { Length: > 0 })
+                result.ResultData.Add(errorCode, values.ToList());
             return result;
         }
     }

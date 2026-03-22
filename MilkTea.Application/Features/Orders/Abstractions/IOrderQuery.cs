@@ -1,4 +1,5 @@
 ﻿using MilkTea.Application.Features.Orders.Models.Dtos;
+using MilkTea.Domain.Orders.Enums;
 
 namespace MilkTea.Application.Features.Orders.Abstractions
 {
@@ -34,6 +35,6 @@ namespace MilkTea.Application.Features.Orders.Abstractions
         /// <returns>A task that represents the asynchronous operation, containing a list of order DTOs.</returns>
         Task<List<OrderDto>> GetOrdersAsync(int orderBy, int? status, DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default);
 
-        Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default);
+        Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, OrderStatus OrderStatusId, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default);
     }
 }
