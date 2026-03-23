@@ -1,6 +1,7 @@
 using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Models.Users;
+using MilkTea.API.RestfulAPI.DTOs.User.Responses;
+using MilkTea.Application.Features.Users.Model.Dtos;
 
 namespace MilkTea.API.RestfulAPI.Mappings
 {
@@ -37,6 +38,10 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.BankQRCode, o => o.MapFrom(s => s.BankQrCodeBase64))
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate))
                 .ForMember(d => d.LastUpdatedDate, o => o.MapFrom(s => s.LastUpdatedDate));
+
+            CreateMap<UserProfile, UserDto>()
+            .ForMember(dest => dest.FullName,
+                       opt => opt.MapFrom(src => src.FullName ?? "Không rõ"));
         }
     }
 }

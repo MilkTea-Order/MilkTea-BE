@@ -1,16 +1,17 @@
-using MediatR;
-using MilkTea.Application.Features.Users.Queries;
-using MilkTea.Application.Features.Users.Results;
-using MilkTea.Application.Models.Users;
+using MilkTea.Application.Features.Users.Model.Dtos;
+using MilkTea.Application.Features.Users.Model.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.Users.Repositories;
+using Shared.Abstractions.CQRS;
 
-namespace MilkTea.Application.Features.Users.Handles;
+namespace MilkTea.Application.Features.Users.Queries;
 
-public sealed class GetUserProfileQueryHandler(
-    IUserUnitOfWork userUnitOfWork,
-    ICurrentUser currentUser) : IRequestHandler<GetUserProfileQuery, GetUserProfileResult>
+public sealed class GetUserProfileQuery : IQuery<GetUserProfileResult>
+{
+}
+public sealed class GetUserProfileQueryHandler(IUserUnitOfWork userUnitOfWork,
+                                                 ICurrentUser currentUser) : IQueryHandler<GetUserProfileQuery, GetUserProfileResult>
 {
     public async Task<GetUserProfileResult> Handle(GetUserProfileQuery query, CancellationToken cancellationToken)
     {

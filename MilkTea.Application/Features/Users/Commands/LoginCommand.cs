@@ -1,5 +1,5 @@
 using FluentValidation;
-using MilkTea.Application.Features.Users.Results;
+using MilkTea.Application.Features.Users.Model.Results;
 using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Abstractions.CQRS;
 

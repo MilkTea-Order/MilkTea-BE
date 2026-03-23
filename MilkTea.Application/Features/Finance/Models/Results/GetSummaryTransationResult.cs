@@ -3,10 +3,10 @@ using MilkTea.Shared.Domain.Services;
 
 namespace MilkTea.Application.Features.Finance.Models.Results
 {
-    public class GetSummaryCollectAndSpendResult
+    public class GetSummaryTransationResult
     {
         public StringListEntry ResultData { get; set; } = new StringListEntry();
 
-        public List<CollectAndSpendGroupDto> Summary { get; set; } = new List<CollectAndSpendGroupDto>();
+        public List<FinanceTranscationGroupDto> Summary { get; set; } = new List<FinanceTranscationGroupDto>();
     }
 }

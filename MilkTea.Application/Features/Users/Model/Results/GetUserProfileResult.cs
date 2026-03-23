@@ -1,7 +1,7 @@
-using MilkTea.Application.Models.Users;
+using MilkTea.Application.Features.Users.Model.Dtos;
 using MilkTea.Shared.Domain.Services;
 
-namespace MilkTea.Application.Features.Users.Results
+namespace MilkTea.Application.Features.Users.Model.Results
 {
     public class GetUserProfileResult
     {

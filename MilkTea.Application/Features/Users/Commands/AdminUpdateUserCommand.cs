@@ -1,6 +1,6 @@
 using FluentValidation;
 using MediatR;
-using MilkTea.Application.Features.Users.Results;
+using MilkTea.Application.Features.Users.Model.Results;
 
 namespace MilkTea.Application.Features.Users.Commands;
 

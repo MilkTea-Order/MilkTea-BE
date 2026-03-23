@@ -1,6 +1,6 @@
 ﻿namespace MilkTea.Application.Features.Finance.Models.Dtos
 {
-    public class CollectAndSpendDateDto
+    public class FinanceTransactionDateDto
     {
         public DateOnly Date { get; set; }
 

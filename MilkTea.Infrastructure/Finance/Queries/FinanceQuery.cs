@@ -10,11 +10,23 @@ namespace MilkTea.Infrastructure.Finance.Queries
     {
         private readonly AppDbContext _vContext = Context;
         private readonly ITimeZoneServicePort _vTimeZoneServicePort = timeZoneServicePort;
-        public async Task<List<CollectAndSpendGroupDto>> GetSummaryAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
+
+        public async Task<List<CollectionAndSpendGroupDto>> GetCollectionAndSpendGroupsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _vContext.CollectAndSpendGroups.AsNoTracking()
+                                              .Select(g => new CollectionAndSpendGroupDto
+                                              {
+                                                  Id = g.Id,
+                                                  Name = g.Name
+                                              })
+                                              .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<FinanceTranscationGroupDto>> GetSummaryAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
         {
             var tz = _vTimeZoneServicePort.GetTimeZone();
             var rawData = await _vContext.CollectAndSpends.AsNoTracking()
-                                                           .Where(cs => cs.CreatedDate >= fromDate && cs.CreatedDate <= toDate)
+                                                           .Where(cs => cs.ActionDate >= fromDate && cs.ActionDate <= toDate)
                                                            .Join(
                                                                _vContext.CollectAndSpendGroups,
                                                                cs => cs.CollectAndSpendGroupID,
@@ -28,7 +40,7 @@ namespace MilkTea.Infrastructure.Finance.Queries
                                                                    GroupId = g.Id,
                                                                    GroupName = g.Name,
                                                                    Date = DateOnly.FromDateTime(
-                                                                                TimeZoneInfo.ConvertTimeFromUtc(cs.CreatedDate, tz)
+                                                                                TimeZoneInfo.ConvertTimeFromUtc(cs.ActionDate, tz)
                                                                             )
                                                                }
                                                            )
@@ -36,14 +48,14 @@ namespace MilkTea.Infrastructure.Finance.Queries
                                                            .ToListAsync(cancellationToken);
 
             var result = rawData.GroupBy(x => new { x.GroupId, x.GroupName })
-                                    .Select(group => new CollectAndSpendGroupDto
+                                    .Select(group => new FinanceTranscationGroupDto
                                     {
-                                        GroupId = group.Key.GroupId,
-                                        GroupName = group.Key.GroupName,
+                                        Id = group.Key.GroupId,
+                                        Name = group.Key.GroupName,
                                         TotalAmount = group.Sum(x => x.Amount),
                                         Dates = group.GroupBy(x => x.Date)
                                                         .OrderByDescending(g => g.Key)
-                                                        .Select(dateGroup => new CollectAndSpendDateDto
+                                                        .Select(dateGroup => new FinanceTransactionDateDto
                                                         {
                                                             Date = dateGroup.Key,
                                                             TotalAmount = dateGroup.Sum(x => x.Amount),
@@ -59,7 +71,7 @@ namespace MilkTea.Infrastructure.Finance.Queries
                                                         })
                                                         .ToList()
                                     })
-                                    .OrderBy(x => x.GroupId)
+                                    .OrderBy(x => x.Id)
                                     .ToList();
             return result;
         }

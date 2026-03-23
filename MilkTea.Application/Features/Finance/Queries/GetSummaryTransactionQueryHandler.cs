@@ -6,40 +6,40 @@ using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Finance.Queries
 {
-    public class GetSummaryCollectAndSpend : IQuery<GetSummaryCollectAndSpendResult>
+    public class GetSummaryTransaction : IQuery<GetSummaryTransationResult>
     {
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
     }
 
-    public sealed class GetSummaryCollectAndSpendValidator : AbstractValidator<GetSummaryCollectAndSpend>
+    public sealed class GetSummaryTransationValidator : AbstractValidator<GetSummaryTransaction>
     {
-        public GetSummaryCollectAndSpendValidator()
+        public GetSummaryTransationValidator()
         {
             RuleFor(x => x.FromDate)
                 .NotNull()
                 .WithErrorCode(ErrorCode.E0036)
-                .OverridePropertyName(nameof(GetSummaryCollectAndSpend.FromDate));
+                .OverridePropertyName(nameof(GetSummaryTransaction.FromDate));
 
             RuleFor(x => x.ToDate)
                 .NotNull()
                 .WithErrorCode(ErrorCode.E0036)
-                .OverridePropertyName(nameof(GetSummaryCollectAndSpend.ToDate));
+                .OverridePropertyName(nameof(GetSummaryTransaction.ToDate));
 
             RuleFor(x => x.FromDate)
                 .LessThanOrEqualTo(x => x.ToDate)
                 .WithErrorCode(ErrorCode.E0036)
-                .OverridePropertyName(nameof(GetSummaryCollectAndSpend.FromDate) + nameof(GetSummaryCollectAndSpend.ToDate));
+                .OverridePropertyName(nameof(GetSummaryTransaction.FromDate) + nameof(GetSummaryTransaction.ToDate));
         }
     }
 
-    public sealed class GetSummaryCollectAndSpendHandler(IFinanceQuery financeQuery) : IQueryHandler<GetSummaryCollectAndSpend, GetSummaryCollectAndSpendResult>
+    public sealed class GetSummaryTransactionQueryHandler(IFinanceQuery financeQuery) : IQueryHandler<GetSummaryTransaction, GetSummaryTransationResult>
     {
         private readonly IFinanceQuery _vFinanceQuery = financeQuery;
 
-        public async Task<GetSummaryCollectAndSpendResult> Handle(GetSummaryCollectAndSpend query, CancellationToken cancellationToken)
+        public async Task<GetSummaryTransationResult> Handle(GetSummaryTransaction query, CancellationToken cancellationToken)
         {
-            var result = new GetSummaryCollectAndSpendResult();
+            var result = new GetSummaryTransationResult();
             var summary = await _vFinanceQuery.GetSummaryAsync(query.FromDate!.Value, query.ToDate!.Value, cancellationToken);
             result.Summary = summary;
             return result;

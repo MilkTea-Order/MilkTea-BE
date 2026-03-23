@@ -1,5 +1,5 @@
 using MediatR;
-using MilkTea.Application.Features.Users.Results;
+using MilkTea.Application.Features.Users.Model.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Domain.Users.Enums;

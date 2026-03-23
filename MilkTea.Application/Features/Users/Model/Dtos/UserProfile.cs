@@ -1,14 +1,14 @@
-namespace MilkTea.Application.Models.Users
+namespace MilkTea.Application.Features.Users.Model.Dtos
 {
     public sealed class UserProfile
     {
         public int UserId { get; set; }
         public string? UserName { get; set; }
-        public int EmployeeId { get; set; }
+        public int? EmployeeId { get; set; }
         public string? Avatar { get; set; }
         public string? EmployeeCode { get; set; }
         public string? FullName { get; set; }
-        public int GenderId { get; set; }
+        public int? GenderId { get; set; }
         public string? GenderName { get; set; }
         public string? BirthDay { get; set; }
         public string? IdentityCode { get; set; }

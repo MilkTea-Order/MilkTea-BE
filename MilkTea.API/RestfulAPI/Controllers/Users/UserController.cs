@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
+using MilkTea.API.RestfulAPI.DTOs.User.Responses;
 using MilkTea.Application.Features.Users.Commands;
 using MilkTea.Application.Features.Users.Queries;
 using MilkTea.Shared.Domain.Constants;
@@ -11,7 +12,7 @@ using MilkTea.Shared.Domain.Constants;
 namespace MilkTea.API.RestfulAPI.Controllers.Users
 {
     [ApiController]
-    [Route("api/user")]
+    [Route("api/users")]
     public class UserController(
                     ISender sender,
                     IMapper mapper) : BaseController
@@ -19,8 +20,27 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
         private readonly ISender _vSender = sender;
         private readonly IMapper _vMapper = mapper;
 
+
         [Authorize]
-        [HttpPatch("update-password")]
+        [HttpGet()]
+        public async Task<ResponseDto> GetUsers()
+        {
+            var query = new GetUserListQuery();
+            var result = await _vSender.Send(query);
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+
+            var response = new GetUserListResponseDto
+            {
+                Users = _vMapper.Map<List<UserDto>>(result.Users)
+            };
+            return SendSuccess(response);
+        }
+
+        [Authorize]
+        [HttpPatch("/me/update-password")]
         public async Task<ResponseDto> UpdatePassword(UpdatePasswordRequestDto request)
         {
             var command = new UpdatePasswordCommand

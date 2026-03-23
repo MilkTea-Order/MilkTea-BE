@@ -6,6 +6,8 @@ using MilkTea.Application.Features.Finance.Abstractions.Queries;
 using MilkTea.Application.Features.Inventory.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
+using MilkTea.Application.Features.Users.Abstractions.Queries;
+using MilkTea.Application.Features.Users.Abstractions.Services;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Domain.Catalog;
@@ -15,6 +17,7 @@ using MilkTea.Domain.Catalog.Size.Repositories;
 using MilkTea.Domain.Catalog.Table.Repositories;
 using MilkTea.Domain.Catalog.Unit.Repositories;
 using MilkTea.Domain.Configuration.Repositories;
+using MilkTea.Domain.Finance.Repositoties;
 using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
@@ -25,6 +28,7 @@ using MilkTea.Infrastructure.Catalog.Queries;
 using MilkTea.Infrastructure.Catalog.Services;
 using MilkTea.Infrastructure.Configuration.Services;
 using MilkTea.Infrastructure.Finance.Queries;
+using MilkTea.Infrastructure.Finance.Repositories;
 using MilkTea.Infrastructure.Inventory.Queries;
 using MilkTea.Infrastructure.Order.Queries;
 using MilkTea.Infrastructure.Order.Services;
@@ -34,6 +38,8 @@ using MilkTea.Infrastructure.Repositories.Configuration;
 using MilkTea.Infrastructure.Repositories.Inventory;
 using MilkTea.Infrastructure.Repositories.Orders;
 using MilkTea.Infrastructure.Repositories.Users;
+using MilkTea.Infrastructure.User.Queries;
+using MilkTea.Infrastructure.User.Services;
 
 namespace MilkTea.Infrastructure;
 
@@ -50,6 +56,7 @@ public static class DependencyInjection
         services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
         services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
         services.AddScoped<IConfigurationUnitOfWork, ConfigurationUnitOfWork>();
+        services.AddScoped<IFinanceUnitOfWork, FinanceUnitOfWork>();
 
         // Order
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -81,6 +88,8 @@ public static class DependencyInjection
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IUserServices, UserService>();
+        services.AddScoped<IUserQuery, UserQuery>();
 
 
         //Configuration
@@ -103,6 +112,7 @@ public static class DependencyInjection
 
         //Finance
         services.AddScoped<IFinanceQuery, FinanceQuery>();
+        services.AddScoped<IFinanceRepository, FinanceRepository>();
 
         // Hashing 
         services.AddScoped<IPasswordHasher, RC2PasswordHasher>();

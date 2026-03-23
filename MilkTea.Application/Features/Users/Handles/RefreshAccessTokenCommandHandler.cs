@@ -1,5 +1,5 @@
 using MilkTea.Application.Features.Users.Commands;
-using MilkTea.Application.Features.Users.Results;
+using MilkTea.Application.Features.Users.Model.Results;
 using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Domain.Users.Repositories;
 using MilkTea.Shared.Domain.Constants;
