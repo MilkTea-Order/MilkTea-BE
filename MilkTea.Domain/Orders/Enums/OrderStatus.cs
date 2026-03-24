@@ -2,10 +2,6 @@ using System.ComponentModel;
 
 namespace MilkTea.Domain.Orders.Enums;
 
-/// <summary>
-/// Status of an order.
-/// Maps to StatusOfOrderID column in orders table.
-/// </summary>
 public enum OrderStatus
 {
     [Description("Chưa thanh toán")]

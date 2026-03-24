@@ -60,7 +60,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
     {
         GetOrdersByOrderByAndStatusResult result = new();
-        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, query.StatusId, query.FromDate, query.ToDate, cancellationToken);
+        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, (OrderStatus)query.StatusId, query.FromDate, query.ToDate, cancellationToken);
         var tableIds = orders.Select(o => o.DinnerTableId).Distinct().ToList();
 
         var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);

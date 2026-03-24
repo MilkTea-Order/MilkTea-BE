@@ -92,7 +92,7 @@ namespace MilkTea.Application.Features.Finance.Commands
             await _vFinanceUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                var transaction = CollectAndSpendEntity.Create(commnad.TransactionGroupId, commnad.Name, commnad.TransactionBy,
+                var transaction = CollectAndSpendEntity.Create(commnad.TransactionGroupId, commnad.Name, commnad.TransactionBy, commnad.TransactionDate,
                                                                                     _vCurrentUser.UserId, commnad.Amount, commnad.Note);
                 await _vFinanceUnitOfWork.Finance.AddAsync(transaction, cancellationToken);
                 await _vFinanceUnitOfWork.CommitTransactionAsync(cancellationToken);

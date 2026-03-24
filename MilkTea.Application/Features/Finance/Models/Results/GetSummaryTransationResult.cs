@@ -7,6 +7,6 @@ namespace MilkTea.Application.Features.Finance.Models.Results
     {
         public StringListEntry ResultData { get; set; } = new StringListEntry();
 
-        public List<FinanceTranscationGroupDto> Summary { get; set; } = new List<FinanceTranscationGroupDto>();
+        public List<FinanceTransactionDateDto> Summary { get; set; } = new List<FinanceTransactionDateDto>();
     }
 }

@@ -15,14 +15,14 @@ namespace MilkTea.Domain.Finance.Entities
 
         private CollectAndSpendEntity() { }
 
-        public static CollectAndSpendEntity Create(int collectAndSpendGroupID, string name, int actionBy, int createdBy, decimal amount, string? note)
+        public static CollectAndSpendEntity Create(int collectAndSpendGroupID, string name, int actionBy, DateTime actionDate, int createdBy, decimal amount, string? note)
         {
             var now = DateTime.UtcNow;
             return new CollectAndSpendEntity
             {
                 CollectAndSpendGroupID = collectAndSpendGroupID,
                 Name = name,
-                ActionDate = now,
+                ActionDate = actionDate,
                 ActionBy = actionBy,
                 CreatedBy = createdBy,
                 CreatedDate = now,

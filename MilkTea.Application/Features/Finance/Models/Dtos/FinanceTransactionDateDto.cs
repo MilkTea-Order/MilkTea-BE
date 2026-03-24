@@ -6,6 +6,7 @@
 
         public decimal TotalAmount { get; set; }
 
-        public List<CollectAndSpendItemDto> Items { get; set; } = new();
+        //public List<CollectAndSpendItemDto> Items { get; set; } = new();
+        public List<FinanceTranscationGroupDto> Groups { get; set; } = new();
     }
 }

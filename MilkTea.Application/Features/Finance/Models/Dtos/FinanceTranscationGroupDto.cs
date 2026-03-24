@@ -12,6 +12,7 @@ namespace MilkTea.Application.Features.Finance.Models.Dtos
         public decimal TotalAmount { get; set; }
 
         [JsonPropertyOrder(4)]
-        public List<FinanceTransactionDateDto> Dates { get; set; } = new();
+        //public List<FinanceTransactionDateDto> Dates { get; set; } = new();
+        public List<CollectAndSpendItemDto> Items { get; set; } = new();
     }
 }
