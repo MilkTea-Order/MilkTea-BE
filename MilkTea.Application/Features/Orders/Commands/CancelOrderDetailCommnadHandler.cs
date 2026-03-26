@@ -33,7 +33,7 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
     public class CancelOrderDetailCommnadHandler(
                                 IOrderUnitOfWork orderingUnitOfWork,
-                                ICurrentUser currentUser) : ICommandHandler<CancelOrderDetailCommnad, CancelOrderDetailResult>
+                                IIdentifyServicePorts currentUser) : ICommandHandler<CancelOrderDetailCommnad, CancelOrderDetailResult>
     {
         private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
         public async Task<CancelOrderDetailResult> Handle(CancelOrderDetailCommnad command, CancellationToken cancellationToken)

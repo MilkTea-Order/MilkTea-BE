@@ -8,10 +8,20 @@
         public int? OrderBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public int? CreatedBy { get; set; }
+
+        /// <summary>Người thực hiện hành động: Unpaid → CreatedBy, NotCollected → PaymentedBy, Paid → ActionBy, Cancelled → CancelledBy</summary>
+        public int? ActionBy { get; set; }
+
+        public DateTime? ActionDate { get; set; }
+
+        public int? CancelledBy { get; set; }
+        public DateTime? CancelledDate { get; set; }
+
         public int? PaymentBy { get; set; }
         public DateTime? PaymentDate { get; set; }
         public decimal? PaymentAmount { get; set; }
-        public DateTime? ActionDate { get; set; }
+        public string? PaymentMethod { get; set; }
+
         public DateTime? CancellDate { get; set; }
         public string? Note { get; set; }
         public decimal TotalAmount { get; set; }

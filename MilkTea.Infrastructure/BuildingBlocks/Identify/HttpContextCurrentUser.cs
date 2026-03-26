@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Http;
 using MilkTea.Application.Ports.Users;
 using System.Security.Claims;
 
-namespace MilkTea.API.RestfulAPI.Common
+namespace MilkTea.Infrastructure.BuildingBlocks.Identify
 {
     public sealed class HttpContextCurrentUser(IHttpContextAccessor httpContextAccessor) : IIdentifyServicePorts
     {

@@ -11,7 +11,7 @@ public sealed class GetUserProfileQuery : IQuery<GetUserProfileResult>
 {
 }
 public sealed class GetUserProfileQueryHandler(IUserUnitOfWork userUnitOfWork,
-                                                 ICurrentUser currentUser) : IQueryHandler<GetUserProfileQuery, GetUserProfileResult>
+                                                 IIdentifyServicePorts currentUser) : IQueryHandler<GetUserProfileQuery, GetUserProfileResult>
 {
     public async Task<GetUserProfileResult> Handle(GetUserProfileQuery query, CancellationToken cancellationToken)
     {

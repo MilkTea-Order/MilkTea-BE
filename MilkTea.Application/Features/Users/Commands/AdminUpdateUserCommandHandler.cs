@@ -10,7 +10,7 @@ namespace MilkTea.Application.Features.Users.Commands;
 
 public sealed class AdminUpdateUserCommandHandler(
     IUserUnitOfWork userUnitOfWork,
-    ICurrentUser currentUser) : IRequestHandler<AdminUpdateUserCommand, AdminUpdateUserResult>
+    IIdentifyServicePorts currentUser) : IRequestHandler<AdminUpdateUserCommand, AdminUpdateUserResult>
 {
     public async Task<AdminUpdateUserResult> Handle(AdminUpdateUserCommand command, CancellationToken cancellationToken)
     {

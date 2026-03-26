@@ -26,10 +26,10 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
 
     public class OrderCollectedCommandHandler(IOrderUnitOfWork orderUnitOfWork,
-                                                ICurrentUser currentUser) : ICommandHandler<OrderCollectedCommand, OrderCollectedCommandResult>
+                                                IIdentifyServicePorts currentUser) : ICommandHandler<OrderCollectedCommand, OrderCollectedCommandResult>
     {
         private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderUnitOfWork;
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
 
         public async Task<OrderCollectedCommandResult> Handle(OrderCollectedCommand command, CancellationToken cancellationToken)
         {

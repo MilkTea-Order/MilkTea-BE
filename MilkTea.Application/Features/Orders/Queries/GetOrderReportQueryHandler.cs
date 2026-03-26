@@ -52,10 +52,10 @@ namespace MilkTea.Application.Features.Orders.Queries
     }
 
 
-    public class GetOrderReportQueryHandler(IOrderQuery orderQuerys, ICurrentUser currentUser, ITableService tableService) : IRequestHandler<GetOrderReportQuery, GetOrderReportResult>
+    public class GetOrderReportQueryHandler(IOrderQuery orderQuerys, IIdentifyServicePorts currentUser, ITableService tableService) : IRequestHandler<GetOrderReportQuery, GetOrderReportResult>
     {
         private readonly IOrderQuery _vOrderQuery = orderQuerys;
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
         private readonly ITableService _vTableService = tableService;
         public async Task<GetOrderReportResult> Handle(GetOrderReportQuery query, CancellationToken cancellationToken)
         {

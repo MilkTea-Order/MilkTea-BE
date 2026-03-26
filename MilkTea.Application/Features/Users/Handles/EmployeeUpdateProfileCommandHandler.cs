@@ -12,10 +12,10 @@ namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class EmployeeUpdateProfileCommandHandler(
     IUserUnitOfWork userUnitOfWork,
-    ICurrentUser currentUser) : ICommandHandler<EmployeeUpdateProfileCommand, EmployeeUpdateProfileResult>
+    IIdentifyServicePorts currentUser) : ICommandHandler<EmployeeUpdateProfileCommand, EmployeeUpdateProfileResult>
 {
     private readonly IUserUnitOfWork _vUserUnitOfWork = userUnitOfWork;
-    private readonly ICurrentUser _vCurrentUser = currentUser;
+    private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
     public async Task<EmployeeUpdateProfileResult> Handle(EmployeeUpdateProfileCommand command, CancellationToken cancellationToken)
     {
         var result = new EmployeeUpdateProfileResult();

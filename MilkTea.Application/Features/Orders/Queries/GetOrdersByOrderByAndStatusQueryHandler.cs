@@ -51,7 +51,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
 }
 
 public sealed class GetOrdersByOrderByAndStatusQueryHandler(
-                                                ICurrentUser currentUser,
+                                                IIdentifyServicePorts currentUser,
                                                 IOrderQuery orderQuery,
                                                 ITableService tableService) : IQueryHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
 {

@@ -1,6 +1,6 @@
 namespace MilkTea.Application.Ports.Users
 {
-    public interface ICurrentUser
+    public interface IIdentifyServicePorts
     {
         int UserId { get; }
     }

@@ -23,7 +23,6 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
         [Authorize]
         [HttpGet]
-        //public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int statusId = 1, [FromQuery] int? dayAgo = null)
         public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int statusId = 1, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
         {
             var query = new GetOrdersByOrderByAndStatusQuery

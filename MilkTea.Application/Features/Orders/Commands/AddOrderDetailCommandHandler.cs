@@ -36,12 +36,12 @@ namespace MilkTea.Application.Features.Orders.Commands
     public class AddOrderDetailCommandHandler(
         IOrderUnitOfWork orderingUnitOfWork,
         ICatalogService catalogSalesService,
-        ICurrentUser currentUser
+        IIdentifyServicePorts currentUser
     ) : ICommandHandler<AddOrderDetailCommand, AddOrderDetailResult>
     {
         private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
         private readonly ICatalogService _vCatalogService = catalogSalesService;
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
 
         public async Task<AddOrderDetailResult> Handle(AddOrderDetailCommand command, CancellationToken cancellationToken)
         {

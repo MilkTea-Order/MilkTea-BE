@@ -37,7 +37,7 @@ public sealed class CancelOrderDetailsCommandValidator : AbstractValidator<Cance
 }
 public sealed class CancelOrderDetailsCommandHandler(
                                 IOrderUnitOfWork orderingUnitOfWork,
-                                ICurrentUser currentUser) : ICommandHandler<CancelOrderDetailsCommand, CancelOrderDetailsResult>
+                                IIdentifyServicePorts currentUser) : ICommandHandler<CancelOrderDetailsCommand, CancelOrderDetailsResult>
 {
     private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     public async Task<CancelOrderDetailsResult> Handle(CancelOrderDetailsCommand command, CancellationToken cancellationToken)

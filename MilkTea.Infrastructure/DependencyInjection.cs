@@ -8,8 +8,6 @@ using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
 using MilkTea.Application.Features.Users.Abstractions.Queries;
 using MilkTea.Application.Features.Users.Abstractions.Services;
-using MilkTea.Application.Ports.Hash.Password;
-using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Menu.Repositories;
 using MilkTea.Domain.Catalog.Price.Repositories;
@@ -22,8 +20,6 @@ using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.SharedKernel.Repositories;
 using MilkTea.Domain.Users.Repositories;
-using MilkTea.Infrastructure.BuildingBlocks.Hash.Password;
-using MilkTea.Infrastructure.BuildingBlocks.Hash.Permission;
 using MilkTea.Infrastructure.Catalog.Queries;
 using MilkTea.Infrastructure.Catalog.Services;
 using MilkTea.Infrastructure.Configuration.Services;
@@ -114,9 +110,7 @@ public static class DependencyInjection
         services.AddScoped<IFinanceQuery, FinanceQuery>();
         services.AddScoped<IFinanceRepository, FinanceRepository>();
 
-        // Hashing 
-        services.AddScoped<IPasswordHasher, RC2PasswordHasher>();
-        services.AddScoped<IPermissionHasher, RC2PermissionHasher>();
+
 
 
 

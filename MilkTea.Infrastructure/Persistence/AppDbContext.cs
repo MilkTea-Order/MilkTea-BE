@@ -17,6 +17,9 @@ namespace MilkTea.Infrastructure.Persistence;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+
+    private static readonly TimeZoneInfo VietnamTimeZone = GetVietnamTimeZone();
+
     #region DbSet
 
     // ===== Order =====
@@ -90,23 +93,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
+        var dateTimeConverter = new UtcToVietnamDbDateTimeConverter();
+        var nullableConverter = new NullableUtcToVietnamDbDateTimeConverter();
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             foreach (var property in entityType.GetProperties())
             {
                 if (property.ClrType == typeof(DateTime))
                 {
-                    property.SetValueConverter(new UtcDateTimeConverter());
+                    property.SetValueConverter(dateTimeConverter);
                 }
 
                 if (property.ClrType == typeof(DateTime?))
                 {
-                    property.SetValueConverter(new NullableUtcDateTimeConverter());
+                    property.SetValueConverter(nullableConverter);
                 }
             }
         }
-
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AppDbContext).Assembly,
             type => type.Namespace != null && (
@@ -121,27 +124,59 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         );
     }
 
-    private class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+    private sealed class UtcToVietnamDbDateTimeConverter : ValueConverter<DateTime, DateTime>
     {
-        public UtcDateTimeConverter()
+        public UtcToVietnamDbDateTimeConverter()
             : base(
-                v => v,
-                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                v => ConvertUtcToVietnamDbTime(v),
+                v => ConvertVietnamDbTimeToUtc(v)
             )
         {
         }
     }
 
-    private class NullableUtcDateTimeConverter : ValueConverter<DateTime?, DateTime?>
+    private sealed class NullableUtcToVietnamDbDateTimeConverter : ValueConverter<DateTime?, DateTime?>
     {
-        public NullableUtcDateTimeConverter()
+        public NullableUtcToVietnamDbDateTimeConverter()
             : base(
-                v => v,
-                v => v.HasValue
-                    ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)
-                    : v
+                v => v.HasValue ? ConvertUtcToVietnamDbTime(v.Value) : v,
+                v => v.HasValue ? ConvertVietnamDbTimeToUtc(v.Value) : v
             )
         {
         }
     }
+
+    private static TimeZoneInfo GetVietnamTimeZone()
+    {
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // Windows
+        }
+        catch
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); // Linux/macOS
+        }
+    }
+
+    private static DateTime ConvertUtcToVietnamDbTime(DateTime value)
+    {
+        var utc = value.Kind == DateTimeKind.Utc
+            ? value
+            : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+
+        var local = TimeZoneInfo.ConvertTimeFromUtc(utc, VietnamTimeZone);
+
+        return DateTime.SpecifyKind(local, DateTimeKind.Unspecified);
+    }
+
+    private static DateTime ConvertVietnamDbTimeToUtc(DateTime value)
+    {
+        var local = DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
+
+        var utc = TimeZoneInfo.ConvertTimeToUtc(local, VietnamTimeZone);
+
+        return DateTime.SpecifyKind(utc, DateTimeKind.Utc);
+    }
+
+
 }

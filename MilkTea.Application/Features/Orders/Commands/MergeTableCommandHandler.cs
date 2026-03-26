@@ -31,11 +31,11 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
 
     public class MergeTableCommandHandler(IOrderUnitOfWork orderingUnitOfWork,
-                                          ICurrentUser currentUser,
+                                          IIdentifyServicePorts currentUser,
                                           ITableService tableServices) : ICommandHandler<MergeTableCommand, MergeTableResult>
     {
         private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
         private readonly ITableService _vTableServices = tableServices;
         public async Task<MergeTableResult> Handle(MergeTableCommand command, CancellationToken cancellationToken)
         {

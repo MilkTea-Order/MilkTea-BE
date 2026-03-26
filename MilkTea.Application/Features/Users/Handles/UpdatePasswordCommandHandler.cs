@@ -11,7 +11,7 @@ namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class UpdatePasswordCommandHandler(
     IUserUnitOfWork userUnitOfWork,
-    ICurrentUser currentUser,
+    IIdentifyServicePorts currentUser,
     IPasswordHasher passwordHasher
     ) : ICommandHandler<UpdatePasswordCommand, UpdatePasswordResult>
 

@@ -40,7 +40,7 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
     public class UpdateOrderDetailCommandHandler
         (IOrderUnitOfWork orderingUnitOfWork,
-        ICurrentUser currentUser) : IRequestHandler<UpdateOrderDetailCommand, UpdateOrderDetailResult>
+        IIdentifyServicePorts currentUser) : IRequestHandler<UpdateOrderDetailCommand, UpdateOrderDetailResult>
     {
         private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
         public async Task<UpdateOrderDetailResult> Handle(UpdateOrderDetailCommand command, CancellationToken cancellationToken)

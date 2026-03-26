@@ -72,7 +72,7 @@ public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderC
 
 public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWork,
                                                 ICatalogService catalogService,
-                                                ICurrentUser currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
+                                                IIdentifyServicePorts currentUser) : ICommandHandler<CreateOrderCommand, CreateOrderResult>
 {
     private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
     private readonly ICatalogService _vCatalogService = catalogService;

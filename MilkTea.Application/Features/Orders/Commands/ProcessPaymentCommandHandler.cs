@@ -33,11 +33,11 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
     public class ProcessPaymentCommandHandler(IOrderUnitOfWork orderUnitOfWork,
                                                 IConfigurationService configurationService,
-                                                ICurrentUser currentUser) : ICommandHandler<ProcessPaymentCommand, ProcessPaymentResult>
+                                                IIdentifyServicePorts currentUser) : ICommandHandler<ProcessPaymentCommand, ProcessPaymentResult>
     {
         private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderUnitOfWork;
         private readonly IConfigurationService _vConfigurationService = configurationService;
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
         public async Task<ProcessPaymentResult> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
         {
             ProcessPaymentResult result = new();

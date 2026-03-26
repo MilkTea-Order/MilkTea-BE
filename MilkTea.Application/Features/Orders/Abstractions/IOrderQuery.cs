@@ -27,14 +27,24 @@ namespace MilkTea.Application.Features.Orders.Abstractions
         /// <summary>
         /// Retrieves a list of orders with optional filtering by date range.
         /// </summary>
-        /// <param name="orderBy">Specifies the sorting order for the returned orders.</param>
-        /// <param name="status">Filters orders by their status if provided.</param>
-        /// <param name="fromDate">Filters orders created on or after this date if provided.</param>
-        /// <param name="toDate">Filters orders created on or before this date if provided.</param>
+        /// <param name="actionBy">Filter orders by the person who performed the action (CreatedBy for Unpaid, PaymentedBy for NotCollected, ActionBy for Paid, CancelledBy for Cancelled).</param>
+        /// <param name="status">Filters orders by their status.</param>
+        /// <param name="fromDate">Filters by action date (CreatedDate for Unpaid, PaymentedDate for NotCollected, ActionDate for Paid, CancelledDate for Cancelled).</param>
+        /// <param name="toDate">Filters by action date (CreatedDate for Unpaid, PaymentedDate for NotCollected, ActionDate for Paid, CancelledDate for Cancelled).</param>
         /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of order DTOs.</returns>
-        Task<List<OrderDto>> GetOrdersAsync(int orderBy, OrderStatus status, DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default);
+        Task<List<OrderDto>> GetOrdersAsync(int actionBy, OrderStatus status, DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken = default);
 
-        Task<ReportOrderDto> GetOrderReportAsync(int? orderBy, OrderStatus OrderStatusId, DateTime? FromDate, DateTime? ToDate, string? PaymentMethod, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Retrieves a report of orders grouped by date with statistics per payment method.
+        /// </summary>
+        /// <param name="actionBy">Filter by the person who performed the action (nullable for all).</param>
+        /// <param name="orderStatus">Filter by order status.</param>
+        /// <param name="fromDate">Filter by action date range (date field depends on status).</param>
+        /// <param name="toDate">Filter by action date range (date field depends on status).</param>
+        /// <param name="paymentMethod">Filter by payment method (only applicable for NotCollected and Paid).</param>
+        /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the order report DTO.</returns>
+        Task<ReportOrderDto> GetOrderReportAsync(int? actionBy, OrderStatus orderStatus, DateTime? fromDate, DateTime? toDate, string? paymentMethod, CancellationToken cancellationToken = default);
     }
 }

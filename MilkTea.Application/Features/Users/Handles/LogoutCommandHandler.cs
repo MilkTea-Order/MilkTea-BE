@@ -10,7 +10,7 @@ namespace MilkTea.Application.Features.Users.Handles;
 
 public sealed class LogoutCommandHandler(
     IUserUnitOfWork userUnitOfWork,
-    ICurrentUser currentUser) : IRequestHandler<LogoutCommand, LogoutResult>
+    IIdentifyServicePorts currentUser) : IRequestHandler<LogoutCommand, LogoutResult>
 {
     public async Task<LogoutResult> Handle(LogoutCommand command, CancellationToken cancellationToken)
     {

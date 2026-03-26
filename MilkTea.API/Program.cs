@@ -1,14 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
-using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.Middlewares;
 using MilkTea.Application;
+using MilkTea.Application.Ports.Hash.Password;
+using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Application.Ports.Time;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Infrastructure;
 using MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT;
 using MilkTea.Infrastructure.BuildingBlocks.Database;
 using MilkTea.Infrastructure.BuildingBlocks.Database.MySQL;
+using MilkTea.Infrastructure.BuildingBlocks.Hash.Password;
+using MilkTea.Infrastructure.BuildingBlocks.Hash.Permission;
+using MilkTea.Infrastructure.BuildingBlocks.Identify;
 using MilkTea.Infrastructure.BuildingBlocks.Time;
 using System.Reflection;
 
@@ -17,15 +21,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add JWT authentication
 builder.Services.AddAuthenticationJWTMicrosoft(builder.Configuration, builder.Environment);
-
-// Current user abstraction (Application port)
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
-builder.Services.AddScoped<ITimeZoneServicePort, TimeZoneServicePort>();
 
 // Add connect database service
 builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(builder.Configuration));
 
+// ===== PORTS =====
+// Hashing 
+builder.Services.AddScoped<IPasswordHasher, RC2PasswordHasher>();
+builder.Services.AddScoped<IPermissionHasher, RC2PermissionHasher>();
+// Time
+builder.Services.AddScoped<ITimeServicePort, VietNamTimeProvider>();
+builder.Services.AddScoped<ITimeZoneServicePort, TimeZoneServicePort>();
+
+// Identify
+builder.Services.AddScoped<IIdentifyServicePorts, HttpContextCurrentUser>();
 
 // Add application services (MediatR)
 builder.Services.AddApplication();
@@ -35,6 +45,7 @@ builder.Services.AddInfrastructure();
 
 // Add services to the container.
 builder.Services.AddControllers();
+
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {

@@ -61,12 +61,12 @@ namespace MilkTea.Application.Features.Finance.Commands
     }
 
 
-    public class CreateFinanceTransactionCommandHandler(ICurrentUser currentUser,
+    public class CreateFinanceTransactionCommandHandler(IIdentifyServicePorts currentUser,
                                                             IFinanceQuery financeQuery,
                                                             IUserServices userServices,
                                                             IFinanceUnitOfWork financeUnitOfWork) : ICommandHandler<CreateFinanceTransactionCommand, CreateFinanceTransactionResult>
     {
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
         private readonly IFinanceQuery _vFinanceQuery = financeQuery;
         private readonly IUserServices _vUserServices = userServices;
         private readonly IFinanceUnitOfWork _vFinanceUnitOfWork = financeUnitOfWork;

@@ -18,12 +18,12 @@ namespace MilkTea.Application.Features.Orders.Commands
     public sealed class ChangeTableCommandHandler(
                                             IOrderUnitOfWork orderingUnitOfWork,
                                             IOrderQuery orderQueries,
-                                            ICurrentUser currentUser,
+                                            IIdentifyServicePorts currentUser,
                                             ITableService tableServices) : ICommandHandler<ChangeTableCommand, ChangeTableResult>
     {
         private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
         private readonly IOrderQuery _vOrderQueries = orderQueries;
-        private readonly ICurrentUser _vCurrentUser = currentUser;
+        private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
         private readonly ITableService _vTableServices = tableServices;
 
         public async Task<ChangeTableResult> Handle(ChangeTableCommand command, CancellationToken cancellationToken)
