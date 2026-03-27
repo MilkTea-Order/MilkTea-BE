@@ -5,5 +5,6 @@ namespace MilkTea.Application.Features.Catalog.Abstractions.Services
     public interface IMaterialService
     {
         Task<List<MaterialDto>> GetByIdsAsync(List<int> ids);
+        Task<List<MaterialDto>> GetByNameAsync(string name);
     }
 }

@@ -108,9 +108,10 @@ namespace MilkTea.Infrastructure.Order.Queries
             else if (orderStatus == OrderStatus.Cancelled)
                 resultQuery = resultQuery.OrderByDescending(x => x.CancellDate);
 
+            Console.WriteLine(resultQuery.ToQueryString());
             return await resultQuery.ToListAsync(cancellationToken);
         }
-        public async Task<ReportOrderDto> GetOrderReportAsync(int? actionBy, OrderStatus orderStatus, DateTime? fromDate, DateTime? toDate, string? paymentMethod, CancellationToken cancellationToken = default)
+        public async Task<ReportOrderDto> GetOrderReportAsync(int actionBy, OrderStatus orderStatus, DateTime? fromDate, DateTime? toDate, string? paymentMethod, CancellationToken cancellationToken = default)
         {
 
             if (orderStatus != OrderStatus.Paid && orderStatus != OrderStatus.NotCollected)
@@ -123,15 +124,11 @@ namespace MilkTea.Infrastructure.Order.Queries
             }
 
             var tz = _vTimeZoneServicePort.GetTimeZone();
-            var baseQuery = _vContext.Orders.AsNoTracking()
-                                             .Where(x => x.Status == orderStatus);
+            var baseQuery = _vContext.Orders.AsNoTracking().Where(x => x.Status == orderStatus);
 
             if (orderStatus == OrderStatus.NotCollected)
             {
-                baseQuery = baseQuery.Where(x => x.PaymentedDate != null);
-
-                if (actionBy.HasValue)
-                    baseQuery = baseQuery.Where(x => x.PaymentedBy == actionBy.Value);
+                baseQuery = baseQuery.Where(x => x.PaymentedDate != null && x.PaymentedBy == actionBy);
 
                 if (fromDate.HasValue)
                     baseQuery = baseQuery.Where(x => x.PaymentedDate >= fromDate.Value);
@@ -141,10 +138,7 @@ namespace MilkTea.Infrastructure.Order.Queries
             }
             else if (orderStatus == OrderStatus.Paid)
             {
-                baseQuery = baseQuery.Where(x => x.ActionDate != null);
-
-                if (actionBy.HasValue)
-                    baseQuery = baseQuery.Where(x => x.ActionBy == actionBy.Value);
+                baseQuery = baseQuery.Where(x => x.ActionDate != null && x.ActionBy == actionBy);
 
                 if (fromDate.HasValue)
                     baseQuery = baseQuery.Where(x => x.ActionDate >= fromDate.Value);
@@ -152,23 +146,6 @@ namespace MilkTea.Infrastructure.Order.Queries
                 if (toDate.HasValue)
                     baseQuery = baseQuery.Where(x => x.ActionDate <= toDate.Value);
             }
-
-            var staticQuery = baseQuery
-                .Where(x => x.PaymentedType != null)
-                .AsEnumerable()
-                .Select(x => new
-                {
-                    PaymentMethod = x.PaymentedType!,
-                    Total = x.PaymentedTotal ?? 0m
-                })
-                .GroupBy(x => x.PaymentMethod)
-                .Select(g => new
-                {
-                    PaymentMethod = g.Key,
-                    Total = g.Sum(x => x.Total)
-                })
-                .ToList();
-
 
             var orderQuery = baseQuery;
             if (!string.IsNullOrWhiteSpace(paymentMethod))
@@ -184,8 +161,8 @@ namespace MilkTea.Infrastructure.Order.Queries
                     DinnerTableId = x.DinnerTableId,
                     OrderDate = x.OrderDate,
                     OrderBy = x.OrderBy,
-                    CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
                     ActionBy = x.ActionBy,
                     ActionDate = x.ActionDate,
                     CancelledBy = x.CancelledBy,
@@ -206,7 +183,7 @@ namespace MilkTea.Infrastructure.Order.Queries
                 FilterDate = orderStatus == OrderStatus.Paid ? x.ActionDate : x.PaymentedDate
             }).OrderByDescending(x => x.FilterDate)
                 .ToListAsync(cancellationToken);
-
+            Console.WriteLine(orderQuery.ToQueryString());
             var dateGroups = ordersRaw.GroupBy(x =>
             {
                 var time = x.FilterDate!.Value;
@@ -224,6 +201,21 @@ namespace MilkTea.Infrastructure.Order.Queries
             })
             .ToList();
 
+            var staticQuery = baseQuery
+               .Where(x => x.PaymentedType != null)
+               .AsEnumerable()
+               .Select(x => new
+               {
+                   PaymentMethod = x.PaymentedType!,
+                   Total = x.PaymentedTotal ?? 0m
+               })
+               .GroupBy(x => x.PaymentMethod)
+               .Select(g => new
+               {
+                   PaymentMethod = g.Key,
+                   Total = g.Sum(x => x.Total)
+               })
+               .ToList();
             var resultStatic = new StaticDto();
 
             foreach (var item in staticQuery)

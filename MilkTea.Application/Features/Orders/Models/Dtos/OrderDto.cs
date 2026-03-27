@@ -9,9 +9,7 @@
         public DateTime? CreatedDate { get; set; }
         public int? CreatedBy { get; set; }
 
-        /// <summary>Người thực hiện hành động: Unpaid → CreatedBy, NotCollected → PaymentedBy, Paid → ActionBy, Cancelled → CancelledBy</summary>
         public int? ActionBy { get; set; }
-
         public DateTime? ActionDate { get; set; }
 
         public int? CancelledBy { get; set; }

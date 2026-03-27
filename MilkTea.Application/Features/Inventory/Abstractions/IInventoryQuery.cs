@@ -4,6 +4,6 @@ namespace MilkTea.Application.Features.Inventory.Abstractions
 {
     public interface IInventoryQuery
     {
-        Task<List<InventoryStockDto>> GetInventoryReportAsync();
+        Task<List<InventoryStockDto>> GetInventoryReportAsync(List<int>? materialIds = null);
     }
 }

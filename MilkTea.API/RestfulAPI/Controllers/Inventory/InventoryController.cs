@@ -16,9 +16,9 @@ namespace MilkTea.API.RestfulAPI.Controllers.Inventory
 
         [Authorize]
         [HttpGet("report")]
-        public async Task<ResponseDto> GetInventorySummary()
+        public async Task<ResponseDto> GetInventorySummary([FromQuery] string? materialName)
         {
-            var query = new GetInventorySummaryQuery();
+            var query = new GetInventorySummaryQuery { MaterialName = materialName };
             var result = await _vSender.Send(query);
             if (result.ResultData.HasData) return SendError(result.ResultData);
             return SendSuccess(result.Materials);

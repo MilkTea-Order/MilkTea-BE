@@ -66,8 +66,7 @@ namespace MilkTea.Application.Features.Orders.Queries
                 return SendError(result, ErrorCode.E0036, nameof(GetOrderReportQuery.OrderStatusId));
             }
 
-            var reports = await _vOrderQuery.GetOrderReportAsync(_vCurrentUser.UserId,
-                                                                (OrderStatus)query.OrderStatusId,
+            var reports = await _vOrderQuery.GetOrderReportAsync(_vCurrentUser.UserId, (OrderStatus)query.OrderStatusId,
                                                                 query.FromDate, query.ToDate, query.PaymentMethod, cancellationToken);
 
             //var tableIds = reports.Orders.Select(o => o.DinnerTableId).Distinct().ToList();

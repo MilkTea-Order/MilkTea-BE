@@ -97,6 +97,9 @@ namespace MilkTea.API.RestfulAPI.Mappings
             .ForMember(dest => dest.PaymentBy, opt => opt.MapFrom(src => src.PaymentBy))
             .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(src => src.PaymentDate))
             .ForMember(dest => dest.PaymentAmount, opt => opt.MapFrom(src => src.PaymentAmount))
+            //Action
+            .ForMember(dest => dest.ActionBy, opt => opt.MapFrom(src => src.ActionBy))
+            .ForMember(dest => dest.ActionDate, opt => opt.MapFrom(src => src.ActionDate))
             //Total Amount
             .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
             // Common infor (Table  + Status)

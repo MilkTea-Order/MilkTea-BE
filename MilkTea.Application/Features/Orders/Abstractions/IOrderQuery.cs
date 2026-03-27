@@ -45,6 +45,6 @@ namespace MilkTea.Application.Features.Orders.Abstractions
         /// <param name="paymentMethod">Filter by payment method (only applicable for NotCollected and Paid).</param>
         /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
         /// <returns>A task that represents the asynchronous operation, containing the order report DTO.</returns>
-        Task<ReportOrderDto> GetOrderReportAsync(int? actionBy, OrderStatus orderStatus, DateTime? fromDate, DateTime? toDate, string? paymentMethod, CancellationToken cancellationToken = default);
+        Task<ReportOrderDto> GetOrderReportAsync(int actionBy, OrderStatus orderStatus, DateTime? fromDate, DateTime? toDate, string? paymentMethod, CancellationToken cancellationToken = default);
     }
 }
