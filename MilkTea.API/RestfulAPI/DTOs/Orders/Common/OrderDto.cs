@@ -20,6 +20,9 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Common
         public DateTime? ActionDate { get; set; }
         public int? ActionBy { get; set; }
 
+        public DateTime? CancelledDate { get; set; }
+        public int? CancelledBy { get; set; }
+
         public string? Note { get; set; }
         public decimal TotalAmount { get; set; }
 

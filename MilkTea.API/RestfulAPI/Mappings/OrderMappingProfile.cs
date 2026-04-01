@@ -100,6 +100,9 @@ namespace MilkTea.API.RestfulAPI.Mappings
             //Action
             .ForMember(dest => dest.ActionBy, opt => opt.MapFrom(src => src.ActionBy))
             .ForMember(dest => dest.ActionDate, opt => opt.MapFrom(src => src.ActionDate))
+            //Cancelled
+            .ForMember(dest => dest.CancelledBy, opt => opt.MapFrom(src => src.CancelledBy))
+            .ForMember(dest => dest.CancelledDate, opt => opt.MapFrom(src => src.CancelledDate))
             //Total Amount
             .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
             // Common infor (Table  + Status)
@@ -138,8 +141,19 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
                 .ForMember(d => d.OrderBy, o => o.MapFrom(s => s.OrderBy ?? 0))
+
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate ?? default))
                 .ForMember(d => d.CreatedBy, o => o.MapFrom(s => s.CreatedBy ?? 0))
+
+                .ForMember(d => d.PaymentDate, o => o.MapFrom(s => s.PaymentDate))
+                .ForMember(d => d.PaymentBy, o => o.MapFrom(s => s.PaymentBy))
+
+                .ForMember(d => d.ActionBy, o => o.MapFrom(s => s.ActionBy))
+                .ForMember(d => d.ActionDate, o => o.MapFrom(s => s.ActionDate))
+
+                .ForMember(d => d.CancelledDate, o => o.MapFrom(s => s.CancelledDate))
+                .ForMember(d => d.CancelledBy, o => o.MapFrom(s => s.CancelledBy))
+
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))
                 .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.TotalAmount))
                 .ForMember(d => d.DinnerTable, o => o.MapFrom(s => s.DinnerTable))

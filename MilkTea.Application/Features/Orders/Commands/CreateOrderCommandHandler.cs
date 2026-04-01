@@ -50,25 +50,6 @@ public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderC
     }
 }
 
-//.DependentRules(() =>
-//{
-//    RuleForEach(x => x.Items)
-//        .ChildRules(item =>
-//        {
-//            item.RuleFor(i => i.MenuID)
-//                .GreaterThan(0)
-//                .WithMessage("MenuID phải lớn hơn 0");
-
-//            item.RuleFor(i => i.SizeID)
-//                .GreaterThan(0)
-//                .WithMessage("SizeID phải lớn hơn 0");
-
-//            item.RuleFor(i => i.Quantity)
-//                .GreaterThan(0)
-//                .WithMessage("Quantity phải lớn hơn 0");
-//        });
-//});
-
 
 public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWork,
                                                 ICatalogService catalogService,

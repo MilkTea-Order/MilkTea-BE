@@ -54,10 +54,9 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
     }
 }
 
-public sealed class GetOrdersByOrderByAndStatusQueryHandler(
-                                                IIdentifyServicePorts currentUser,
-                                                IOrderQuery orderQuery,
-                                                ITableService tableService) : IQueryHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
+public sealed class GetOrdersByOrderByAndStatusQueryHandler(IIdentifyServicePorts currentUser,
+                                                                IOrderQuery orderQuery,
+                                                                ITableService tableService) : IQueryHandler<GetOrdersByOrderByAndStatusQuery, GetOrdersByOrderByAndStatusResult>
 {
     private readonly IOrderQuery _vOrderQuery = orderQuery;
     private readonly ITableService _vTableService = tableService;

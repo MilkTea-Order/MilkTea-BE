@@ -37,11 +37,7 @@ public sealed class OrderEntity : Aggregate<int>
     public int? ActionBy { get; private set; }
     public DateTime? ActionDate { get; private set; }
 
-    public static OrderEntity Create(
-        int dinnerTableId,
-        int orderBy,
-        int createdBy,
-        string? note = null)
+    public static OrderEntity Create(int dinnerTableId, int orderBy, int createdBy, string? note = null)
     {
         var now = DateTime.Now;
         var order = new OrderEntity
@@ -54,12 +50,6 @@ public sealed class OrderEntity : Aggregate<int>
             Status = OrderStatus.Unpaid,
             Note = note
         };
-
-        //if (!string.IsNullOrWhiteSpace(note))
-        //{
-        //    order.AddNoteBy = createdBy;
-        //    order.AddNoteDate = now;
-        //}
         return order;
     }
 

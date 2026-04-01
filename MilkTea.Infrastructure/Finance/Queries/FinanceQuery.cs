@@ -24,7 +24,7 @@ namespace MilkTea.Infrastructure.Finance.Queries
         public async Task<List<FinanceTransactionDateDto>> GetSummaryAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default)
         {
             fromDate = fromDate.Date;
-            toDate = toDate.Date.AddDays(1); // exclusive upper bound
+            toDate = toDate.Date.AddDays(1);
 
             var rawData = await _vContext.CollectAndSpends
                 .AsNoTracking()
@@ -39,6 +39,8 @@ namespace MilkTea.Infrastructure.Finance.Queries
                         cs.Name,
                         cs.Amount,
                         cs.CreatedDate,
+                        cs.ActionDate,
+                        cs.Note,
                         GroupId = g.Id,
                         GroupName = g.Name,
                         Date = DateOnly.FromDateTime(cs.ActionDate.Date)
@@ -69,7 +71,9 @@ namespace MilkTea.Infrastructure.Finance.Queries
                                     Id = x.Id,
                                     Name = x.Name,
                                     Amount = x.Amount,
-                                    CreatedDate = x.CreatedDate
+                                    ActionDate = x.ActionDate,
+                                    CreatedDate = x.CreatedDate,
+                                    Note = x.Note
                                 })
                                 .ToList()
                         })
