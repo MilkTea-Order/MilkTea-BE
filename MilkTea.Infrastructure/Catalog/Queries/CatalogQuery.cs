@@ -14,9 +14,7 @@ namespace MilkTea.Infrastructure.Catalog.Queries
         private readonly AppDbContext _vContext = context;
 
         ///<inheritdoc/>
-        public async Task<List<MenuDto>> GetMenusAsync(int? groupId,
-                                                        string? menuName,
-                                                        CancellationToken cancellationToken = default)
+        public async Task<List<MenuDto>> GetMenusAsync(int? groupId, string? menuName, CancellationToken cancellationToken = default)
         {
             var hasGroup = groupId.HasValue;
             var hasName = !string.IsNullOrWhiteSpace(menuName);

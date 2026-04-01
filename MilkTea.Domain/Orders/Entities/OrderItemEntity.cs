@@ -39,7 +39,7 @@ public sealed class OrderItemEntity : Entity<int>
         ArgumentNullException.ThrowIfNull(menuItem);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new OrderItemEntity
         {
@@ -67,7 +67,7 @@ public sealed class OrderItemEntity : Entity<int>
 
         Quantity = quantity;
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 
     public void UpdateNote(string? note, int updatedBy)
@@ -77,7 +77,7 @@ public sealed class OrderItemEntity : Entity<int>
 
         Note = note;
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 
     public void UpdateOrderId(int orderId)
@@ -98,7 +98,7 @@ public sealed class OrderItemEntity : Entity<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
 
         CancelledBy = cancelledBy;
-        CancelledDate = DateTime.UtcNow;
+        CancelledDate = DateTime.Now;
 
         UpdatedBy = cancelledBy;
         UpdatedDate = CancelledDate;

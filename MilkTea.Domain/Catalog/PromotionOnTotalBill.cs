@@ -40,7 +40,7 @@ public sealed class PromotionOnTotalBill : Aggregate<int>
         if (percent <= 0 || percent > 100)
             throw new ArgumentOutOfRangeException(nameof(percent), "Percent must be between 1 and 100.");
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new PromotionOnTotalBill
         {
@@ -73,7 +73,7 @@ public sealed class PromotionOnTotalBill : Aggregate<int>
         if (amount <= 0)
             throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be greater than zero.");
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new PromotionOnTotalBill
         {
@@ -89,16 +89,14 @@ public sealed class PromotionOnTotalBill : Aggregate<int>
         };
     }
 
-    public bool IsActive() => Status == PromotionStatus.Active && 
-                              DateTime.UtcNow >= StartDate && 
-                              DateTime.UtcNow <= StopDate;
+    public bool IsActive() => Status == PromotionStatus.Active && DateTime.Now >= StartDate && DateTime.Now <= StopDate;
 
     public void Activate(int activatedBy)
     {
         if (Status == PromotionStatus.Active)
             throw new InvalidOperationException("Promotion is already active.");
 
-        if (DateTime.UtcNow < StartDate)
+        if (DateTime.Now < StartDate)
             throw new InvalidOperationException("Cannot activate promotion before start date.");
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(activatedBy);
@@ -182,6 +180,6 @@ public sealed class PromotionOnTotalBill : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

@@ -50,7 +50,7 @@ public sealed class UserEntity : Aggregate<int>
         ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new UserEntity
         {
@@ -105,7 +105,7 @@ public sealed class UserEntity : Aggregate<int>
 
         Status = UserStatus.Inactive;
         StoppedBy = stoppedBy;
-        StoppedDate = DateTime.UtcNow;
+        StoppedDate = DateTime.Now;
         Touch(stoppedBy);
     }
 
@@ -133,7 +133,7 @@ public sealed class UserEntity : Aggregate<int>
 
         Password = newPassword;
         PasswordResetBy = updatedBy;
-        PasswordResetDate = DateTime.UtcNow;
+        PasswordResetDate = DateTime.Now;
         Touch(updatedBy);
     }
 
@@ -184,6 +184,6 @@ public sealed class UserEntity : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

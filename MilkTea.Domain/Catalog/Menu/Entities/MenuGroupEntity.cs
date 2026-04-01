@@ -25,7 +25,7 @@ public sealed class MenuGroupEntity : Aggregate<int>
             Name = name,
             Status = CommonStatus.Active,
             CreatedBy = createdBy,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.Now
         };
     }
 
@@ -124,6 +124,6 @@ public sealed class MenuGroupEntity : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

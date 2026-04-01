@@ -12,7 +12,6 @@ namespace MilkTea.Application.Features.Orders.Queries;
 public sealed class GetOrdersByOrderByAndStatusQuery : IQuery<GetOrdersByOrderByAndStatusResult>
 {
     public int StatusId { get; set; }
-    //public int? DayAgo { get; set; } = null;
     public DateTime? FromDate { get; set; }
     public DateTime? ToDate { get; set; }
 }
@@ -20,15 +19,13 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
 {
     public GetOrdersByOrderByAndStatusQueryValidator()
     {
+        // Status must be a valid enum value
         RuleFor(x => x.StatusId)
             .Must(x => Enum.IsDefined(typeof(OrderStatus), x))
             .WithErrorCode(ErrorCode.E0001)
             .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.StatusId));
-        //RuleFor(x => x.DayAgo)
-        //    .GreaterThanOrEqualTo(0)
-        //    .WithErrorCode(ErrorCode.E0036)
-        //    .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.DayAgo));
 
+        // If one of the dates is provided, the other must also be provided
         RuleFor(x => x.FromDate)
             .NotNull()
             .When(x => x.ToDate.HasValue)
@@ -41,6 +38,13 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
             .WithErrorCode(ErrorCode.E0036)
             .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.ToDate));
 
+        // Dates cannot be in the future
+        RuleFor(x => x.ToDate)
+            .Must(toDate => !toDate.HasValue || toDate.Value.Date <= DateTime.Today)
+            .WithErrorCode(ErrorCode.E0036)
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.ToDate));
+
+        // FromDate cannot be after ToDate
         RuleFor(x => x.FromDate)
             .LessThanOrEqualTo(x => x.ToDate)
             .When(x => x.FromDate.HasValue && x.ToDate.HasValue)

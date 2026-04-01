@@ -21,7 +21,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT
             };
             var vKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Value.Key));
             var vCreds = new SigningCredentials(vKey, SecurityAlgorithms.HmacSha256);
-            var vExpires = DateTime.UtcNow.AddMinutes(_jwtOptions.Value.AccessTokenExpireMinutes);
+            var vExpires = DateTime.Now.AddMinutes(_jwtOptions.Value.AccessTokenExpireMinutes);
 
             var vToken = new JwtSecurityToken(
                 issuer: _jwtOptions.Value.Issuer,
@@ -38,7 +38,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT
             var vRandomBytes = new byte[64];
             using var vRng = RandomNumberGenerator.Create();
             vRng.GetBytes(vRandomBytes);
-            return (Convert.ToBase64String(vRandomBytes), DateTime.UtcNow.AddMinutes(_jwtOptions.Value.RefreshTokenExpireMinutes));
+            return (Convert.ToBase64String(vRandomBytes), DateTime.Now.AddMinutes(_jwtOptions.Value.RefreshTokenExpireMinutes));
         }
     }
 }

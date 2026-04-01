@@ -11,8 +11,8 @@ public sealed class RefreshToken : Entity<int>
     public string Token { get; private set; } = default!;
     public DateTime ExpiryDate { get; private set; }
     public bool IsRevoked { get; private set; }
-    
-    public bool IsExpired => DateTime.UtcNow >= ExpiryDate;
+
+    public bool IsExpired => DateTime.Now >= ExpiryDate;
     public bool IsValid => !IsRevoked && !IsExpired;
 
     // EF Core requires parameterless constructor
@@ -27,10 +27,10 @@ public sealed class RefreshToken : Entity<int>
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        if (expiryDate <= DateTime.UtcNow)
+        if (expiryDate <= DateTime.Now)
             throw new ArgumentException("Expiry date must be in the future.", nameof(expiryDate));
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new RefreshToken
         {
@@ -55,6 +55,6 @@ public sealed class RefreshToken : Entity<int>
 
         IsRevoked = true;
         UpdatedBy = revokedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

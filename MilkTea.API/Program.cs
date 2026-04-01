@@ -31,7 +31,7 @@ builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(bui
 builder.Services.AddScoped<IPasswordHasher, RC2PasswordHasher>();
 builder.Services.AddScoped<IPermissionHasher, RC2PermissionHasher>();
 // Time
-builder.Services.AddScoped<ITimeServicePort, VietNamTimeProvider>();
+//builder.Services.AddScoped<ITimeServicePort, DefaultDateTimeProvider>();
 builder.Services.AddScoped<ITimeZoneServicePort, TimeZoneServicePort>();
 
 // Identify
@@ -135,6 +135,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 
 var app = builder.Build();
+
 
 #region Swagger UI configuration
 // Enable swagger only Development

@@ -41,7 +41,7 @@ public sealed class TableEntity : Aggregate<int>
         ArgumentNullException.ThrowIfNull(emptyPicture);
         ArgumentNullException.ThrowIfNull(ussingPicture);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new TableEntity
         {
@@ -138,6 +138,6 @@ public sealed class TableEntity : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

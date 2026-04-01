@@ -6,9 +6,9 @@ public abstract class Entity<TId> : IEntityId<TId>, IAuditable
 {
     public TId Id { get; set; } = default!;
     public int CreatedBy { get; set; }
-    public DateTime CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
     public int? UpdatedBy { get; set; }
-    public DateTime? UpdatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; } = null;
 
     /// <summary>
     /// Converts the object properties to a dictionary.

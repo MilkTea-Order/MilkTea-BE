@@ -25,7 +25,7 @@ public sealed record BirthDay(string Value)
         if (!DateTime.TryParseExact(value, Format, Culture, DateTimeStyles.None, out var birthDate))
             throw new ArgumentException(ErrorCode.E0036, "birthDay");
 
-        var today = DateTime.UtcNow.Date;
+        var today = DateTime.Today;
 
         if (birthDate.Date > today)
             throw new ArgumentException(ErrorCode.E0036, "birthDay");

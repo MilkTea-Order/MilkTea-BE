@@ -20,7 +20,7 @@ public sealed class GetMenuItemsOfGroupQueryHandler(
     public async Task<GetMenuItemsOfGroupResult> Handle(GetMenuItemsOfGroupQuery query, CancellationToken cancellationToken)
     {
         var result = new GetMenuItemsOfGroupResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         if (query.GroupId <= 0)
             return SendError(result, ErrorCode.E0036, "GroupID");

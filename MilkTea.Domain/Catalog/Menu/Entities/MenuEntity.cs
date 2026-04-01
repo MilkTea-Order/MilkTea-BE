@@ -21,16 +21,8 @@ public sealed class MenuEntity : Entity<int>
 
     private MenuEntity() { }
 
-    internal static MenuEntity Create(
-        string code,
-        string name,
-        int menuGroupId,
-        int unitId,
-        int createdBy,
-        string? formula = null,
-        string? note = null,
-        int? tasteQty = null,
-        bool? printSticker = null)
+    public static MenuEntity Create(string code, string name, int menuGroupId, int unitId,
+                                        int createdBy, string? formula = null, string? note = null, int? tasteQty = null, bool? printSticker = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -49,7 +41,7 @@ public sealed class MenuEntity : Entity<int>
             TasteQTy = tasteQty,
             PrintSticker = printSticker,
             CreatedBy = createdBy,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.Now
         };
     }
 
@@ -104,6 +96,6 @@ public sealed class MenuEntity : Entity<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

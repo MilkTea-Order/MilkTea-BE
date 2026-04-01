@@ -23,7 +23,7 @@ public sealed class GetGroupMenuQueryHandler(
     public async Task<GetGroupMenuResult> Handle(GetGroupMenuQuery query, CancellationToken cancellationToken)
     {
         var result = new GetGroupMenuResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         CommonStatus? status = null;
         if (query.StatusId.HasValue && Enum.IsDefined(typeof(CommonStatus), query.StatusId.Value))

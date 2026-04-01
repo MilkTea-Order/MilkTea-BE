@@ -31,7 +31,7 @@ public sealed class PriceListDetailEntity : Entity<int>
         ArgumentOutOfRangeException.ThrowIfNegative(price);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new PriceListDetailEntity
         {
@@ -51,6 +51,6 @@ public sealed class PriceListDetailEntity : Entity<int>
 
         Price = price;
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

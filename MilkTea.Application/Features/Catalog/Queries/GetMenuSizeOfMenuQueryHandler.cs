@@ -18,7 +18,7 @@ public sealed class GetMenuSizeOfMenuQueryHandler(
     public async Task<GetMenuSizeOfMenuResult> Handle(GetMenuSizeOfMenuQuery query, CancellationToken cancellationToken)
     {
         var result = new GetMenuSizeOfMenuResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         if (query.MenuId <= 0)
         {

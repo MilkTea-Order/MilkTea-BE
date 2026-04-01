@@ -38,7 +38,7 @@ public class PriceListRepository(AppDbContext context) : IPriceListRepository
     /// <inheritdoc/>
     public async Task<PriceListEntity?> GetActiveWithRelationshipAsync(CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         return await _vContext.PriceLists
             .AsNoTracking()
             .Include(pl => pl.Currency)

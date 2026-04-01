@@ -49,7 +49,7 @@ namespace MilkTea.Application.Features.Finance.Commands
 
             RuleFor(x => x.TransactionDate)
                 .NotEmpty()
-                .Must(date => date.Date <= DateTime.UtcNow.Date)
+                .Must(date => date.Date <= DateTime.Today)
                 .WithErrorCode(ErrorCode.E0036)
                 .OverridePropertyName(nameof(CreateFinanceTransactionCommand.TransactionDate));
             RuleFor(x => x.Note)

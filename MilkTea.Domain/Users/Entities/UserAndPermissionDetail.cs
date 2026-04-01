@@ -20,7 +20,7 @@ public class UserAndPermissionDetail
             UserID = userId,
             PermissionDetailID = permissionDetailId,
             CreatedBy = createdBy,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.Now
         };
     }
 }

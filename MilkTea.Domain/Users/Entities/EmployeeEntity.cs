@@ -60,7 +60,7 @@ public class EmployeeEntity : Aggregate<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(positionId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new EmployeeEntity
         {
@@ -280,7 +280,7 @@ public class EmployeeEntity : Aggregate<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(stoppedBy);
 
         Status = UserStatus.Inactive;
-        EndWorkingDate = DateTime.UtcNow;
+        EndWorkingDate = DateTime.Now;
         Touch(stoppedBy);
     }
 
@@ -401,6 +401,6 @@ public class EmployeeEntity : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

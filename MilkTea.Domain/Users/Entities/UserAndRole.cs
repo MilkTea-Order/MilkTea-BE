@@ -24,7 +24,7 @@ public class UserAndRole
             UserID = userId,
             RoleID = roleId,
             CreatedBy = createdBy,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.Now
         };
     }
 

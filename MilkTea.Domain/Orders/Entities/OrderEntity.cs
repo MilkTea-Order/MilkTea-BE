@@ -43,7 +43,7 @@ public sealed class OrderEntity : Aggregate<int>
         int createdBy,
         string? note = null)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         var order = new OrderEntity
         {
             DinnerTableId = dinnerTableId,
@@ -138,7 +138,7 @@ public sealed class OrderEntity : Aggregate<int>
         item.UpdateQuantity(quantity, updatedBy);
 
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ public sealed class OrderEntity : Aggregate<int>
         EnsureCanEdit();
         item.UpdateNote(note, updatedBy);
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 
 
@@ -174,7 +174,7 @@ public sealed class OrderEntity : Aggregate<int>
         EnsureCanEdit();
         UpdateStatus(OrderStatus.Cancelled, cancelledBy);
         CancelledBy = cancelledBy;
-        CancelledDate = DateTime.UtcNow;
+        CancelledDate = DateTime.Now;
         //foreach (var item in _vOrderItems.Where(x => !x.IsCancelled))
         //{
         //    item.Cancel(cancelledBy);
@@ -187,7 +187,7 @@ public sealed class OrderEntity : Aggregate<int>
     {
         Note = note;
         AddNoteBy = updatedBy;
-        AddNoteDate = DateTime.UtcNow;
+        AddNoteDate = DateTime.Now;
         Touch(updatedBy);
     }
 
@@ -204,7 +204,7 @@ public sealed class OrderEntity : Aggregate<int>
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
         EnsureCanEdit();
         ChangeBy = updatedBy;
-        ChangeDate = DateTime.UtcNow;
+        ChangeDate = DateTime.Now;
         DinnerTableId = dinnerTableId;
         //Touch(updatedBy);
     }
@@ -223,7 +223,7 @@ public sealed class OrderEntity : Aggregate<int>
         EnsureCanEdit();
         if (orderSource.Status != OrderStatus.Unpaid) throw new OrderSourceCannotMergeException();
         MergedBy = mergedBy;
-        MergedDate = DateTime.UtcNow;
+        MergedDate = DateTime.Now;
         // Update orderID
         foreach (var item in orderSource.OrderItems)
         {
@@ -249,7 +249,7 @@ public sealed class OrderEntity : Aggregate<int>
         if (payBy <= 0) throw new NotExistActionBy();
         if (string.IsNullOrWhiteSpace(paymentType)) throw new NotExistPaymentType();
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         AssignBillNo(prefix, now);
 
         var totalAmount = GetTotalAmountForPay();
@@ -283,7 +283,7 @@ public sealed class OrderEntity : Aggregate<int>
         }
         Status = OrderStatus.Paid;
         ActionBy = collectedBy;
-        ActionDate = DateTime.UtcNow;
+        ActionDate = DateTime.Now;
     }
 
 
@@ -343,7 +343,7 @@ public sealed class OrderEntity : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 
     /// <summary>

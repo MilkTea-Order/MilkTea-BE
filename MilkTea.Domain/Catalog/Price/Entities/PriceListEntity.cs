@@ -35,7 +35,7 @@ public sealed class PriceListEntity : Aggregate<int>
         if (stopDate <= startDate)
             throw new ArgumentException("StopDate must be after StartDate.");
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
 
         return new PriceListEntity
         {
@@ -50,16 +50,14 @@ public sealed class PriceListEntity : Aggregate<int>
         };
     }
 
-    public bool IsActive() => Status == PriceListStatus.Active &&
-                              DateTime.UtcNow >= StartDate &&
-                              DateTime.UtcNow <= StopDate;
+    public bool IsActive() => Status == PriceListStatus.Active && DateTime.Now >= StartDate && DateTime.Now <= StopDate;
 
     public void Activate(int activatedBy)
     {
         if (Status == PriceListStatus.Active)
             throw new InvalidOperationException("PriceList is already active.");
 
-        if (DateTime.UtcNow < StartDate)
+        if (DateTime.Now < StartDate)
             throw new InvalidOperationException("Cannot activate price list before start date.");
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(activatedBy);
@@ -140,6 +138,6 @@ public sealed class PriceListEntity : Aggregate<int>
     private void Touch(int updatedBy)
     {
         UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTime.Now;
     }
 }

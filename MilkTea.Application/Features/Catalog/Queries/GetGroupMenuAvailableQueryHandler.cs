@@ -16,7 +16,7 @@ public sealed class GetGroupMenuAvailableQueryHandler(
     public async Task<GetGroupMenuResult> Handle(GetGroupMenuAvailableQuery query, CancellationToken cancellationToken)
     {
         var result = new GetGroupMenuResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         var groups = await catalogUnitOfWork.Menus.GetByStatusWithMenuAsync((int)CommonStatus.Active, (int)MenuStatus.Active, cancellationToken);
 

@@ -10,9 +10,7 @@ namespace MilkTea.Infrastructure.Inventory.Queries
         private readonly AppDbContext _vContext = context;
         public async Task<List<InventoryStockDto>> GetInventoryReportAsync(List<int>? materialIds = null)
         {
-            var query = _vContext.Warehouses
-                                    .AsNoTracking()
-                                    //.Where(w => w.Status == Domain.Inventory.Enums.InventoryStatus.InStock && w.QuantityCurrent > 0)
+            var query = _vContext.Warehouses.AsNoTracking()
                                     .Where(w => w.Status == Domain.Inventory.Enums.InventoryStatus.InStock)
                                     .Where(w => materialIds == null || materialIds.Count == 0 || materialIds.Contains(w.MaterialsID))
                                     .Join(

@@ -28,7 +28,6 @@ namespace MilkTea.Application.Features.Inventory.Queries
 
             if (!string.IsNullOrWhiteSpace(request.MaterialName))
             {
-                // Có truyền tên → Lấy material trước → Filter inventory theo materialIds
                 materials = await _vMaterialService.GetByNameAsync(request.MaterialName);
                 if (!materials.Any()) return result;
 
@@ -38,45 +37,50 @@ namespace MilkTea.Application.Features.Inventory.Queries
 
                 var inventoryDict = inventory.ToDictionary(x => x.MaterialId);
 
-                result.Materials = materials.Select(group => new MaterialInventoryDto
+                result.Materials = materials.Select(group => new
                 {
-                    Id = group.Id,
-                    Name = group.Name,
-                    MaterialItems = group.MaterialItems
-                        .Where(item => inventoryDict.ContainsKey(item.Id))
-                        .Select(item =>
-                        {
-                            inventoryDict.TryGetValue(item.Id, out var inv);
+                    group.Id,
+                    group.Name,
+                    Items = group.MaterialItems.Where(item => inventoryDict.ContainsKey(item.Id))
+                                                .ToList()
+                }).Where(x => x.Items.Any())
+                  .Select(group => new MaterialInventoryDto
+                  {
+                      Id = group.Id,
+                      Name = group.Name,
+                      MaterialItems = group.Items.Select(item =>
+                      {
+                          inventoryDict.TryGetValue(item.Id, out var inv);
 
-                            return new MaterialItemInventoryDto
-                            {
-                                Id = item.Id,
-                                Name = item.Name,
-                                Code = item.Code,
+                          return new MaterialItemInventoryDto
+                          {
+                              Id = item.Id,
+                              Name = item.Name,
+                              Code = item.Code,
 
-                                UnitMin = new UnitDto
-                                {
-                                    Id = item.UnitMin.Id,
-                                    Name = item.UnitMin.Name,
-                                    Quantity = inv?.TotalQuantity ?? 1
-                                },
-                                UnitMax = new UnitDto
-                                {
-                                    Id = item.UnitMax.Id,
-                                    Name = item.UnitMax.Name,
-                                    Quantity = (inv?.TotalQuantity ?? 1) / item.StyleQuantity
-                                },
+                              UnitMin = new UnitDto
+                              {
+                                  Id = item.UnitMin.Id,
+                                  Name = item.UnitMin.Name,
+                                  Quantity = inv?.TotalQuantity ?? 1
+                              },
+                              UnitMax = new UnitDto
+                              {
+                                  Id = item.UnitMax.Id,
+                                  Name = item.UnitMax.Name,
+                                  Quantity = (inv?.TotalQuantity ?? 1) / item.StyleQuantity
+                              },
 
-                                StyleQuantity = item.StyleQuantity,
-                                Status = new StatusDto
-                                {
-                                    Id = item.Status.Id,
-                                    Name = item.Status.Name
-                                },
-                                LatestPriceImport = inv?.LatestPriceImport
-                            };
-                        }).ToList()
-                }).ToList();
+                              StyleQuantity = item.StyleQuantity,
+                              Status = new StatusDto
+                              {
+                                  Id = item.Status.Id,
+                                  Name = item.Status.Name
+                              },
+                              LatestPriceImport = inv?.LatestPriceImport
+                          };
+                      }).ToList()
+                  }).ToList();
             }
             else
             {

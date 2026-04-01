@@ -15,7 +15,7 @@ public sealed class AdminUpdateUserCommandHandler(
     public async Task<AdminUpdateUserResult> Handle(AdminUpdateUserCommand command, CancellationToken cancellationToken)
     {
         var result = new AdminUpdateUserResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         if (command.UserID <= 0)
             return SendError(result, ErrorCode.E0036, "UserID");

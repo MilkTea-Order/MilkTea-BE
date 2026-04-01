@@ -18,30 +18,7 @@ public sealed class GetMenuItemsAvailableOfGroupQueryHandler(
     public async Task<GetMenuItemsOfGroupResult> Handle(GetMenuItemsAvailableOfGroupQuery query, CancellationToken cancellationToken)
     {
         var result = new GetMenuItemsOfGroupResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
-
-        //if (query.GroupId <= 0)
-        //    return SendError(result, ErrorCode.E0036, "GroupID");
-
-        //var menus = await catalogUnitOfWork.Menus.GetByIdWithMenuAsync(query.GroupId, (int)MenuStatus.Active, cancellationToken);
-
-        //if (menus == null)
-        //{
-        //    result.Menus = new List<MenuDto>();
-        //}
-        //else
-        //{
-        //    result.Menus = menus.Menus.Select(m => new MenuDto
-        //    {
-        //        MenuId = m.Id,
-        //        MenuCode = m.Code,
-        //        MenuName = m.Name,
-        //        MenuGroupId = m.MenuGroupID,
-        //        MenuGroupName = menus.Name,
-        //        StatusId = (int)m.Status,
-        //        StatusName = m.Status.GetDescription()
-        //    }).ToList();
-        //}
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
         if (query.GroupId <= 0)
         {
             result.Menus = new List<MenuDto>();

@@ -57,7 +57,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT
                             Console.WriteLine($"[JWT] Token validated successfully for user: {context.Principal?.Identity?.Name}");
                             return Task.CompletedTask;
                         },
-                        // có g?i token nhung validate th?t b?i (h?t h?n / sai ch? ký / sai issuer/audience / token l?i)
+                        // cï¿½ g?i token nhung validate th?t b?i (h?t h?n / sai ch? kï¿½ / sai issuer/audience / token l?i)
                         OnAuthenticationFailed = context =>
                         {
                             Console.WriteLine($"[JWT] Authentication failed: {context.Exception.Message}");
@@ -67,7 +67,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT
                             }
                             return Task.CompletedTask;
                         },
-                        // thu?ng là không g?i token ho?c token không dùng du?c
+                        // thu?ng lï¿½ khï¿½ng g?i token ho?c token khï¿½ng dï¿½ng du?c
                         OnChallenge = context =>
                         {
                             Console.WriteLine($"[JWT] OnChallenge triggered: {context.Error} - {context.ErrorDescription}");
@@ -79,7 +79,7 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Authentication.JWT
                             {
                                 message = "Unauthorized",
                                 statusCode = 401,
-                                timestamp = DateTime.UtcNow,
+                                timestamp = DateTime.Now,
                                 error = context.Error,
                                 errorDescription = context.ErrorDescription
                             });

@@ -127,7 +127,7 @@ public sealed class EmployeeUpdateProfileCommandValidator : AbstractValidator<Em
             return false;
         }
 
-        var today = DateTime.UtcNow.Date;
+        var today = DateTime.Today;
         if (birthDate.Date > today) return false;
 
         var age = today.Year - birthDate.Year;

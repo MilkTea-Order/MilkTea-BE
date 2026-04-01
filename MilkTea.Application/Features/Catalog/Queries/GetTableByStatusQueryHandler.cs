@@ -18,7 +18,7 @@ public sealed class GetTableByStatusQueryHandler(
     public async Task<GetTableByStatusResult> Handle(GetTableByStatusQuery query, CancellationToken cancellationToken)
     {
         var result = new GetTableByStatusResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         List<TableEntity> tables;
 

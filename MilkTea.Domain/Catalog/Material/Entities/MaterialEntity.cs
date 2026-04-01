@@ -6,7 +6,7 @@ namespace MilkTea.Domain.Catalog.Material.Entities;
 
 public sealed class MaterialEntity : Aggregate<int>
 {
-    public string Name { get; private set; } = "";
+    public string Name { get; private set; } = default!;
     public int MaterialsGroupID { get; private set; }
     public MaterialStatus Status { get; private set; }
     public string? Code { get; private set; }

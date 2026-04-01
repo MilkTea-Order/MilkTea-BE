@@ -24,7 +24,7 @@ public class RoleDetail
             RoleID = roleId,
             PermissionDetailID = permissionDetailId,
             CreatedBy = createdBy,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.Now
         };
     }
 }

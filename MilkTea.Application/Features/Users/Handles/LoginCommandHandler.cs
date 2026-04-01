@@ -25,7 +25,7 @@ public sealed class LoginCommandHandler(
     public async Task<LoginWithUserNameResult> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
         var result = new LoginWithUserNameResult();
-        result.ResultData.AddMeta(MetaKey.DATE_LOGIN, DateTime.UtcNow);
+        result.ResultData.AddMeta(MetaKey.DATE_LOGIN, DateTime.Now);
 
         // Get user
         var user = await _vUserUnitOfWork.Users.GetByUserNameForUpdateAsync(command.UserName, cancellationToken);

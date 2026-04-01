@@ -17,7 +17,7 @@ namespace MilkTea.Application.Features.Catalog.Queries
         public async Task<GetMenuItemsOfGroupResult> Handle(GetMenuItemAvailableByGroupAndMenuNameQuery query, CancellationToken cancellationToken)
         {
             var result = new GetMenuItemsOfGroupResult();
-            result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.UtcNow);
+            result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
             if (query.GroupId <= 0)
             {

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MilkTea.Domain.SharedKernel.Abstractions;
-using MilkTea.Infrastructure.Persistence.Extensions;
 
 namespace MilkTea.Infrastructure.Persistence.Interceptors;
 
@@ -26,20 +25,20 @@ public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
     {
         if (context == null) return;
 
-        var now = DateTime.UtcNow;
+        // Local Time
+        var now = DateTime.Now;
 
         foreach (var entry in context.ChangeTracker.Entries<IAuditable>())
         {
-            if (entry.State == EntityState.Added)
-            {
-                // For new entities, set both created and modified timestamps
-                entry.Entity.CreatedDate = now;
-            }
-            else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
-            {
-                // For existing entities, only update the modified timestamp
-                entry.Entity.UpdatedDate = now;
-            }
+            //if (entry.State == EntityState.Added)
+            //{
+            //    // For new entities, set both created and modified timestamps
+            //    entry.Entity.CreatedDate = now;
+            //}
+            //else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
+            //{
+            //    entry.Entity.UpdatedDate = now;
+            //}
         }
     }
 }

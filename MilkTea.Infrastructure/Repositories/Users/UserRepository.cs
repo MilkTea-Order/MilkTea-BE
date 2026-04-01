@@ -72,7 +72,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// </remarks>
     public async Task<RefreshToken?> GetValidRefreshTokenByTokenAsync(string token, CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         return await _vContext.RefreshTokens
             .AsNoTracking()
             .FirstOrDefaultAsync(rt => rt.Token == token
@@ -88,7 +88,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// </remarks>
     public async Task<List<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(int userId)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         return await _vContext.RefreshTokens
             .AsNoTracking()
             .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiryDate > now)
