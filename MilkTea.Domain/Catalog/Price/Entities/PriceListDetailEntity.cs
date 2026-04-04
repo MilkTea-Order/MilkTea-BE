@@ -1,11 +1,8 @@
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Catalog.Price.Entities;
 
-/// <summary>
-/// Price list detail entity for menu item pricing.
-/// Child entity of PriceList aggregate.
-/// </summary>
+
 public sealed class PriceListDetailEntity : Entity<int>
 {
     public int PriceListID { get; private set; }

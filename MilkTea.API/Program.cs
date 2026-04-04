@@ -13,25 +13,31 @@ using MilkTea.Infrastructure.BuildingBlocks.Database.MySQL;
 using MilkTea.Infrastructure.BuildingBlocks.Hash.Password;
 using MilkTea.Infrastructure.BuildingBlocks.Hash.Permission;
 using MilkTea.Infrastructure.BuildingBlocks.Identify;
+using MilkTea.Infrastructure.BuildingBlocks.Notification.SMTP;
 using MilkTea.Infrastructure.BuildingBlocks.Time;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add HttpContextAccessor for accessing HttpContext in services
+builder.Services.AddHttpContextAccessor();
 
+// ===== PORTS =====
 // Add JWT authentication
 builder.Services.AddAuthenticationJWTMicrosoft(builder.Configuration, builder.Environment);
-builder.Services.AddHttpContextAccessor();
 
 // Add connect database service
 builder.Services.AddConnectDatabase(builder.Configuration, new MySQLProvider(builder.Configuration));
 
-// ===== PORTS =====
+// Add Notification Sender
+builder.Services.AddNotificationSMTP(builder.Configuration);
+
+
 // Hashing 
 builder.Services.AddScoped<IPasswordHasher, RC2PasswordHasher>();
 builder.Services.AddScoped<IPermissionHasher, RC2PermissionHasher>();
+
 // Time
-//builder.Services.AddScoped<ITimeServicePort, DefaultDateTimeProvider>();
 builder.Services.AddScoped<ITimeZoneServicePort, TimeZoneServicePort>();
 
 // Identify
@@ -49,7 +55,6 @@ builder.Services.AddControllers();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    // Don't short-circuit with 400 before hitting controller/MediatR
     options.SuppressModelStateInvalidFilter = true;
 });
 
@@ -130,7 +135,7 @@ builder.Services.AddSwaggerGen(options =>
 
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 
 
 

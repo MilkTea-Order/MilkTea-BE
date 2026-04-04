@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using MilkTea.Application.Features.Auth.Abstractions.Services;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Configuration.Abstractions.Services;
@@ -6,8 +7,9 @@ using MilkTea.Application.Features.Finance.Abstractions.Queries;
 using MilkTea.Application.Features.Inventory.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Abstractions.Services;
-using MilkTea.Application.Features.Users.Abstractions.Queries;
-using MilkTea.Application.Features.Users.Abstractions.Services;
+using MilkTea.Application.Features.User.Abstractions.Queries;
+using MilkTea.Application.Features.User.Abstractions.Services;
+using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Menu.Repositories;
 using MilkTea.Domain.Catalog.Price.Repositories;
@@ -18,24 +20,25 @@ using MilkTea.Domain.Configuration.Repositories;
 using MilkTea.Domain.Finance.Repositoties;
 using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
-using MilkTea.Domain.SharedKernel.Repositories;
+using MilkTea.Domain.User.Repositories;
 using MilkTea.Domain.Users.Repositories;
-using MilkTea.Infrastructure.Catalog.Queries;
-using MilkTea.Infrastructure.Catalog.Services;
-using MilkTea.Infrastructure.Configuration.Services;
-using MilkTea.Infrastructure.Finance.Queries;
-using MilkTea.Infrastructure.Finance.Repositories;
-using MilkTea.Infrastructure.Inventory.Queries;
-using MilkTea.Infrastructure.Order.Queries;
-using MilkTea.Infrastructure.Order.Services;
-using MilkTea.Infrastructure.Repositories;
-using MilkTea.Infrastructure.Repositories.Catalog;
-using MilkTea.Infrastructure.Repositories.Configuration;
-using MilkTea.Infrastructure.Repositories.Inventory;
-using MilkTea.Infrastructure.Repositories.Orders;
-using MilkTea.Infrastructure.Repositories.Users;
-using MilkTea.Infrastructure.User.Queries;
-using MilkTea.Infrastructure.User.Services;
+using MilkTea.Infrastructure.Features.Auth.Repositoties;
+using MilkTea.Infrastructure.Features.Auth.Services;
+using MilkTea.Infrastructure.Features.Catalog.Queries;
+using MilkTea.Infrastructure.Features.Catalog.Repositories;
+using MilkTea.Infrastructure.Features.Catalog.Services;
+using MilkTea.Infrastructure.Features.Configuration.Repositories;
+using MilkTea.Infrastructure.Features.Configuration.Services;
+using MilkTea.Infrastructure.Features.Finance.Queries;
+using MilkTea.Infrastructure.Features.Finance.Repositories;
+using MilkTea.Infrastructure.Features.Inventory.Queries;
+using MilkTea.Infrastructure.Features.Inventory.Repositories;
+using MilkTea.Infrastructure.Features.Order.Queries;
+using MilkTea.Infrastructure.Features.Order.Repositories;
+using MilkTea.Infrastructure.Features.Order.Services;
+using MilkTea.Infrastructure.Features.User.Queries;
+using MilkTea.Infrastructure.Features.User.Repositories;
+using MilkTea.Infrastructure.Features.User.Services;
 
 namespace MilkTea.Infrastructure;
 
@@ -44,28 +47,27 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         // Unit of Work
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        // Unit of Work
-        services.AddScoped<ICatalogUnitOfWork, CatalogUnitOfWork>();
-        services.AddScoped<IOrderUnitOfWork, OrderUnitOfWork>();
+        services.AddScoped<IAuthUnitOfWork, AuthUnitOfWork>();
         services.AddScoped<IUserUnitOfWork, UserUnitOfWork>();
         services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
         services.AddScoped<IConfigurationUnitOfWork, ConfigurationUnitOfWork>();
         services.AddScoped<IFinanceUnitOfWork, FinanceUnitOfWork>();
 
-        // Order
+        #region Order
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderUnitOfWork, OrderUnitOfWork>();
         //Queries
         services.AddScoped<IOrderQuery, OrderQuery>();
         // Service
         services.AddScoped<IOrderServices, OrderServices>();
+        #endregion Order
 
-        // Catalog
-        // Repositories
+        #region Catalog
         services.AddScoped<IMenuRepository, MenuRepository>();
         services.AddScoped<ISizeRepository, SizeRepository>();
         services.AddScoped<IUnitRepository, UnitRepository>();
+        services.AddScoped<ITableRepository, TableRepository>();
+        services.AddScoped<ICatalogUnitOfWork, CatalogUnitOfWork>();
         // Queries
         services.AddScoped<ICatalogQuery, CatalogQuery>();
         services.AddScoped<ITableQuery, TableQuery>();
@@ -73,46 +75,53 @@ public static class DependencyInjection
         services.AddScoped<ICatalogService, CatalogService>();
         services.AddScoped<ITableService, TableService>();
         services.AddScoped<IMaterialService, MaterialService>();
+        #endregion Catalog
 
 
-        // TableManagement
-        services.AddScoped<ITableRepository, TableRepository>();
-        services.AddScoped<ITableRepository, TableRepository>();
 
-        // Users
-        services.AddScoped<IUserRepository, UserRepository>();
+        #region Users
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
-        services.AddScoped<IUserServices, UserService>();
+        // Queries
         services.AddScoped<IUserQuery, UserQuery>();
+        // Service
+        services.AddScoped<IUserService, UserService>();
+        #endregion Users
 
 
-        //Configuration
+        #region Auth
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IOtpRepository, OtpRepository>();
+        // Queries
+        // Service
+        services.AddScoped<IAuthService, AuthService>();
+        #endregion Auth
+
+        #region Configuration
         services.AddScoped<IDefinitionRepository, DefinitionRepository>();
         //Service
         services.AddScoped<IConfigurationService, ConfigurationService>();
-
+        #endregion Configuration
 
         //Pricing
         services.AddScoped<IPriceListRepository, PriceListRepository>();
         //services.AddScoped<IPromotionRepository, PromotionRepository>();
 
-        //Invenotry
+        #region Inventory
         //services.AddScoped<IMaterialRepository, MaterialRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IInventoryQuery, InventoryQuery>();
+        #endregion Inventory
 
 
-        // services.AddScoped<IGenderRepository, GenderRepository>();
-
-        //Finance
+        #region Finance
         services.AddScoped<IFinanceQuery, FinanceQuery>();
         services.AddScoped<IFinanceRepository, FinanceRepository>();
-
-
-
-
+        #endregion Finance
 
         return services;
     }

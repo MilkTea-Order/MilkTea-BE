@@ -1,5 +1,5 @@
 using MilkTea.Domain.Catalog.Table.Enums;
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Catalog.Table.Entities;
 

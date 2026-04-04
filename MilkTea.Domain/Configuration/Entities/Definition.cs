@@ -1,10 +1,7 @@
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Configuration.Entities;
 
-/// <summary>
-/// Definition entity for system configuration.
-/// </summary>
 public class Definition : Entity<int>
 {
     public string Name { get; set; } = null!;

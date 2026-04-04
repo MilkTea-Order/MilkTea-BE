@@ -1,5 +1,5 @@
 using MilkTea.Domain.Catalog.Price.Enums;
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Catalog.Price.Entities;
 

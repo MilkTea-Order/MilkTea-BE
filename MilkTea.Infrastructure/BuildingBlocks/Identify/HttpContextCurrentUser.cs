@@ -6,13 +6,13 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Identify
 {
     public sealed class HttpContextCurrentUser(IHttpContextAccessor httpContextAccessor) : IIdentifyServicePorts
     {
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IHttpContextAccessor _vHttpContextAccessor = httpContextAccessor;
 
         public int UserId
         {
             get
             {
-                var user = _httpContextAccessor.HttpContext?.User;
+                var user = _vHttpContextAccessor.HttpContext?.User;
                 if (user == null || !user.Identity?.IsAuthenticated == true)
                     throw new UnauthorizedAccessException("User is not authenticated.");
 

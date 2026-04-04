@@ -1,4 +1,4 @@
-using MilkTea.Domain.SharedKernel.Constants;
+using MilkTea.Domain.Common.Constants;
 using System.Globalization;
 
 namespace MilkTea.Domain.Users.ValueObject;

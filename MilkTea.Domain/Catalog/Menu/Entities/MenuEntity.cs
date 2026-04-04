@@ -1,5 +1,5 @@
 ﻿using MilkTea.Domain.Catalog.Menu.Enums;
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Catalog.Menu.Entities;
 public sealed class MenuEntity : Entity<int>

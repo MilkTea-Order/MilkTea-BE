@@ -4,7 +4,7 @@ using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Table.Entities;
 using MilkTea.Domain.Catalog.Table.Enums;
-using MilkTea.Domain.SharedKernel.Constants;
+using MilkTea.Domain.Common.Constants;
 using MilkTea.Shared.Domain.Constants;
 namespace MilkTea.Application.Features.Catalog.Queries;
 
@@ -24,13 +24,8 @@ public sealed class GetTableByStatusQueryHandler(
 
         if (query.StatusId.HasValue)
         {
-            if (query.StatusId <= 0)
-                return SendError(result, ErrorCode.E0029, "StatusID");
-
-            // Convert StatusId to enum
             if (!Enum.IsDefined(typeof(TableStatus), query.StatusId.Value))
                 return SendError(result, ErrorCode.E0001, "StatusID");
-
             var status = (TableStatus)query.StatusId.Value;
             tables = await catalogUnitOfWork.Tables.GetByStatusAsync(status);
         }

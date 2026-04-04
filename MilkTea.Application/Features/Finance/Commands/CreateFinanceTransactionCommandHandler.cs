@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
+using MilkTea.Application.Features.Auth.Abstractions.Services;
 using MilkTea.Application.Features.Finance.Abstractions.Queries;
 using MilkTea.Application.Features.Finance.Models.Results;
-using MilkTea.Application.Features.Users.Abstractions.Services;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Finance.Entities;
 using MilkTea.Domain.Finance.Repositoties;
-using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Shared.Domain.Constants;
 using Shared.Abstractions.CQRS;
 
@@ -63,12 +63,12 @@ namespace MilkTea.Application.Features.Finance.Commands
 
     public class CreateFinanceTransactionCommandHandler(IIdentifyServicePorts currentUser,
                                                             IFinanceQuery financeQuery,
-                                                            IUserServices userServices,
+                                                            IAuthService authServices,
                                                             IFinanceUnitOfWork financeUnitOfWork) : ICommandHandler<CreateFinanceTransactionCommand, CreateFinanceTransactionResult>
     {
         private readonly IIdentifyServicePorts _vCurrentUser = currentUser;
         private readonly IFinanceQuery _vFinanceQuery = financeQuery;
-        private readonly IUserServices _vUserServices = userServices;
+        private readonly IAuthService _vAuthServices = authServices;
         private readonly IFinanceUnitOfWork _vFinanceUnitOfWork = financeUnitOfWork;
         public async Task<CreateFinanceTransactionResult> Handle(CreateFinanceTransactionCommand commnad, CancellationToken cancellationToken)
         {
@@ -78,13 +78,13 @@ namespace MilkTea.Application.Features.Finance.Commands
             {
                 return SendError(result, ErrorCode.E0001, nameof(CreateFinanceTransactionCommand.TransactionGroupId));
             }
-            var isExistTransactionBy = await _vUserServices.isExist(commnad.TransactionBy, cancellationToken);
+            var isExistTransactionBy = await _vAuthServices.IsExist(commnad.TransactionBy, cancellationToken);
             if (!isExistTransactionBy)
             {
                 return SendError(result, ErrorCode.E0001, nameof(CreateFinanceTransactionCommand.TransactionBy));
             }
 
-            if (!groupTransaction.Name.Equals(Denifitions.COLLECT_TYPE, StringComparison.OrdinalIgnoreCase))
+            if (!groupTransaction.Name.Equals(Denifinitions.COLLECT_TYPE, StringComparison.OrdinalIgnoreCase))
             {
                 commnad.Amount = -commnad.Amount;
             }

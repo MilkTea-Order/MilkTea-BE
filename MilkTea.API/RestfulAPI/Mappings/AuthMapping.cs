@@ -1,6 +1,7 @@
 using AutoMapper;
+using MilkTea.API.RestfulAPI.DTOs.Auth.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Features.Users.Model.Results;
+using MilkTea.Application.Features.User.Model.Results;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.API.RestfulAPI.Mappings

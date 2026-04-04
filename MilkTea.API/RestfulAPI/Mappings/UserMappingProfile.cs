@@ -1,18 +1,15 @@
 using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.API.RestfulAPI.DTOs.User.Responses;
-using MilkTea.Application.Features.Users.Model.Dtos;
+using MilkTea.Application.Features.User.Model.Dtos;
 
 namespace MilkTea.API.RestfulAPI.Mappings
 {
-    /// <summary>
-    /// API layer mappings: Application DTOs -> API Response DTOs.
-    /// </summary>
     public class UserMappingProfile : Profile
     {
         public UserMappingProfile()
         {
-            CreateMap<UserProfile, GetUserProfileResponseDto>()
+            CreateMap<AccountProfile, GetUserProfileResponseDto>()
                 .ForMember(d => d.UserId, o => o.MapFrom(s => s.UserId))
                 .ForMember(d => d.UserName, o => o.MapFrom(s => s.UserName ?? string.Empty))
                 .ForMember(d => d.EmployeeId, o => o.MapFrom(s => s.EmployeeId))
@@ -39,7 +36,10 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate))
                 .ForMember(d => d.LastUpdatedDate, o => o.MapFrom(s => s.LastUpdatedDate));
 
-            CreateMap<UserProfile, UserDto>()
+            // Get User List
+            CreateMap<AccountProfile, UserDto>()
+            .ForMember(dest => dest.UserId,
+                       opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.FullName,
                        opt => opt.MapFrom(src => src.FullName ?? "Không rõ"));
         }

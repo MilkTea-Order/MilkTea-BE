@@ -6,7 +6,6 @@ using MilkTea.API.RestfulAPI.DTOs.Catalog.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
-using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Queries;

@@ -2,8 +2,8 @@ using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Models.Orders;
+using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Repositories;
-using MilkTea.Domain.SharedKernel.Constants;
 using Shared.Extensions;
 
 namespace MilkTea.Application.Features.Orders.Queries;

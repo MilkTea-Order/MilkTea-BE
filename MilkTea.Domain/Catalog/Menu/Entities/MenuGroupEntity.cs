@@ -1,6 +1,6 @@
 ﻿using MilkTea.Domain.Catalog.Menu.Enums;
-using MilkTea.Domain.SharedKernel.Abstractions;
-using MilkTea.Domain.SharedKernel.Enums;
+using MilkTea.Domain.Common.Abstractions;
+using MilkTea.Domain.Common.Enums;
 
 namespace MilkTea.Domain.Catalog.Menu.Entities;
 

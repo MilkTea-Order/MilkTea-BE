@@ -1,5 +1,5 @@
-﻿using MilkTea.Domain.Inventory.Enums;
-using MilkTea.Domain.SharedKernel.Abstractions;
+﻿using MilkTea.Domain.Common.Abstractions;
+using MilkTea.Domain.Inventory.Enums;
 
 namespace MilkTea.Domain.Inventory.Entities
 {

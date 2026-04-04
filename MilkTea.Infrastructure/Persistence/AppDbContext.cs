@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MilkTea.Domain.Auth.Entities;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Material.Entities;
 using MilkTea.Domain.Catalog.Menu.Entities;
@@ -65,16 +66,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<EmployeeEntity> Employees { get; set; }
     public DbSet<Gender> Genders { get; set; }
     public DbSet<Position> Positions { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<RoleDetail> RoleDetails { get; set; }
-    public DbSet<Permission> Permissions { get; set; }
-    public DbSet<PermissionDetail> PermissionDetails { get; set; }
-    public DbSet<PermissionGroup> PermissionGroups { get; set; }
-    public DbSet<PermissionGroupType> PermissionGroupTypes { get; set; }
+    public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
+    public DbSet<OtpEntity> Otps { get; set; }
+    public DbSet<RoleEntity> Roles { get; set; }
+    public DbSet<RoleDetailEntity> RoleDetails { get; set; }
+    public DbSet<PermissionEntity> Permissions { get; set; }
+    public DbSet<PermissionDetailEntity> PermissionDetails { get; set; }
+    public DbSet<PermissionGroupEntity> PermissionGroups { get; set; }
+    public DbSet<PermissionGroupTypeEntity> PermissionGroupTypes { get; set; }
     // Persistence-only junction tables (not domain entities)
-    public DbSet<UserAndRole> UserRoles { get; set; }
-    public DbSet<UserAndPermissionDetail> UserPermissions { get; set; }
+    public DbSet<UserAndRoleEntity> UserRoles { get; set; }
+    public DbSet<UserAndPermissionDetailEntity> UserPermissions { get; set; }
 
     // ===== Configuration =====
     public DbSet<Definition> Definitions { get; set; }
@@ -97,6 +99,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 type.Namespace.Contains(".Configurations.TableManagement") ||
                 type.Namespace.Contains(".Configurations.Inventory") ||
                 type.Namespace.Contains(".Configurations.User") ||
+                type.Namespace.Contains(".Configurations.Auth") ||
                 type.Namespace.Contains(".Configurations.Configuration") ||
                 type.Namespace.Contains(".Configurations.Finance")
             )

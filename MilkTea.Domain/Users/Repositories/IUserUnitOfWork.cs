@@ -1,15 +1,11 @@
-namespace MilkTea.Domain.Users.Repositories;
+using MilkTea.Domain.Users.Repositories;
 
-/// <summary>
-/// Unit of Work interface for Users module.
-/// Manages transactions and provides access to Users repositories.
-/// </summary>
+namespace MilkTea.Domain.User.Repositories;
+
+
 public interface IUserUnitOfWork
 {
-    IUserRepository Users { get; }
     IEmployeeRepository Employees { get; }
-    IRoleRepository Roles { get; }
-    IPermissionRepository Permissions { get; }
 
     /// <summary>
     /// Saves all changes made in the current transaction.

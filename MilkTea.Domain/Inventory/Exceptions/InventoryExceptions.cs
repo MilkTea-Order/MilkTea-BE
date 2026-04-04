@@ -1,4 +1,4 @@
-﻿using MilkTea.Domain.SharedKernel.Exceptions;
+﻿using MilkTea.Domain.Common.Exceptions;
 
 namespace MilkTea.Domain.Inventory.Exceptions
 {

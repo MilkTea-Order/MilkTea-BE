@@ -1,6 +1,6 @@
 using MilkTea.Domain.Catalog.Material.Enums;
 using MilkTea.Domain.Catalog.Material.Exceptions;
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Catalog.Material.Entities;
 

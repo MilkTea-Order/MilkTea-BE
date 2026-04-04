@@ -2,11 +2,11 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
+using MilkTea.API.RestfulAPI.DTOs.User.Requests;
 using MilkTea.API.RestfulAPI.DTOs.User.Responses;
-using MilkTea.Application.Features.Users.Commands;
-using MilkTea.Application.Features.Users.Queries;
+using MilkTea.Application.Features.User.Commands;
+using MilkTea.Application.Features.User.Queries;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Users
@@ -39,31 +39,6 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
             return SendSuccess(response);
         }
 
-        [Authorize]
-        [HttpPatch("/me/update-password")]
-        public async Task<ResponseDto> UpdatePassword(UpdatePasswordRequestDto request)
-        {
-            var command = new UpdatePasswordCommand
-            {
-                Password = request.Password,
-                NewPassword = request.NewPassword,
-                ConfirmPassword = request.ConfirmPassword
-            };
-
-            var result = await _vSender.Send(command);
-
-            if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
-            {
-                return SendTokenError();
-            }
-
-            if (result.ResultData.HasData)
-            {
-                return SendError(result.ResultData);
-            }
-
-            return SendSuccess();
-        }
 
         [Authorize]
         [HttpPatch("me/update-profile")]
@@ -116,5 +91,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Users
 
             return SendSuccess(responseDto);
         }
+
+
+
     }
 }

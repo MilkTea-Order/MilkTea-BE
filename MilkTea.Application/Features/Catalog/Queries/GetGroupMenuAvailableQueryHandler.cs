@@ -3,7 +3,7 @@ using MilkTea.Application.Features.Catalog.Models.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog;
 using MilkTea.Domain.Catalog.Menu.Enums;
-using MilkTea.Domain.SharedKernel.Enums;
+using MilkTea.Domain.Common.Enums;
 using MilkTea.Shared.Domain.Constants;
 using Shared.Extensions;
 namespace MilkTea.Application.Features.Catalog.Queries;

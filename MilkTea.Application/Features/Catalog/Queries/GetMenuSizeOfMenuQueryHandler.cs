@@ -2,7 +2,7 @@ using MediatR;
 using MilkTea.Application.Features.Catalog.Models.Results;
 using MilkTea.Application.Models.Catalog;
 using MilkTea.Domain.Catalog;
-using MilkTea.Domain.SharedKernel.Enums;
+using MilkTea.Domain.Common.Enums;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;

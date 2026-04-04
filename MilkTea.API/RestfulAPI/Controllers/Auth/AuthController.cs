@@ -2,9 +2,10 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MilkTea.API.RestfulAPI.DTOs.Requests;
+using MilkTea.API.RestfulAPI.DTOs.Auth.Requests;
+using MilkTea.API.RestfulAPI.DTOs.Auth.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Features.Users.Commands;
+using MilkTea.Application.Features.Auth.Commands;
 using MilkTea.Shared.Domain.Constants;
 
 
@@ -85,5 +86,47 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
 
             return SendSuccess(response);
         }
+
+        [Authorize]
+        [HttpPatch("update-password")]
+        public async Task<ResponseDto> UpdatePassword(UpdatePasswordRequestDto request)
+        {
+            var command = new UpdatePasswordCommand
+            {
+                Password = request.Password,
+                NewPassword = request.NewPassword,
+                ConfirmPassword = request.ConfirmPassword
+            };
+
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.GetMeta(MetaKey.TOKEN_ERROR) is true)
+            {
+                return SendTokenError();
+            }
+
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+
+            return SendSuccess();
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<ResponseDto> ForgotPassword(ForgotPasswordRequestDto request)
+        {
+            var command = new ForgotPasswordCommand
+            {
+                Email = request.Email
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+            return SendSuccess();
+        }
+
     }
 }

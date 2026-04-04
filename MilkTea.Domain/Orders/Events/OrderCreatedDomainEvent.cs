@@ -1,5 +1,5 @@
+using MilkTea.Domain.Common.Abstractions;
 using MilkTea.Domain.Orders.Entities;
-using MilkTea.Domain.SharedKernel.Abstractions;
 
 namespace MilkTea.Domain.Orders.Events;
 

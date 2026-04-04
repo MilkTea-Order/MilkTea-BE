@@ -1,8 +1,8 @@
-﻿using MilkTea.Domain.Orders.Enums;
+﻿using MilkTea.Domain.Common.Abstractions;
+using MilkTea.Domain.Orders.Enums;
 using MilkTea.Domain.Orders.Events;
 using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.ValueObjects;
-using MilkTea.Domain.SharedKernel.Abstractions;
 
 namespace MilkTea.Domain.Orders.Entities;
 

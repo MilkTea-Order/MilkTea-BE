@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MilkTea.API.RestfulAPI.DTOs.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
-using MilkTea.Application.Features.Users.Commands;
+using MilkTea.API.RestfulAPI.DTOs.User.Requests;
+using MilkTea.Application.Features.User.Commands;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Users
 {

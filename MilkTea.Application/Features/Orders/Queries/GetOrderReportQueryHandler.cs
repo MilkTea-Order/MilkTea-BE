@@ -5,8 +5,8 @@ using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Enums;
-using MilkTea.Domain.SharedKernel.Constants;
 
 namespace MilkTea.Application.Features.Orders.Queries
 {

@@ -11,8 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Auth\ValueObjects\" />
     <Folder Include="Catalog\Size\Enums\" />
     <Folder Include="Catalog\Unit\Enums\" />
+    <Folder Include="Users\Enums\" />
   </ItemGroup>
 
 </Project>

@@ -2,9 +2,9 @@
 using MediatR;
 using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Ports.Users;
+using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.Repositories;
-using MilkTea.Domain.SharedKernel.Constants;
 using MilkTea.Shared.Extensions;
 using Shared.Abstractions.CQRS;
 

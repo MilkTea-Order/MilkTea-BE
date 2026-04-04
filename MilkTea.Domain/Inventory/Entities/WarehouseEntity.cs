@@ -1,6 +1,6 @@
+using MilkTea.Domain.Common.Abstractions;
 using MilkTea.Domain.Inventory.Enums;
 using MilkTea.Domain.Inventory.Exceptions;
-using MilkTea.Domain.SharedKernel.Abstractions;
 using static MilkTea.Domain.Inventory.Exceptions.InventoryNotEnoughStockExceptions;
 
 namespace MilkTea.Domain.Inventory.Entities;

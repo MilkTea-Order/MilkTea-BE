@@ -1,5 +1,5 @@
-using MilkTea.Domain.SharedKernel.Abstractions;
-using MilkTea.Domain.Users.Enums;
+using MilkTea.Domain.Auth.Enums;
+using MilkTea.Domain.Common.Abstractions;
 using MilkTea.Domain.Users.ValueObject;
 
 namespace MilkTea.Domain.Users.Entities;

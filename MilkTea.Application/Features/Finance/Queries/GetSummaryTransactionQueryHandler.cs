@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MilkTea.Application.Features.Finance.Abstractions.Queries;
 using MilkTea.Application.Features.Finance.Models.Results;
-using MilkTea.Domain.SharedKernel.Constants;
+using MilkTea.Domain.Common.Constants;
 using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Finance.Queries

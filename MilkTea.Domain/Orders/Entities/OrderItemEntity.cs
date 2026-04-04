@@ -1,13 +1,9 @@
+using MilkTea.Domain.Common.Abstractions;
 using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.ValueObjects;
-using MilkTea.Domain.SharedKernel.Abstractions;
 
 namespace MilkTea.Domain.Orders.Entities;
 
-/// <summary>
-/// Order item entity (child of Order aggregate).
-/// Maps to ordersdetail table.
-/// </summary>
 public sealed class OrderItemEntity : Entity<int>
 {
     public int OrderId { get; private set; }

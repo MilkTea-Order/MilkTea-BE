@@ -1,4 +1,4 @@
-using MilkTea.Domain.SharedKernel.Abstractions;
+using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Catalog;
 
@@ -12,12 +12,12 @@ public sealed class PromotionOnTotalBill : Aggregate<int>
     public DateTime StopDate { get; private set; }
     public int? ProPercent { get; private set; }
     public decimal? ProAmount { get; private set; }
-    
+
     /// <summary>
     /// Promotion status. Maps to StatusID column.
     /// </summary>
     public PromotionStatus Status { get; private set; }
-    
+
     public string? Note { get; private set; }
 
     // For EF Core
@@ -141,17 +141,17 @@ public sealed class PromotionOnTotalBill : Aggregate<int>
     public decimal CalculateDiscount(decimal totalAmount)
     {
         if (!IsActive()) return 0;
-        
+
         if (ProPercent.HasValue && ProPercent.Value > 0)
         {
             return totalAmount * ProPercent.Value / 100;
         }
-        
+
         if (ProAmount.HasValue && ProAmount.Value > 0)
         {
             return Math.Min(ProAmount.Value, totalAmount);
         }
-        
+
         return 0;
     }
 

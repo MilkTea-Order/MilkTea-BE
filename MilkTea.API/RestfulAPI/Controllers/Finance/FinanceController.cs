@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MilkTea.API.RestfulAPI.DTOs.Requests;
+using MilkTea.API.RestfulAPI.DTOs.Finance.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Finance.Commands;
 using MilkTea.Application.Features.Finance.Queries;
