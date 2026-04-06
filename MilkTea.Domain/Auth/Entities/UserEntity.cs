@@ -1,4 +1,5 @@
 ﻿using MilkTea.Domain.Auth.Enums;
+using MilkTea.Domain.Auth.Exceptions;
 using MilkTea.Domain.Common.Abstractions;
 using MilkTea.Domain.Users.ValueObject;
 
@@ -126,7 +127,7 @@ public sealed class UserEntity : Aggregate<int>
 
         var newPassword = Password.Of(newPasswordHash);
         if (Password.value == newPassword.value)
-            throw new InvalidOperationException("New password must be different from current password.");
+            throw new PasswordUsedException();
 
         Password = newPassword;
         PasswordResetBy = updatedBy;

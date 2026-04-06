@@ -7,17 +7,17 @@ namespace MilkTea.Infrastructure.Features.Auth.Repositoties;
 
 public class OtpRepository : IOtpRepository
 {
-    private readonly AppDbContext _context;
+    private readonly AppDbContext _vContext;
 
     public OtpRepository(AppDbContext context)
     {
-        _context = context;
+        _vContext = context;
     }
 
     /// <inheritdoc/>
     public async Task<OtpEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Otps
+        return await _vContext.Otps
             .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
     }
@@ -25,18 +25,25 @@ public class OtpRepository : IOtpRepository
     /// <inheritdoc/>
     public async Task<OtpEntity?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Otps
+        return await _vContext.Otps
             .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<OtpEntity?> GetLatestByEmailAndTypeAsync(string email, string otpType, CancellationToken cancellationToken = default)
     {
-        var normalizedEmail = email.Trim().ToLowerInvariant();
-
-        return await _context.Otps
+        return await _vContext.Otps
             .AsNoTracking()
-            .Where(o => o.Email != null && o.Email.ToLower() == normalizedEmail && o.OTPType == otpType)
+            .Where(o => o.Email == email && o.OTPType == otpType)
+            .OrderByDescending(o => o.OTPDate)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<OtpEntity?> GetLatestByEmailAndTypeForUpdateAsync(string email, string otpType, CancellationToken cancellationToken = default)
+    {
+        return await _vContext.Otps
+            .Where(o => o.Email == email && o.OTPType == otpType)
             .OrderByDescending(o => o.OTPDate)
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -44,6 +51,6 @@ public class OtpRepository : IOtpRepository
     /// <inheritdoc/>
     public async Task AddAsync(OtpEntity otp, CancellationToken cancellationToken = default)
     {
-        await _context.Otps.AddAsync(otp, cancellationToken);
+        await _vContext.Otps.AddAsync(otp, cancellationToken);
     }
 }

@@ -6,6 +6,7 @@
         public const string DATE_LOGIN = "DATE_LOGIN";
         public const string USER = "USER";
         public const string TOKEN_ERROR = "TOKEN_ERROR";
+        public const string RESET_PASSWORD_TOKEN = "RESET_PASSWORD_TOKEN";
         public const string DATE_REQUEST = "DATE_REQUEST";
     }
 }

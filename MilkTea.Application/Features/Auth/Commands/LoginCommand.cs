@@ -1,5 +1,5 @@
 using FluentValidation;
-using MilkTea.Application.Features.User.Model.Results;
+using MilkTea.Application.Features.Auth.Models.Results;
 using MilkTea.Application.Models.Users;
 using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Application.Ports.Hash.Password;

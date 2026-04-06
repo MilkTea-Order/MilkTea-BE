@@ -54,8 +54,9 @@ public sealed class OtpEntity : Entity<int>
     /// <param name="email">The email address to send the OTP to.</param>
     /// <param name="otpType">The type of OTP (e.g., CHANGE_PASSWORD, FORGOT_PASSWORD).</param>
     /// <param name="createdBy">The ID of the user or system that created this OTP.</param>
+    /// <param name="numOfTimes">Number of times the OTP has been used (default: 1 for new OTP).</param>
     /// <returns>A new OtpEntity instance with auto-generated OTP code.</returns>
-    public static OtpEntity Create(string? email, string otpType, int createdBy)
+    public static OtpEntity Create(string? email, string otpType, int createdBy, int numOfTimes = 1)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(otpType);
 
@@ -65,7 +66,7 @@ public sealed class OtpEntity : Entity<int>
             OtpCode = GenerateOtpCode(),
             OTPDate = DateTime.Now,
             OTPType = otpType,
-            NumOfTimes = 1,
+            NumOfTimes = numOfTimes,
             CreatedBy = createdBy,
             CreatedDate = DateTime.Now
         };
@@ -74,18 +75,32 @@ public sealed class OtpEntity : Entity<int>
     /// <summary>
     /// Generates a random 6-digit OTP code.
     /// </summary>
-    private static string GenerateOtpCode()
+    public static string GenerateOtpCode()
     {
         var random = new Random();
         return random.Next(100000, 999999).ToString();
     }
 
     /// <summary>
+    /// Resets the OTP code and date (for resend flow).
+    /// </summary>
+    /// <returns>The new generated OTP code.</returns>
+    public string ResetOtpCode()
+    {
+        var newCode = GenerateOtpCode();
+        var now = DateTime.Now;
+        OtpCode = newCode;
+        OTPDate = now;
+        UpdatedDate = now;
+        IncrementNumOfTimes();
+        return newCode;
+    }
+
+    /// <summary>
     /// Increments the number of times the OTP has been used.
     /// </summary>
-    public void IncrementNumOfTimes()
+    private void IncrementNumOfTimes()
     {
         NumOfTimes++;
-        UpdatedDate = DateTime.Now;
     }
 }

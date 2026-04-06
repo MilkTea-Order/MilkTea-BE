@@ -68,6 +68,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Position> Positions { get; set; }
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     public DbSet<OtpEntity> Otps { get; set; }
+    public DbSet<ResetPasswordTokenEntity> ResetPasswordTokens { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
     public DbSet<RoleDetailEntity> RoleDetails { get; set; }
     public DbSet<PermissionEntity> Permissions { get; set; }

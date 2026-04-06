@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using MilkTea.Application.Features.Auth.Abstractions.Queries;
 using MilkTea.Application.Features.Auth.Abstractions.Services;
 using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
@@ -22,6 +23,7 @@ using MilkTea.Domain.Inventory.Repositories;
 using MilkTea.Domain.Orders.Repositories;
 using MilkTea.Domain.User.Repositories;
 using MilkTea.Domain.Users.Repositories;
+using MilkTea.Infrastructure.Features.Auth.Queries;
 using MilkTea.Infrastructure.Features.Auth.Repositoties;
 using MilkTea.Infrastructure.Features.Auth.Services;
 using MilkTea.Infrastructure.Features.Catalog.Queries;
@@ -96,7 +98,9 @@ public static class DependencyInjection
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IOtpRepository, OtpRepository>();
+        services.AddScoped<IResetPasswordTokenRepository, ResetPasswordTokenRepository>();
         // Queries
+        services.AddScoped<IAuthQuery, AuthQuery>();
         // Service
         services.AddScoped<IAuthService, AuthService>();
         #endregion Auth

@@ -1,6 +1,6 @@
+using MilkTea.Application.Features.Auth.Models.Results;
 using MilkTea.Application.Features.Configuration.Abstractions.Services;
 using MilkTea.Application.Features.User.Abstractions.Services;
-using MilkTea.Application.Features.User.Model.Results;
 using MilkTea.Application.Ports.Notification;
 using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Domain.Common.Constants;
@@ -54,26 +54,7 @@ namespace MilkTea.Application.Features.Auth.Commands
                    createdBy: userId.Value);
 
                 await _vAuthUnitOfWork.Otps.AddAsync(otp, cancellationToken);
-                await _vAuthUnitOfWork.CommitTransactionAsync(cancellationToken);
-
-                //// 5. Send email with OTP
-                //await _vNotificationSender.SendAsync(
-                //    new NotificationRequest(
-                //        NotificationChannel.Email,
-                //        command.Email,
-                //        "Mã OTP của bạn",
-                //        OtpEmail.BuildOtpTemplate(otp.OtpCode, expirationMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
-                //    cancellationToken);
-            }
-            catch
-            {
-                await _vAuthUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E9999, "SendOTP");
-            }
-
-            // 5. Send email with OTP
-            try
-            {
+                // 5. Send email with OTP
                 await _vNotificationSender.SendAsync(
                     new NotificationRequest(
                         NotificationChannel.Email,
@@ -81,11 +62,14 @@ namespace MilkTea.Application.Features.Auth.Commands
                         "Mã OTP của bạn",
                         OtpEmail.BuildOtpTemplate(otp.OtpCode, expirationMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
                     cancellationToken);
+                await _vAuthUnitOfWork.CommitTransactionAsync(cancellationToken);
             }
-            catch (Exception)
+            catch
             {
+                await _vAuthUnitOfWork.RollbackTransactionAsync(cancellationToken);
                 return SendError(result, ErrorCode.E9999, "SendOTP");
             }
+            result.ExpiresAt = otp.OTPDate.AddMinutes(expirationMinutes);
             return result;
         }
         private static ForgetPasswordResult SendError(ForgetPasswordResult result, string errorCode, params string[] values)

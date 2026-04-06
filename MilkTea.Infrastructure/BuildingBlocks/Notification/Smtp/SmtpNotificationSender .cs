@@ -64,6 +64,8 @@ internal sealed class SmtpNotificationSender(IOptions<SmtpOptions> options) : IN
         var email = new MimeMessage();
         email.From.Add(new MailboxAddress(_vOptions.FromName, _vOptions.FromEmail));
         email.To.Add(MailboxAddress.Parse(request.Recipient));
+        email.MessageId = MimeKit.Utils.MimeUtils.GenerateMessageId();
+        email.Headers.Add("X-Entity-Ref-ID", Guid.NewGuid().ToString());
         email.Subject = request.Subject ?? "";
         email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
         {
@@ -72,9 +74,8 @@ internal sealed class SmtpNotificationSender(IOptions<SmtpOptions> options) : IN
 
         using var smtp = new SmtpClient();
 
-        var secure = _vOptions.EnableSsl
-            ? SecureSocketOptions.StartTls
-            : SecureSocketOptions.None;
+        var secure = _vOptions.EnableSsl ? SecureSocketOptions.StartTls
+                                            : SecureSocketOptions.None;
 
         await smtp.ConnectAsync(_vOptions.Host, _vOptions.Port, secure, cancellationToken);
 

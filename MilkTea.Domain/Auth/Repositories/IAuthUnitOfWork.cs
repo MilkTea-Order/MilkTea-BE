@@ -7,6 +7,7 @@ public interface IAuthUnitOfWork
     IRoleRepository Roles { get; }
     IPermissionRepository Permissions { get; }
     IOtpRepository Otps { get; }
+    IResetPasswordTokenRepository ResetPasswordTokens { get; }
 
     /// <summary>
     /// Saves all changes made in the current transaction.

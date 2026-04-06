@@ -33,5 +33,31 @@ namespace MilkTea.Infrastructure.Features.Configuration.Services
 
             return 5; // Default 5 minutes
         }
+
+        public async Task<int> GetOtpMaxAttemptsAsync(CancellationToken cancellationToken = default)
+        {
+            var value = await _vContext.Definitions
+                .Where(d => d.Code == Denifinitions.MAX_NUMBER_OF_TIMES_OTP)
+                .Select(d => d.Value)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (int.TryParse(value, out var maxAttempts))
+                return maxAttempts;
+
+            return 3; // Default 3 attempts
+        }
+
+        public async Task<int> GetResetPasswordTokenExpirationMinutesAsync(CancellationToken cancellationToken = default)
+        {
+            var value = await _vContext.Definitions
+                .Where(d => d.Code == Denifinitions.TOKEN_EXPIRATION_CODE)
+                .Select(d => d.Value)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (int.TryParse(value, out var minutes))
+                return minutes;
+
+            return 5; // Default 5 minutes
+        }
     }
 }

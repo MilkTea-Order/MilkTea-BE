@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -140,6 +140,18 @@ public class JWTMicrosoft(IOptionsSnapshot<JWTOption> jwtOptions) : IJWTServiceP
         using var vRng = RandomNumberGenerator.Create();
         vRng.GetBytes(vRandomBytes);
         return (Convert.ToBase64String(vRandomBytes), DateTime.Now.AddMinutes(_vJwtOptions.Value.RefreshTokenExpireMinutes));
+    }
+
+    public (string Token, DateTime ExpiresAt) CreateResetPasswordToken(int minutes = 5)
+    {
+        var randomBytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+
+        return (
+            Convert.ToBase64String(randomBytes),
+            DateTime.Now.AddMinutes(minutes)
+        );
     }
 }
 

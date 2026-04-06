@@ -43,6 +43,18 @@ public static class ErrorCode
     public const string E0042 = "E0042";
 
     /// <summary>
+    /// Expired
+    /// </summary>
+    public const string E0043 = "E0043";
+
+    /// <summary>
+    /// Max attempts reached
+    /// </summary>
+    public const string E0044 = "E0044";
+
+
+
+    /// <summary>
     /// Internal error
     /// </summary>
     public const string E9999 = "E9999";

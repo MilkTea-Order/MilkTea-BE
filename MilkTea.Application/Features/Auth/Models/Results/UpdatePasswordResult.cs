@@ -1,8 +1,8 @@
 using MilkTea.Shared.Domain.Services;
 
-namespace MilkTea.Application.Features.User.Model.Results
+namespace MilkTea.Application.Features.Auth.Models.Results
 {
-    public class LogoutResult
+    public class UpdatePasswordResult
     {
         public StringListEntry ResultData { get; set; } = new();
     }

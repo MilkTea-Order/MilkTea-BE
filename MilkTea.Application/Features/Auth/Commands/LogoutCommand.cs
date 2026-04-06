@@ -1,6 +1,6 @@
 using FluentValidation;
 using MediatR;
-using MilkTea.Application.Features.User.Model.Results;
+using MilkTea.Application.Features.Auth.Models.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Shared.Domain.Constants;

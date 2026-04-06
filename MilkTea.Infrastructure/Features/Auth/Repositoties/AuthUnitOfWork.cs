@@ -7,7 +7,8 @@ namespace MilkTea.Infrastructure.Features.Auth.Repositoties
                                     IUserRepository users,
                                     IRoleRepository roles,
                                     IPermissionRepository permissions,
-                                    IOtpRepository otps) : IAuthUnitOfWork
+                                    IOtpRepository otps,
+                                    IResetPasswordTokenRepository resetPasswordTokens) : IAuthUnitOfWork
     {
         private readonly AppDbContext _vContext = context;
         private IDbContextTransaction? _vTransaction;
@@ -16,6 +17,7 @@ namespace MilkTea.Infrastructure.Features.Auth.Repositoties
         public IRoleRepository Roles { get; } = roles;
         public IPermissionRepository Permissions { get; } = permissions;
         public IOtpRepository Otps { get; } = otps;
+        public IResetPasswordTokenRepository ResetPasswordTokens { get; } = resetPasswordTokens;
 
         public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

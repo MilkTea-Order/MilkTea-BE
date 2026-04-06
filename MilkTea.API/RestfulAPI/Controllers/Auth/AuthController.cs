@@ -125,6 +125,71 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
             {
                 return SendError(result.ResultData);
             }
+            return SendSuccess(new
+            {
+                ExpiresAt = result.ExpiresAt
+            });
+        }
+
+        [HttpPost("forgot-password/verify")]
+        public async Task<ResponseDto> VerifyOtp(VerifyOtpRequestDto request)
+        {
+            var command = new VerifyOtpCommand
+            {
+                Email = request.Email,
+                Otp = request.Otp
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+
+            if (!string.IsNullOrEmpty(result.Token) && result.Expiration.HasValue)
+            {
+                var response = new VerifyOtpResponseDto
+                {
+                    ResetPasswordToken = result.Token,
+                    ExpiresAt = result.Expiration.Value
+                };
+                return SendSuccess(response);
+            }
+
+            return SendSuccess();
+        }
+
+        [HttpPost("forgot-password/resend")]
+        public async Task<ResponseDto> ResendOtp(ResendOtpRequestDto request)
+        {
+            var command = new ResendOtpCommand
+            {
+                Email = request.Email
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+            return SendSuccess();
+        }
+
+        [HttpPost("forgot-password/reset")]
+        public async Task<ResponseDto> ResetPassword([FromBody] ResetPasswordRequestDto request)
+        {
+            var command = new ResetPasswordCommand
+            {
+                ResetPasswordToken = request.ResetPasswordToken,
+                NewPassword = request.NewPassword,
+                ConfirmPassword = request.ConfirmPassword
+            };
+
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+
             return SendSuccess();
         }
 
