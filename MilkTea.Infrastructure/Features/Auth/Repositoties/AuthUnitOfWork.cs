@@ -7,6 +7,7 @@ namespace MilkTea.Infrastructure.Features.Auth.Repositoties
                                     IUserRepository users,
                                     IRoleRepository roles,
                                     IPermissionRepository permissions,
+                                    ISessionRepository sessions,
                                     IOtpRepository otps,
                                     IResetPasswordTokenRepository resetPasswordTokens) : IAuthUnitOfWork
     {
@@ -16,6 +17,7 @@ namespace MilkTea.Infrastructure.Features.Auth.Repositoties
         public IUserRepository Users { get; } = users;
         public IRoleRepository Roles { get; } = roles;
         public IPermissionRepository Permissions { get; } = permissions;
+        public ISessionRepository Sessions { get; } = sessions;
         public IOtpRepository Otps { get; } = otps;
         public IResetPasswordTokenRepository ResetPasswordTokens { get; } = resetPasswordTokens;
 

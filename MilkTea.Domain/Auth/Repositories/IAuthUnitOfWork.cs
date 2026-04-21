@@ -6,6 +6,7 @@ public interface IAuthUnitOfWork
     IUserRepository Users { get; }
     IRoleRepository Roles { get; }
     IPermissionRepository Permissions { get; }
+    ISessionRepository Sessions { get; }
     IOtpRepository Otps { get; }
     IResetPasswordTokenRepository ResetPasswordTokens { get; }
 

@@ -30,25 +30,6 @@ public class OtpRepository : IOtpRepository
     }
 
     /// <inheritdoc/>
-    public async Task<OtpEntity?> GetLatestByEmailAndTypeAsync(string email, string otpType, CancellationToken cancellationToken = default)
-    {
-        return await _vContext.Otps
-            .AsNoTracking()
-            .Where(o => o.Email == email && o.OTPType == otpType)
-            .OrderByDescending(o => o.OTPDate)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public async Task<OtpEntity?> GetLatestByEmailAndTypeForUpdateAsync(string email, string otpType, CancellationToken cancellationToken = default)
-    {
-        return await _vContext.Otps
-            .Where(o => o.Email == email && o.OTPType == otpType)
-            .OrderByDescending(o => o.OTPDate)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    /// <inheritdoc/>
     public async Task AddAsync(OtpEntity otp, CancellationToken cancellationToken = default)
     {
         await _vContext.Otps.AddAsync(otp, cancellationToken);

@@ -21,9 +21,4 @@ public interface IDefinitionRepository
     /// Gets all definition groups.
     /// </summary>
     Task<List<DefinitionGroup>> GetAllGroupsAsync();
-
-    /// <summary>
-    /// Gets code prefix for bill.
-    /// </summary>
-    Task<Definition?> GetCodePrefixBill();
 }

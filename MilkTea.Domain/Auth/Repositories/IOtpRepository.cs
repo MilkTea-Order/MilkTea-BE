@@ -1,4 +1,5 @@
 using MilkTea.Domain.Auth.Entities;
+using MilkTea.Domain.Auth.ValueObjects;
 
 namespace MilkTea.Domain.Auth.Repositories;
 
@@ -13,16 +14,6 @@ public interface IOtpRepository
     /// Gets an OTP entity by its ID with tracking enabled for updates.
     /// </summary>
     Task<OtpEntity?> GetByIdForUpdateAsync(int id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets the latest OTP for an email address and OTP type.
-    /// </summary>
-    Task<OtpEntity?> GetLatestByEmailAndTypeAsync(string email, string otpType, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets the latest OTP for an email address and OTP type with tracking enabled for updates.
-    /// </summary>
-    Task<OtpEntity?> GetLatestByEmailAndTypeForUpdateAsync(string email, string otpType, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a new OTP entity to the database.

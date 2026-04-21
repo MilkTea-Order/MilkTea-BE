@@ -34,6 +34,19 @@ namespace MilkTea.Infrastructure.Features.Configuration.Services
             return 5; // Default 5 minutes
         }
 
+         public async Task<int> GetSessionExpirationMinutesAsync(CancellationToken cancellationToken = default)
+        {
+            var value = await _vContext.Definitions
+                .Where(d => d.Code == Denifinitions.TIME_EXPIRED_SESSION_CODE)
+                .Select(d => d.Value)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (int.TryParse(value, out var minutes))
+                return minutes;
+
+            return 30; // Default 5 minutes
+        }
+
         public async Task<int> GetOtpMaxAttemptsAsync(CancellationToken cancellationToken = default)
         {
             var value = await _vContext.Definitions
@@ -50,7 +63,7 @@ namespace MilkTea.Infrastructure.Features.Configuration.Services
         public async Task<int> GetResetPasswordTokenExpirationMinutesAsync(CancellationToken cancellationToken = default)
         {
             var value = await _vContext.Definitions
-                .Where(d => d.Code == Denifinitions.TOKEN_EXPIRATION_CODE)
+                .Where(d => d.Code == Denifinitions.TIME_EXPIRED_TOKEN_CODE)
                 .Select(d => d.Value)
                 .FirstOrDefaultAsync(cancellationToken);
 

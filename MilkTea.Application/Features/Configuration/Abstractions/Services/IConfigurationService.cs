@@ -14,6 +14,14 @@ namespace MilkTea.Application.Features.Configuration.Abstractions.Services
         Task<int> GetOtpExpirationMinutesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Gets the session expiration time in minutes.
+        /// Returns default value of 5 minutes if not configured.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Session expiration time in minutes.</returns>
+        Task<int> GetSessionExpirationMinutesAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Gets the maximum number of OTP attempts.
         /// Returns default value of 5 if not configured.
         /// </summary>
@@ -26,5 +34,6 @@ namespace MilkTea.Application.Features.Configuration.Abstractions.Services
         /// Returns default value of 5 minutes if not configured.
         /// </summary>
         Task<int> GetResetPasswordTokenExpirationMinutesAsync(CancellationToken cancellationToken = default);
+
     }
 }

@@ -64,8 +64,8 @@ internal sealed class SmtpNotificationSender(IOptions<SmtpOptions> options) : IN
         var email = new MimeMessage();
         email.From.Add(new MailboxAddress(_vOptions.FromName, _vOptions.FromEmail));
         email.To.Add(MailboxAddress.Parse(request.Recipient));
-        email.MessageId = MimeKit.Utils.MimeUtils.GenerateMessageId();
-        email.Headers.Add("X-Entity-Ref-ID", Guid.NewGuid().ToString());
+        //email.MessageId = MimeKit.Utils.MimeUtils.GenerateMessageId();
+        //email.Headers.Add("X-Entity-Ref-ID", Guid.NewGuid().ToString());
         email.Subject = request.Subject ?? "";
         email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
         {

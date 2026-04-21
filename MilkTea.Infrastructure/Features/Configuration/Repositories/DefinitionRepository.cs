@@ -34,13 +34,4 @@ public class DefinitionRepository(AppDbContext context) : IDefinitionRepository
             .AsNoTracking()
             .ToListAsync();
     }
-
-    /// <inheritdoc/>
-    public async Task<Definition?> GetCodePrefixBill()
-    {
-        Console.WriteLine("Test nè");
-        return await _vContext.Definitions
-            .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Code == "BILL_PREFIX" || d.Code == "CodePrefixBill");
-    }
 }

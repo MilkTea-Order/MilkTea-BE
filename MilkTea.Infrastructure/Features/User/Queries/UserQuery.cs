@@ -100,5 +100,14 @@ namespace MilkTea.Infrastructure.Features.User.Queries
                 LastUpdatedDate = data.UpdatedDate
             };
         }
+
+        public async Task<int?> GetEmployeeIdByEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            return await _vContext.Employees
+                .AsNoTracking()
+                .Where(e => e.Email.Value == email)
+                .Select(e => (int?)e.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }

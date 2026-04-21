@@ -113,12 +113,13 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
             return SendSuccess();
         }
 
-        [HttpPost("forgot-password")]
-        public async Task<ResponseDto> ForgotPassword(ForgotPasswordRequestDto request)
+        [HttpPost("otp")]
+        public async Task<ResponseDto> CreateOtp(CreateOtpRequestDto request)
         {
-            var command = new ForgotPasswordCommand
+            var command = new CreateOtpCommand
             {
-                Email = request.Email
+                Email = request.Email,
+                Function = request.Function
             };
             var result = await _vSender.Send(command);
             if (result.ResultData.HasData)
@@ -127,30 +128,30 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
             }
             return SendSuccess(new
             {
+                SessionId = result.SessionId,
                 ExpiresAt = result.ExpiresAt
             });
         }
 
-        [HttpPost("forgot-password/verify")]
-        public async Task<ResponseDto> VerifyOtp(VerifyOtpRequestDto request)
+        [HttpPost("otp/{sessionId:int}/verify")]
+        public async Task<ResponseDto> VerifyOtp(int sessionId, [FromBody] VerifyOtpRequestDto request)
         {
             var command = new VerifyOtpCommand
             {
-                Email = request.Email,
-                Otp = request.Otp
+                SessionId = sessionId,
+                OtpCode = request.OtpCode
             };
             var result = await _vSender.Send(command);
             if (result.ResultData.HasData)
             {
                 return SendError(result.ResultData);
             }
-
-            if (!string.IsNullOrEmpty(result.Token) && result.Expiration.HasValue)
+            if (!string.IsNullOrEmpty(result.ResetToken) && result.ResetTokenExpiresAt.HasValue)
             {
                 var response = new VerifyOtpResponseDto
                 {
-                    ResetPasswordToken = result.Token,
-                    ExpiresAt = result.Expiration.Value
+                    ResetPasswordToken = result.ResetToken,
+                    ExpiresAt = result.ResetTokenExpiresAt.Value
                 };
                 return SendSuccess(response);
             }
@@ -158,20 +159,30 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
             return SendSuccess();
         }
 
-        [HttpPost("forgot-password/resend")]
-        public async Task<ResponseDto> ResendOtp(ResendOtpRequestDto request)
+        [HttpPost("otp/{sessionId:int}/resend")]
+        public async Task<ResponseDto> ResendOtp(
+            int sessionId,
+            [FromHeader(Name = "Idempotency-Key")] string idempotencyKey,
+            [FromBody] ResendOtpRequestDto request)
         {
             var command = new ResendOtpCommand
             {
-                Email = request.Email
+                SessionId = sessionId,
+                Channel = request.Channel,
+                IdempotencyKey = idempotencyKey
             };
             var result = await _vSender.Send(command);
             if (result.ResultData.HasData)
             {
                 return SendError(result.ResultData);
             }
-            return SendSuccess();
+            return SendSuccess(new
+            {
+                SessionId = result.SessionId,
+                ExpiresAt = result.ExpiresAt
+            });
         }
+
 
         [HttpPost("forgot-password/reset")]
         public async Task<ResponseDto> ResetPassword([FromBody] ResetPasswordRequestDto request)

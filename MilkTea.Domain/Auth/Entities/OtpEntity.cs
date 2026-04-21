@@ -1,73 +1,45 @@
+using MilkTea.Domain.Auth.ValueObjects;
 using MilkTea.Domain.Common.Abstractions;
 
 namespace MilkTea.Domain.Auth.Entities;
 
-
 public sealed class OtpEntity : Entity<int>
 {
-    /// <summary>
-    /// The email address the OTP was sent to.
-    /// </summary>
-    public string? Email { get; private set; }
-
-    /// <summary>
-    /// The OTP code value.
-    /// </summary>
+    public int SessionId { get; private set; }
+    public Channel Channel { get; private set; }
     public string OtpCode { get; private set; } = null!;
+    public DateTime ExpiredDate { get; private set; }
+    public OtpStatus Status { get; private set; } = OtpStatus.Default;
 
     /// <summary>
-    /// The date/time when the OTP was created.
+    /// Checks if the OTP is expired based on ExpiredDate.
     /// </summary>
-    public DateTime OTPDate { get; private set; }
-
-    /// <summary>
-    /// The type of OTP (e.g., CHANGE_PASSWORD, FORGOT_PASSWORD).
-    /// </summary>
-    public string OTPType { get; private set; } = null!;
-
-    /// <summary>
-    /// Number of times the OTP has been used.
-    /// </summary>
-    public int NumOfTimes { get; private set; }
-
-    /// <summary>
-    /// Checks if the OTP is expired based on OTPDate and configured expiration time.
-    /// </summary>
-    public bool IsExpired(int expirationMinutes) => DateTime.Now > OTPDate.AddMinutes(expirationMinutes);
-
-    /// <summary>
-    /// Checks if the OTP has exceeded the maximum number of attempts.
-    /// </summary>
-    public bool IsMaxAttemptsReached(int maxAttempts) => NumOfTimes >= maxAttempts;
+    public bool IsExpired => DateTime.Now > ExpiredDate;
 
     /// <summary>
     /// Checks if the OTP is valid (not expired and not exceeded max attempts).
     /// </summary>
-    public bool IsValid(int expirationMinutes, int maxAttempts) =>
-        !IsExpired(expirationMinutes) && !IsMaxAttemptsReached(maxAttempts);
+    public bool IsValid() => !IsExpired;
 
     private OtpEntity() { }
 
     /// <summary>
     /// Creates a new OTP entity with auto-generated 6-digit OTP code.
     /// </summary>
-    /// <param name="email">The email address to send the OTP to.</param>
-    /// <param name="otpType">The type of OTP (e.g., CHANGE_PASSWORD, FORGOT_PASSWORD).</param>
-    /// <param name="createdBy">The ID of the user or system that created this OTP.</param>
-    /// <param name="numOfTimes">Number of times the OTP has been used (default: 1 for new OTP).</param>
+    /// <param name="sessionId">The ID of the session this OTP belongs to.</param>
+    /// <param name="channel">The channel through which the OTP was sent.</param>
+    /// <param name="expiredDate">The date/time when the OTP expires.</param>
     /// <returns>A new OtpEntity instance with auto-generated OTP code.</returns>
-    public static OtpEntity Create(string? email, string otpType, int createdBy, int numOfTimes = 1)
+    public static OtpEntity Create(int sessionId, Channel channel, DateTime expiredDate)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(otpType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(channel.ToString());
 
         return new OtpEntity
         {
-            Email = email?.Trim().ToLowerInvariant(),
+            SessionId = sessionId,
+            Channel = channel,
             OtpCode = GenerateOtpCode(),
-            OTPDate = DateTime.Now,
-            OTPType = otpType,
-            NumOfTimes = numOfTimes,
-            CreatedBy = createdBy,
+            ExpiredDate = expiredDate,
             CreatedDate = DateTime.Now
         };
     }
@@ -79,28 +51,5 @@ public sealed class OtpEntity : Entity<int>
     {
         var random = new Random();
         return random.Next(100000, 999999).ToString();
-    }
-
-    /// <summary>
-    /// Resets the OTP code and date (for resend flow).
-    /// </summary>
-    /// <returns>The new generated OTP code.</returns>
-    public string ResetOtpCode()
-    {
-        var newCode = GenerateOtpCode();
-        var now = DateTime.Now;
-        OtpCode = newCode;
-        OTPDate = now;
-        UpdatedDate = now;
-        IncrementNumOfTimes();
-        return newCode;
-    }
-
-    /// <summary>
-    /// Increments the number of times the OTP has been used.
-    /// </summary>
-    private void IncrementNumOfTimes()
-    {
-        NumOfTimes++;
     }
 }

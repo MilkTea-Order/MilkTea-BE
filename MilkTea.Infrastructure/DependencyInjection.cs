@@ -98,9 +98,11 @@ public static class DependencyInjection
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IOtpRepository, OtpRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IResetPasswordTokenRepository, ResetPasswordTokenRepository>();
         // Queries
         services.AddScoped<IAuthQuery, AuthQuery>();
+        services.AddScoped<IOtpQuery, OtpQuery>();
         // Service
         services.AddScoped<IAuthService, AuthService>();
         #endregion Auth

@@ -21,6 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add HttpContextAccessor for accessing HttpContext in services
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 
 // ===== PORTS =====
 // Add JWT authentication
