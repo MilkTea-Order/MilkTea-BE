@@ -78,19 +78,8 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
             return SendError(result, ErrorCode.E0001, nameof(command.SessionId));
         }
 
-        // 3. Check if session is expired
-        if (session.IsExpired)
-        {
-            return SendError(result, ErrorCode.E0043, nameof(command.SessionId));
-        }
 
-        // 4. Check if session is already verified
-        if (session.IsVerified)
-        {
-            return SendError(result, ErrorCode.E0042, nameof(command.SessionId));
-        }
-
-        // 5. Check idempotency cache
+        // 3. Check idempotency cache
         var idempotencyCacheKey = $"idempotency:resend_otp:{command.SessionId}:{command.IdempotencyKey}";
         if (_vMemoryCache.TryGetValue(idempotencyCacheKey, out int? cachedOtpId) && cachedOtpId.HasValue)
         {
@@ -104,12 +93,19 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
                 // Check if the OTP is still valid (not expired)
                 if (cachedOtp.ExpiredDate > now)
                 {
-                    // Before returning cached result, check if session is still valid (not verified)
+                    // Before returning cached result, check if session is still valid (not verified) and valid (not expired)
                     // Reuse session entity (already fetched with no tracking above)
                     if (session.IsVerified)
                     {
                         // Session has been verified - remove cache and process as new request
                         _vMemoryCache.Remove(idempotencyCacheKey);
+                        return SendError(result, ErrorCode.E0042, nameof(command.SessionId));
+                    }
+                    else if (session.IsExpired)
+                    {
+                        // Session has expired - remove cache and process as new request
+                        _vMemoryCache.Remove(idempotencyCacheKey);
+                        return SendError(result, ErrorCode.E0043, nameof(command.SessionId));
                     }
                     else
                     {
@@ -132,10 +128,10 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
             }
         }
 
-        // 6. Get OTP send limit from configuration for the specific channel
+        // 4. Get OTP send limit from configuration for the specific channel
         var otpSendLimit = await _vConfigurationService.GetOtpMaxAttemptsAsync(cancellationToken);
 
-        // 7. Count successful OTP sends in DB for this session and channel
+        // 5. Count successful OTP sends in DB for this session and channel
         // If session is verified, only count OTPs created AFTER verification (reset counter)
         var totalOtpSends = await _vOtpQuery.CountSuccessfulOtpBySessionAndChannelAsync(command.SessionId,
                                                                                                 channel.Value,
@@ -147,11 +143,11 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
             return SendError(result, ErrorCode.E0044, nameof(command.SessionId));
         }
 
-        // 8. Get OTP expiration time for creating new OTP
+        // 6. Get OTP expiration time for creating new OTP
         var expirationMinutes = await _vConfigurationService.GetOtpExpirationMinutesAsync(cancellationToken);
         var expiresDate = DateTime.Now.AddMinutes(expirationMinutes);
 
-        // 9. Transaction: create new OTP and send notification
+        // 7. Transaction: create new OTP and send notification
         await _vAuthUnitOfWork.BeginTransactionAsync(cancellationToken);
         OtpEntity? newOtp = null;
         try
@@ -177,7 +173,7 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
 
             await _vAuthUnitOfWork.CommitTransactionAsync(cancellationToken);
 
-            // 10. Cache the new OTP ID for idempotency
+            // 8. Cache the new OTP ID for idempotency
             var idempotencyOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(Cache.IdempotencyCacheMinutes));
             _vMemoryCache.Set(idempotencyCacheKey, newOtp.Id, idempotencyOptions);
             result.SessionId = command.SessionId;

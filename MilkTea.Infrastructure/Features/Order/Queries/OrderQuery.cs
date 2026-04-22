@@ -112,13 +112,12 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
             return await resultQuery.ToListAsync(cancellationToken);
         }
 
-        public async Task<ReportOrderDto> GetOrderReportAsync(
-            int actionBy,
-            OrderStatus orderStatus,
-            DateTime? fromDate,
-            DateTime? toDate,
-            string? paymentMethod,
-            CancellationToken cancellationToken = default)
+        public async Task<ReportOrderDto> GetOrderReportAsync(int actionBy,
+                                                                OrderStatus orderStatus,
+                                                                DateTime? fromDate,
+                                                                DateTime? toDate,
+                                                                string? paymentMethod,
+                                                                CancellationToken cancellationToken = default)
         {
             if (orderStatus != OrderStatus.Paid && orderStatus != OrderStatus.NotCollected)
             {
@@ -132,9 +131,8 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
             fromDate = fromDate?.Date;
             toDate = toDate?.Date.AddDays(1); // exclusive upper bound
 
-            var baseQuery = _vContext.Orders
-                .AsNoTracking()
-                .Where(x => x.Status == orderStatus);
+            var baseQuery = _vContext.Orders.AsNoTracking()
+                                                .Where(x => x.Status == orderStatus);
 
             if (orderStatus == OrderStatus.NotCollected)
             {
@@ -157,12 +155,8 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                     baseQuery = baseQuery.Where(x => x.ActionDate < toDate.Value);
             }
 
-            if (!string.IsNullOrWhiteSpace(paymentMethod))
-            {
-                baseQuery = baseQuery.Where(x => x.PaymentedType == paymentMethod);
-            }
-
             var ordersRaw = await baseQuery
+                .Where(x => string.IsNullOrWhiteSpace(paymentMethod) || x.PaymentedType == paymentMethod)
                 .Select(x => new
                 {
                     Data = new OrderDto
@@ -196,8 +190,6 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                 })
                 .OrderByDescending(x => x.FilterDate)
                 .ToListAsync(cancellationToken);
-
-            Console.WriteLine(baseQuery.ToQueryString());
 
             var dateGroups = ordersRaw
                 .GroupBy(x => DateOnly.FromDateTime(x.FilterDate!.Value.Date))

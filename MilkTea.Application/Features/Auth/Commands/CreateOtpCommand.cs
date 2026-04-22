@@ -31,41 +31,52 @@ namespace MilkTea.Application.Features.Auth.Commands
         public async Task<CreateOtpResult> Handle(CreateOtpCommand command, CancellationToken cancellationToken)
         {
             var result = new CreateOtpResult();
-            // 1. Get OTP expiration time from ConfigurationService
-            var expirationMinutes = await _vConfigurationService.GetSessionExpirationMinutesAsync(cancellationToken);
 
-            // 2. Start transaction
+            // 1. Validate email exists
+            var userId = await _vUserService.GetUserIdByEmailAsync(command.Email, cancellationToken);
+            if (userId is null)
+                return SendError(result, ErrorCode.E0001, nameof(command.Email));
+
+            // 2. Get Session expiration time from ConfigurationService
+            var expirationSesionMinutes = await _vConfigurationService.GetSessionExpirationMinutesAsync(cancellationToken);
+
+            // 3. Get OTP expiration time from ConfigurationService
+            var expirationOtpMinutes = await _vConfigurationService.GetOtpExpirationMinutesAsync(cancellationToken);
+
+            // 4. Start transaction
             await _vAuthUnitOfWork.BeginTransactionAsync(cancellationToken);
             Domain.Auth.Entities.SessionEntity session;
             Domain.Auth.Entities.OtpEntity otp;
             try
             {
-                // 3. Create new Session entity
-                var expiresDate = DateTime.Now.AddMinutes(expirationMinutes);
+                // 4. Create new Session entity
+                var expiresSessionDate = DateTime.Now.AddMinutes(expirationSesionMinutes);
                 session = Domain.Auth.Entities.SessionEntity.Create(
                     email: command.Email,
                     channel: Channel.Email,
                     function: SessionFunction.Create(command.Function),
-                    expiresDate: expiresDate);
+                    expiresDate: expiresSessionDate);
 
                 await _vAuthUnitOfWork.Sessions.AddAsync(session, cancellationToken);
                 await _vAuthUnitOfWork.SaveChangesAsync(cancellationToken);
 
-                // 4. Create new OTP entity linked to session
+
+                // 5. Create new OTP entity linked to session
+                var expiresOtpDate = DateTime.Now.AddMinutes(expirationOtpMinutes);
                 otp = Domain.Auth.Entities.OtpEntity.Create(
                     sessionId: session.Id,
                     channel: Channel.Email,
-                    expiredDate: expiresDate);
+                    expiredDate: expiresOtpDate);
                 await _vAuthUnitOfWork.Otps.AddAsync(otp, cancellationToken);
                 await _vAuthUnitOfWork.SaveChangesAsync(cancellationToken);
 
-                // 5. Send email with OTP
+                // 6. Send email with OTP
                 await _vNotificationSender.SendAsync(
                     new NotificationRequest(
                         NotificationChannel.Email,
                         command.Email,
                         "Mã OTP của bạn",
-                        OtpEmail.BuildOtpTemplate(otp.OtpCode, expirationMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
+                        OtpEmail.BuildOtpTemplate(otp.OtpCode, expirationOtpMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
                     cancellationToken);
 
                 await _vAuthUnitOfWork.CommitTransactionAsync(cancellationToken);

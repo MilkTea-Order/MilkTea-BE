@@ -6,7 +6,6 @@ using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Domain.Auth.Entities;
 using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Domain.Common.Constants;
-using MilkTea.Shared.Domain.Constants;
 using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Auth.Commands
@@ -79,7 +78,7 @@ namespace MilkTea.Application.Features.Auth.Commands
             // 5. Check if OTP code matches
             if (otp.OtpCode != command.OtpCode)
             {
-                return SendError(result, ErrorCode.E0004, nameof(command.OtpCode));
+                return SendError(result, ErrorCode.E0001, nameof(command.OtpCode));
             }
 
             // 6. Get employee ID by email
@@ -96,32 +95,25 @@ namespace MilkTea.Application.Features.Auth.Commands
                 return SendError(result, ErrorCode.E0001, "User");
             }
 
-            // 8. Get user for update
-            var user = await _vAuthUnitOfWork.Users.GetByIdForUpdateAsync(userId.Value, cancellationToken);
-            if (user is null)
-            {
-                return SendError(result, ErrorCode.E9999, "User");
-            }
-
-            // 9. Get session with tracking to update
+            // 8. Get session with tracking to update
             var sessionForUpdate = await _vAuthUnitOfWork.Sessions.GetByIdForUpdateAsync(command.SessionId, cancellationToken);
             if (sessionForUpdate is null)
             {
-                return SendError(result, ErrorCode.E9999, nameof(command.SessionId));
+                return SendError(result, ErrorCode.E0001, nameof(command.SessionId));
             }
 
-            // 10. Mark session as verified and create reset password token
+            // 9. Mark session as verified and create reset password token
             await _vAuthUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
                 sessionForUpdate.MarkAsVerified();
 
-                // 11. Generate reset password token
+                // 10. Generate reset password token
                 var (resetToken, expiresAt) = _vJwtServicePort.CreateResetPasswordToken(minutes: 15);
 
-                // 12. Save reset password token to database
+                // 11. Save reset password token to database
                 var resetPasswordToken = ResetPasswordTokenEntity.Create(
-                    userId: user.Id,
+                    userId: userId.Value,
                     token: resetToken,
                     expiresAt: expiresAt);
                 await _vAuthUnitOfWork.ResetPasswordTokens.AddAsync(resetPasswordToken, cancellationToken);
