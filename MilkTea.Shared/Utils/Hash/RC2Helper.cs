@@ -1,10 +1,10 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-namespace Shared.Utils
+namespace MilkTea.Shared.Utils.Hash
 {
     public class RC2Helper
     {
-        public static string CreateHashValue(String plaintext, int n)
+        public static string CreateHashValue(string plaintext, int n)
         {
             byte[] buf, result;
             buf = Encoding.ASCII.GetBytes(plaintext);
@@ -14,13 +14,13 @@ namespace Shared.Utils
             }
             return BitConverter.ToString(result).Substring(0, n);
         }
-        public static string EncryptByRC2(String plaintext, String Key, String IV)
+        public static string EncryptByRC2(string plaintext, string Key, string IV)
         {
 
 
             int size = plaintext.Length;
             //tạo 1 thể hiện cho RC2
-            using (var myRC2 = System.Security.Cryptography.RC2.Create())
+            using (var myRC2 = RC2.Create())
             {
                 //tạo khóa cho RC2
                 myRC2.Key = Encoding.ASCII.GetBytes(CreateHashValue(Key, 16));
@@ -44,14 +44,14 @@ namespace Shared.Utils
                 //lấy dữ liệu đã mã hóa ra tử vùng nhớ byte[] = memEncrypt.ToArray()
                 byte[] arrEncripted = memEncrypt.ToArray();
 
-                String kq = plaintext.Length + " " + Convert.ToBase64String(arrEncripted, 0, arrEncripted.Length, Base64FormattingOptions.InsertLineBreaks);
+                string kq = plaintext.Length + " " + Convert.ToBase64String(arrEncripted, 0, arrEncripted.Length, Base64FormattingOptions.InsertLineBreaks);
 
                 memEncrypt.Close();
                 EncryptCrypto.Close();
                 return kq;
             }
         }
-        public static string DecryptByRC2(String encryptedtext, String Key, String IV)
+        public static string DecryptByRC2(string encryptedtext, string Key, string IV)
         {
 
             //lay kich thuoc
@@ -60,14 +60,14 @@ namespace Shared.Utils
             {
                 i++;
             }
-            String str = encryptedtext.Substring(0, i);
-            int length = Int32.Parse(str);
+            string str = encryptedtext.Substring(0, i);
+            int length = int.Parse(str);
 
             //đọc dữ liệu da ma hoa vào 1 mảng byte
             byte[] arrEncripted = Convert.FromBase64String(encryptedtext.Remove(0, i + 1));
 
             //tạo 1 thể hiện cho RC2
-            using (var myRC2 = System.Security.Cryptography.RC2.Create())
+            using (var myRC2 = RC2.Create())
             {
                 //tạo khóa cho RC2
                 myRC2.Key = Encoding.ASCII.GetBytes(CreateHashValue(Key, 16));
@@ -86,7 +86,7 @@ namespace Shared.Utils
                 DecryptCrypto.Read(arrDecripted, 0, arrDecripted.Length);
 
                 //String kq = Convert.ToBase64String(arrDecripted,0,arrDecripted.Length, Base64FormattingOptions.InsertLineBreaks);
-                String kq = Encoding.ASCII.GetString(arrDecripted);
+                string kq = Encoding.ASCII.GetString(arrDecripted);
 
                 //dong cac stream
                 DecryptCrypto.Close();

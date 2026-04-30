@@ -1,0 +1,97 @@
+﻿
+namespace MilkTea.Shared.Domain.Constants
+{
+    public class Key
+    {
+        public const string RSA_PublicKey = @"-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlBl5nArMvlE2oswoQaPC
+1xMMqhrHPHzR9Z/P8Qoeh+rhSJIgF3Oh8cpxj/TZtQzb/LSEnRm2486SuhpYM18q
+umtJddHumCCZMLZSH1b7OEB7ijz7Cv+qicxrttPbxEErx6FuPYh+K/84OnW8FMeC
+us37t3l9CWcJqdzwAEMIaIBhk/uMMCoweq59Ojks9aqtXBVZlC9VwQ6FZJOd0lgW
+qDx9e7B146nCXMXOvl7p1FfKhOC3r/fcx1Y78m3L9KT+TkygGaN8ZpOlgdntKJgt
+guvtc44ar9NA9OXcctCv4Gz9u0zE7OBW6Ft6QaZluqZxr1iRYq1KbwpPHPSh5/um
+iQIDAQAB
+-----END PUBLIC KEY-----";
+
+        public const string RSA_PrivateKey = @"-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAlBl5nArMvlE2oswoQaPC1xMMqhrHPHzR9Z/P8Qoeh+rhSJIg
+F3Oh8cpxj/TZtQzb/LSEnRm2486SuhpYM18qumtJddHumCCZMLZSH1b7OEB7ijz7
+Cv+qicxrttPbxEErx6FuPYh+K/84OnW8FMeCus37t3l9CWcJqdzwAEMIaIBhk/uM
+MCoweq59Ojks9aqtXBVZlC9VwQ6FZJOd0lgWqDx9e7B146nCXMXOvl7p1FfKhOC3
+r/fcx1Y78m3L9KT+TkygGaN8ZpOlgdntKJgtguvtc44ar9NA9OXcctCv4Gz9u0zE
+7OBW6Ft6QaZluqZxr1iRYq1KbwpPHPSh5/umiQIDAQABAoIBAB5zEGxTUh5NL1kQ
+dbRtOZmjyoZM5CrdFQQV3BiYdoeGdNRJavy3YxQGBgxNkNdnMfHGob91MoOrDMLj
+uL+zMONMPLnTNGWlyilYSxEzfoplw6C8AfeUcllLpNfdvkEfDyPH3pUbM6nTGxn1
+6/ovvQKwaDEkct9UhomcqeG75oYpkxR58+TDff4XNgNtoMZpfKKooCegpAKhFeWW
+OT8RA+Ybwrw+Xmc9+LauyGs3slPglbxt32M29KGRPpG/n8G8UqWJSHVE3Srqj4Pf
+KHmJp6qdBA72sfO9ljkhf+iRdB+llD1XyJze2i4e8c+mI9NcvVSUXPPTcW+Y6n3H
+ldwF1IsCgYEAxBjtinz7Y8TkdQpp1CVtmfKh+v9eOiUmYfMmStRBDaMQR6Yege4m
+vSPHaldlyuCbzgZgrubaQ99E/RknNz9TDZpQojdh9eBhfAvjXp7anB5Rg+hwHB8g
+XoOeygfVoPfVI1dLe3xeov8Fgd69gSlJFlt8wA1C9ZCseRhd+g4QRzMCgYEAwVcN
+ICuDoldSsr8MkR2iiczsdlDJLFeEw7Rgb8ef83uPnYBbujqafovd5Io7mNZ6Thzp
+FRrN3K85pNqLgjTA25apNFCE5/bHXuflWzMOR9pTehA1czgp09jko15KxhWFh+Ys
+2iG88yFyUV2elr0vLSeAjl5dpRJNfszMAuRFK1MCgYAIeIcyV0nIuoWf5K5DosZE
+Qy3qGMPqQRaSXp2F1/tjamrWnX9t32q++t+vYU0dYWx5jt74TzKYgfmJ8V83TL36
+tXLMPxY1N9ceM6lDuhr5aXnd99l37YRJcOgYFBSPWoVTfH7fO7Ue12NWg9etz6m/
+lH4kEa6VywUYSgwtNBRR7wKBgCJNu7p1fgmTzMyCMUyeIXSps1rawpbngFro6iNr
+G+orhjO/zoagV0EUt+4QyLo5c8HgR0rDUrtRK70gOZiEm6Nae/MYRjySAJXKN1uT
+F3mQNzd1IMastF8uIIML++BheSu/nz2kts28pXfiUH0WXAR6+chI3fyn3rAcziXF
+MrCZAoGADU2w633Ef6PyHjFo9dHtLuMJc0VZ60JH8dfXuopnP/o3w8b6koOhV8+V
+fqAtIeTllbcjU9azrbgcI2v8dYRd03d8nWCIN3LQ9QmNSrfpVvF02iB/JtoqrCLN
+Tia7kviv+7LYFrRA/oZafEBRHMrUpHuUpVClIS/la0VqzMRJ9YA=
+-----END RSA PRIVATE KEY-----";
+    }
+}
+
+
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+
+//namespace MilkTea.Shared.Domain.Constants
+//{
+//    public class Key
+//    {
+//        public const string RSA_PublicKey = @"-----BEGIN PUBLIC KEY-----
+//MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtOxYPBLzqVu7+zklI4Td
+//wD8h9QKMNnywSSt8ynOTb4TEBE5CcDNlh06GKenhSwAGI16dOLABSAhSR52ktTwj
+//03rpMbYX8pe+S3y115vNwkA5qKoZsuKtFCvSltkWR8euHRvkN0A6S0GogkSKNyMc
+//L6u7Tr3tFt6UM161oUzn8NkqrSBrSxtlGGSKkLH/HLy0TF1b11jqte0fsTwdlCkN
+//pyNYOxPdFFg6kIzHfpzdFdL7PtH7tEeOEfoj7GyQFVSeyPKXQPfn6O71ztpCKl0c
+//b+LZJHWkIAdPuOCxsw/jhpWhygLXs4kOYY5wIcv/J465jjciuDwSOhAWYw5tzuB1
+//bQIDAQAB
+//-----END PUBLIC KEY-----";
+
+//        public const string RSA_PrivateKey = @"-----BEGIN PRIVATE KEY-----
+//MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC07Fg8EvOpW7v7
+//OSUjhN3APyH1Aow2fLBJK3zKc5NvhMQETkJwM2WHToYp6eFLAAYjXp04sAFICFJH
+//naS1PCPTeukxthfyl75LfLXXm83CQDmoqhmy4q0UK9KW2RZHx64dG+Q3QDpLQaiC
+//RIo3Ixwvq7tOve0W3pQzXrWhTOfw2SqtIGtLG2UYZIqQsf8cvLRMXVvXWOq17R+x
+//PB2UKQ2nI1g7E90UWDqQjMd+nN0V0vs+0fu0R44R+iPsbJAVVJ7I8pdA9+fo7vXO
+//2kIqXRxv4tkkdaQgB0+44LGzD+OGlaHKAteziQ5hjnAhy/8njrmONyK4PBI6EBZj
+//Dm3O4HVtAgMBAAECggEALwdWgjsc6lOFoC6BCGQTrlLa1VDVuJ4dxs9Oj2OOmgjl
+//WQcsvvSlOhA/0KpSXUgC0HPaI2+gzaQYGzSPqWqaF3FWJ41hWTZ3iTDAJe0ChbFj
+//K4QXzQeeHOWtRnfkkkEF8dwbrP79iC1ni4EcemueeofF1xiIhg7ScC34wZZ3ngOt
+//W/T5ThJmPPGrIPWXkZv2ttIC4Tqtyn4ipOEFme0IcqSfYxV2b4c2q8c0kUqDrp40
+//w0z7Ey8trwH56/fUZR9tNXHzr5tiTyCz20OHQWG8mdhDaCb+MOrD2ZC/bW1a+fDH
+//oYvKDLZIuP/WEYIu8HkCtr15Mr9TB5OFc2MSBUCmcwKBgQDfpkTLlfZ+laHVEQkm
+//7e3rl8vDialexuUl22ZRlO2Gbh/QHPh7jWnDTIFmyhgHA3Rr0dUsCJRjW8bL4NCO
+//jKVgPih2nwlCZY+Dq3BqoAo2iT52nuecWogKzMz+g4FhRiLgcoeRKyBgVjBfVIoP
+//cCE37KlBeh1kZPNTHe0jk72H9wKBgQDPF+yQOJvQwN7TAM1UpvGz8rvfI6NYEklh
+//fKMjwCNGnA0UyVEeaibWnXO7CuzqrCHA5V5kzt4nosSGbarNdQBT0L9V9sxz7hFH
+//5Y4BVT88InvDC1K2Pc65CrGjcwxVxB1n4s9HCUd8N3bvXjk4pHD7f/cOz1/wZeS7
+//iEPLW2H8uwKBgGCx84aOFN/P9AM59VoGftpga/Hj3/2hQsumW0ukdzmq/UgubmSE
+//1JhiyIPXlqHZpYlEVMVQBFAdCwt07NblCk9dMINw6UDyxiToh5ciEKhZmE8TDxJz
+//tePtfigAVXzoJQYjnmduXPYp7YoZ9AMOuN4EDX3IvVJ9rxJdmvzJ0KUrAoGAF0A6
+//YR7Z76AX5FzMsNplfKyeBzl7F2JGNtnFfzgNPdo7ZcAMiXuljKb03WUmoFpfF8co
+//x+yp6I1Pv0AE0zh1pvNi6AXjgoiSDB5ryR6HEPtWJdnZmXhrAz9+HjnGgsKYApfm
+//abVS/1FC2zEa/48G2FXPqSwDO3xVJ/Dum6BQ6g0CgYBopTGoanzfsuTOQ+Eo6JZq
+//RHObS+4O+01Ak/7ePJgI2DyMPIOAVy/M1Gf/wT/sQWSXAw3Fz0ExkPYOopBpFapV
+//iTqkddkQOr27hAnQJgiQV2BieXhRS4U9KbNm0v/a+3G4zXCBE6mJUALinOACOXR0
+//aWLIge802d/Gm8iWhCfMyg==
+//-----END PRIVATE KEY-----";
+
+//    }
+//}

@@ -1,5 +1,5 @@
 ﻿using MilkTea.Application.Ports.Hash.Password;
-using Shared.Utils;
+using MilkTea.Shared.Utils.Hash;
 
 namespace MilkTea.Infrastructure.BuildingBlocks.Hash.Password
 {

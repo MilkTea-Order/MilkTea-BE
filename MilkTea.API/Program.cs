@@ -15,7 +15,9 @@ using MilkTea.Infrastructure.BuildingBlocks.Hash.Permission;
 using MilkTea.Infrastructure.BuildingBlocks.Identify;
 using MilkTea.Infrastructure.BuildingBlocks.Notification.SMTP;
 using MilkTea.Infrastructure.BuildingBlocks.Time;
+using MilkTea.Shared.Utils.Hash;
 using System.Reflection;
+using MilkTea.Shared.Domain.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -171,5 +173,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

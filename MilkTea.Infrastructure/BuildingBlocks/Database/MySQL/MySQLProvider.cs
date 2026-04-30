@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MilkTea.Shared.Domain.Constants;
 using MilkTea.Shared.Utils;
+using MilkTea.Shared.Utils.Hash;
 // AppConfig removed - use IConfiguration directly
 
 namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
@@ -49,18 +51,19 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
 
                 //// RSA decryption: Attempt to decrypt each value; if decryption fails, use the original value
                 //// N?u gi?i mã thành công, dùng giá tr? dã gi?i mã; n?u không, dùng giá tr? g?c
-                //try
-                //{
-                //    vServer = Definitions.RSA.Decrypt(vCallFrom, Definitions.Parameters.RSA_PrivateKey, vServer);
-                //    vPort = Definitions.RSA.Decrypt(vCallFrom, Definitions.Parameters.RSA_PrivateKey, vPort);
-                //    vUsername = Definitions.RSA.Decrypt(vCallFrom, Definitions.Parameters.RSA_PrivateKey, vUsername);
-                //    vPassword = Definitions.RSA.Decrypt(vCallFrom, Definitions.Parameters.RSA_PrivateKey, vPassword);
-                //    vDatabase = Definitions.RSA.Decrypt(vCallFrom, Definitions.Parameters.RSA_PrivateKey, vDatabase);
-                //}
-                //catch
-                //{
-                //    // If decryption fails, the value might not be encrypted, use it directly
-                //}
+                try
+                {
+                    vServer = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vServer);
+                    vPort = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vPort);
+                    vUsername = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vUsername);
+                    vPassword = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vPassword);
+                    vDatabase = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vDatabase);
+                    Console.WriteLine(vServer + vPort +  vUsername+ vPassword + vDatabase);
+                }
+                catch
+                {
+                    // If decryption fails, the value might not be encrypted, use it directly
+                }
 
                 if (string.IsNullOrEmpty(vServer) || string.IsNullOrEmpty(vUsername) ||
                     string.IsNullOrEmpty(vPassword) || string.IsNullOrEmpty(vDatabase) || string.IsNullOrEmpty(vPort))

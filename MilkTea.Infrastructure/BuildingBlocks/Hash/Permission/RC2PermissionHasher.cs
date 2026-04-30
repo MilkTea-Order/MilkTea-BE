@@ -1,5 +1,5 @@
 ﻿using MilkTea.Application.Ports.Hash.Permission;
-using Shared.Utils;
+using MilkTea.Shared.Utils.Hash;
 
 namespace MilkTea.Infrastructure.BuildingBlocks.Hash.Permission
 {
