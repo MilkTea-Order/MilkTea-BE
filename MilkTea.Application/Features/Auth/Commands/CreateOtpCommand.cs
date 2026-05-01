@@ -75,7 +75,7 @@ namespace MilkTea.Application.Features.Auth.Commands
                     new NotificationRequest(
                         NotificationChannel.Email,
                         command.Email,
-                        "Mã OTP của bạn",
+                        $"Mã xác thực của bạn: {otp.OtpCode}",
                         OtpEmail.BuildOtpTemplate(otp.OtpCode, expirationOtpMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
                     cancellationToken);
 

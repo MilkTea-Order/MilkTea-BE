@@ -11,6 +11,7 @@ using MilkTea.Domain.Auth.ValueObjects;
 using MilkTea.Domain.Common.Constants;
 using MilkTea.Shared.Templates;
 using Shared.Abstractions.CQRS;
+using static System.Net.WebRequestMethods;
 
 namespace MilkTea.Application.Features.Auth.Commands;
 
@@ -167,7 +168,7 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
                 new NotificationRequest(
                     channel == Channel.Email ? NotificationChannel.Email : NotificationChannel.Sms,
                     recipient,
-                    "Mã OTP mới của bạn",
+                    $"Mã xác thực của bạn: {newOtp.OtpCode}",
                     OtpEmail.BuildOtpTemplate(newOtp.OtpCode, expirationMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
                 cancellationToken);
 

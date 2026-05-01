@@ -8,15 +8,13 @@
             string title = "Mã OTP",
             string companyName = "My Company")
         {
-            var currentDateTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-
             var html = $@"
 <!DOCTYPE html>
 <html lang=""vi"">
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Mã OTP</title>
+    <title>{title}</title>
 </head>
 
 <body style=""margin:0;padding:0;background-color:#f4f6f8;font-family:Arial,Helvetica,sans-serif;"">
@@ -68,10 +66,6 @@
             </td>
         </tr>
     </table>
-    <!-- Hidden unique timestamp -->
-    <div style=""display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;"">
-        {currentDateTime}-{otpCode}
-    </div>
 </body>
 </html>";
 
