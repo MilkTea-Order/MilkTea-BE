@@ -52,8 +52,6 @@ public static class ErrorCode
     /// </summary>
     public const string E0044 = "E0044";
 
-
-
     /// <summary>
     /// Internal error
     /// </summary>

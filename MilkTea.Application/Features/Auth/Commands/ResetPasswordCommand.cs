@@ -51,8 +51,7 @@ public sealed class ResetPasswordCommandHandler(IAuthUnitOfWork authUnitOfWork,
         var result = new ResetPasswordResult();
 
         // 1. Find valid reset password token
-        var resetToken = await _vAuthUnitOfWork.ResetPasswordTokens
-            .GetValidTokenForUpdateAsync(command.ResetPasswordToken, cancellationToken);
+        var resetToken = await _vAuthUnitOfWork.ResetPasswordTokens.GetValidTokenForUpdateAsync(command.ResetPasswordToken, cancellationToken);
 
         if (resetToken is null)
         {

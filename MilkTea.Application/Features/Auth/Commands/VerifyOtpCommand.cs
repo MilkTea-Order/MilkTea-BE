@@ -6,6 +6,7 @@ using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Domain.Auth.Entities;
 using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Domain.Common.Constants;
+using MilkTea.Shared.Extensions;
 using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Auth.Commands
@@ -32,12 +33,11 @@ namespace MilkTea.Application.Features.Auth.Commands
         }
     }
 
-    public class VerifyOtpCommandHandler(
-        IAuthUnitOfWork authUnitOfWork,
-        IOtpQuery otpQuery,
-        IJWTServicePort jwtServicePort,
-        IUserQuery userQuery,
-        IAuthQuery authQuery) : ICommandHandler<VerifyOtpCommand, VerifyOtpResult>
+    public class VerifyOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
+                                            IOtpQuery otpQuery,
+                                            IJWTServicePort jwtServicePort,
+                                            IUserQuery userQuery,
+                                            IAuthQuery authQuery) : ICommandHandler<VerifyOtpCommand, VerifyOtpResult>
     {
         private readonly IAuthUnitOfWork _vAuthUnitOfWork = authUnitOfWork;
         private readonly IOtpQuery _vOtpQuery = otpQuery;
@@ -68,6 +68,14 @@ namespace MilkTea.Application.Features.Auth.Commands
                 return SendError(result, ErrorCode.E0042, nameof(command.SessionId));
             }
 
+            if (session.Channel == Domain.Auth.ValueObjects.Channel.Email)
+            {
+                if (session.Email.IsNullOrWhiteSpace())
+                {
+                    return SendError(result, ErrorCode.E0004, "Email");
+                }
+            }
+
             // 4. Get the latest valid OTP for this session (using Query for read operation)
             var otp = await _vOtpQuery.GetLatestValidOtpBySessionIdAsync(command.SessionId, cancellationToken);
             if (otp is null)
@@ -82,7 +90,7 @@ namespace MilkTea.Application.Features.Auth.Commands
             }
 
             // 6. Get employee ID by email
-            var employeeId = await _vUserQuery.GetEmployeeIdByEmailAsync(session.Email, cancellationToken);
+            var employeeId = await _vUserQuery.GetEmployeeIdByEmailAsync(session.Email!, cancellationToken);
             if (employeeId is null)
             {
                 return SendError(result, ErrorCode.E0001, "User");

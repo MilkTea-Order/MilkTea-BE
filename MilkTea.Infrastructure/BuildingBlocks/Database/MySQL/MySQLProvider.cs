@@ -58,7 +58,6 @@ namespace MilkTea.Infrastructure.BuildingBlocks.Database.MySQL
                     vUsername = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vUsername);
                     vPassword = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vPassword);
                     vDatabase = RSAHelper.Decrypt(vCallFrom, Key.RSA_PrivateKey, vDatabase);
-                    Console.WriteLine(vServer + vPort +  vUsername+ vPassword + vDatabase);
                 }
                 catch
                 {

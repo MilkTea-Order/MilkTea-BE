@@ -19,7 +19,10 @@ public class SessionEntityConfiguration : IEntityTypeConfiguration<SessionEntity
 
         builder.Property(x => x.Email)
             .HasColumnName("DestinationEmail")
-            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(x => x.Phone)
+            .HasColumnName("DestinationPhone")
             .HasMaxLength(100);
 
         // Value Converters for Value Objects → string in DB

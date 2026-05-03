@@ -1,3 +1,4 @@
+using FluentValidation;
 using MilkTea.Application.Features.Auth.Models.Results;
 using MilkTea.Application.Features.Configuration.Abstractions.Services;
 using MilkTea.Application.Features.User.Abstractions.Services;
@@ -17,11 +18,20 @@ namespace MilkTea.Application.Features.Auth.Commands
         public string Function { get; set; } = string.Empty;
     }
 
-    public class CreateOtpCommandHandler(
-        IAuthUnitOfWork authUnitOfWork,
-        IConfigurationService configurationService,
-        IUserService userService,
-        INotificationSender notificationSender) : ICommandHandler<CreateOtpCommand, CreateOtpResult>
+    public sealed class CreateOtpCommandValidator : AbstractValidator<CreateOtpCommand>
+    {
+        public CreateOtpCommandValidator() {
+            RuleFor(x => x.Function)
+                .Must(SessionFunction.IsValid)
+                .WithErrorCode(ErrorCode.E0036)
+                .OverridePropertyName(nameof(CreateOtpCommand.Function));
+        }
+    }
+
+    public class CreateOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
+                                            IConfigurationService configurationService,
+                                            IUserService userService,
+                                            INotificationSender notificationSender) : ICommandHandler<CreateOtpCommand, CreateOtpResult>
     {
         private readonly IAuthUnitOfWork _vAuthUnitOfWork = authUnitOfWork;
         private readonly IConfigurationService _vConfigurationService = configurationService;

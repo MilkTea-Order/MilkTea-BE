@@ -101,11 +101,14 @@ namespace MilkTea.Infrastructure.Features.User.Queries
             };
         }
 
-        public async Task<int?> GetEmployeeIdByEmailAsync(string email, CancellationToken cancellationToken)
+        public async Task<int?> GetEmployeeIdByEmailAsync(string? email, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(email))
+                return null;
+
             return await _vContext.Employees
                 .AsNoTracking()
-                .Where(e => e.Email.Value == email)
+                .Where(x => x.Email.Value == email)
                 .Select(e => (int?)e.Id)
                 .FirstOrDefaultAsync(cancellationToken);
         }

@@ -9,6 +9,7 @@ using MilkTea.Domain.Auth.Exceptions;
 using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Domain.Auth.ValueObjects;
 using MilkTea.Domain.Common.Constants;
+using MilkTea.Shared.Extensions;
 using MilkTea.Shared.Templates;
 using Shared.Abstractions.CQRS;
 using static System.Net.WebRequestMethods;
@@ -32,8 +33,8 @@ public sealed class ResendOtpCommandValidator : AbstractValidator<ResendOtpComma
             .OverridePropertyName(nameof(ResendOtpCommand.SessionId));
 
         RuleFor(x => x.Channel)
-            .NotEmpty()
-            .WithErrorCode(ErrorCode.E0001)
+            .Must(Channel.IsValid)
+            .WithErrorCode(ErrorCode.E0036)
             .OverridePropertyName(nameof(ResendOtpCommand.Channel));
 
         RuleFor(x => x.IdempotencyKey)
@@ -55,36 +56,22 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
     private readonly IOtpQuery _vOtpQuery = otpQuery;
     private readonly IMemoryCache _vMemoryCache = memoryCache;
 
-
-
     public async Task<ResendOtpResult> Handle(ResendOtpCommand command, CancellationToken cancellationToken)
     {
         var result = new ResendOtpResult();
 
-        // 1. Validate channel
-        Channel channel;
-        try
-        {
-            channel = Channel.Create(command.Channel);
-        }
-        catch (InvalidChannelException)
-        {
-            return SendError(result, ErrorCode.E0036, nameof(command.Channel));
-        }
-
-        // 2. Get session by ID first to validate
+        // 1. Get session by ID
         var session = await _vAuthUnitOfWork.Sessions.GetByIdAsync(command.SessionId, cancellationToken);
         if (session is null)
         {
             return SendError(result, ErrorCode.E0001, nameof(command.SessionId));
         }
 
-
-        // 3. Check idempotency cache
+        // 2. Check idempotency cache
         var idempotencyCacheKey = $"idempotency:resend_otp:{command.SessionId}:{command.IdempotencyKey}";
         if (_vMemoryCache.TryGetValue(idempotencyCacheKey, out int? cachedOtpId) && cachedOtpId.HasValue)
         {
-            // Query OTP from DB using cached ID (no tracking)
+            // Query OTP from DB using cached ID
             var cachedOtp = await _vOtpQuery.GetOtpByIdAsync(cachedOtpId.Value, cancellationToken);
 
             if (cachedOtp != null && cachedOtp.SessionId == command.SessionId)
@@ -129,26 +116,49 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
             }
         }
 
-        // 4. Get OTP send limit from configuration for the specific channel
-        var otpSendLimit = await _vConfigurationService.GetOtpMaxAttemptsAsync(cancellationToken);
+        // 3. Validate verified session and ExpiredDate of session and destination of channel
+        if (session.IsVerified)
+        {
+            return SendError(result, ErrorCode.E0042, nameof(command.SessionId));
+        }
+        else if (session.IsExpired)
+        {
 
-        // 5. Count successful OTP sends in DB for this session and channel
-        // If session is verified, only count OTPs created AFTER verification (reset counter)
+            return SendError(result, ErrorCode.E0043, nameof(command.SessionId));
+        }
+
+        if(Channel.Create(command.Channel) == Channel.Email)
+        {
+            if (session.Email.IsNullOrWhiteSpace())
+            {
+                return SendError(result, ErrorCode.E0004, "Email");
+            }
+        }
+
+        if (Channel.Create(command.Channel) == Channel.Sms)
+        {
+            if (session.Phone.IsNullOrWhiteSpace())
+            {
+                return SendError(result, ErrorCode.E0004, "Phone");
+            }
+        }
+
+        // 4. Validate max attempt otp in each session
+        var otpSendLimit = await _vConfigurationService.GetOtpMaxAttemptsAsync(cancellationToken);
         var totalOtpSends = await _vOtpQuery.CountSuccessfulOtpBySessionAndChannelAsync(command.SessionId,
-                                                                                                channel.Value,
+                                                                                                command.Channel,
                                                                                                 session.VerifiedDate,
                                                                                                 cancellationToken);
-
         if (totalOtpSends >= otpSendLimit)
         {
             return SendError(result, ErrorCode.E0044, nameof(command.SessionId));
         }
 
-        // 6. Get OTP expiration time for creating new OTP
+        // 5. Get OTP expiration time for creating new OTP
         var expirationMinutes = await _vConfigurationService.GetOtpExpirationMinutesAsync(cancellationToken);
         var expiresDate = DateTime.Now.AddMinutes(expirationMinutes);
 
-        // 7. Transaction: create new OTP and send notification
+        // 6. Create new OTP and send notification
         await _vAuthUnitOfWork.BeginTransactionAsync(cancellationToken);
         OtpEntity? newOtp = null;
         try
@@ -156,25 +166,23 @@ public class ResendOtpCommandHandler(IAuthUnitOfWork authUnitOfWork,
             // Create new OTP
             newOtp = OtpEntity.Create(
                 sessionId: command.SessionId,
-                channel: channel,
+                channel: Channel.Create(command.Channel),
                 expiredDate: expiresDate);
             await _vAuthUnitOfWork.Otps.AddAsync(newOtp, cancellationToken);
             await _vAuthUnitOfWork.SaveChangesAsync(cancellationToken);
 
             // Send notification based on channel
-            string recipient = session.Email;
-
             await _vNotificationSender.SendAsync(
                 new NotificationRequest(
-                    channel == Channel.Email ? NotificationChannel.Email : NotificationChannel.Sms,
-                    recipient,
+                    Channel.Create(command.Channel) == Channel.Email ? NotificationChannel.Email : NotificationChannel.Sms,
+                    Channel.Create(command.Channel) == Channel.Email ? session.Email! : session.Phone!,
                     $"Mã xác thực của bạn: {newOtp.OtpCode}",
                     OtpEmail.BuildOtpTemplate(newOtp.OtpCode, expirationMinutes, "Mã OTP để xác thực", "MilkTea Shop")),
                 cancellationToken);
 
             await _vAuthUnitOfWork.CommitTransactionAsync(cancellationToken);
 
-            // 8. Cache the new OTP ID for idempotency
+            // 7. Cache the new OTP ID for idempotency
             var idempotencyOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(Cache.IdempotencyCacheMinutes));
             _vMemoryCache.Set(idempotencyCacheKey, newOtp.Id, idempotencyOptions);
             result.SessionId = command.SessionId;

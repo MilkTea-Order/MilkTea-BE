@@ -5,7 +5,8 @@ namespace MilkTea.Domain.Auth.Entities;
 
 public sealed class SessionEntity : Entity<int>
 {
-    public string Email { get; private set; } = null!;
+    public string? Email { get; private set; } = null;
+    public string? Phone { get; private set; } = null;
 
     /// <summary>
     /// The channel through which the OTP was sent (e.g., Email, SMS).
@@ -35,7 +36,7 @@ public sealed class SessionEntity : Entity<int>
     /// <summary>
     /// Whether the session is verified (VerifiedDate is set).
     /// </summary>
-    public bool IsVerified => VerifiedDate.HasValue;
+    public bool IsVerified => VerifiedDate.HasValue && Status == SessionStatus.Verified;
 
     /// <summary>
     /// Checks if the session has expired.
