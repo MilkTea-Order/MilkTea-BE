@@ -189,7 +189,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Auth
         {
             var command = new ResetPasswordCommand
             {
-                ResetPasswordToken = request.ResetPasswordToken,
+                Email = request.Email,
                 NewPassword = request.NewPassword,
                 ConfirmPassword = request.ConfirmPassword
             };

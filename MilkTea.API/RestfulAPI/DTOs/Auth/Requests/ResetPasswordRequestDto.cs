@@ -5,7 +5,8 @@ namespace MilkTea.API.RestfulAPI.DTOs.Auth.Requests
     public class ResetPasswordRequestDto
     {
         [Required]
-        public string ResetPasswordToken { get; set; } = default!;
+        [EmailAddress]
+        public string Email { get; set; } = default!;
 
         [Required]
         public string NewPassword { get; set; } = default!;

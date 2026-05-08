@@ -169,6 +169,7 @@ app.UseRouting();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<TimeZoneMiddleware>();
 
+
 app.UseAuthentication();
 app.UseAuthorization();
 

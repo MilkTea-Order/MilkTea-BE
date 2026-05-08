@@ -1,5 +1,7 @@
 using FluentValidation;
+using MilkTea.Application.Features.Auth.Abstractions.Queries;
 using MilkTea.Application.Features.Auth.Models.Results;
+using MilkTea.Application.Features.User.Abstractions.Queries;
 using MilkTea.Application.Ports.Hash.Password;
 using MilkTea.Domain.Auth.Exceptions;
 using MilkTea.Domain.Auth.Repositories;
@@ -10,7 +12,7 @@ namespace MilkTea.Application.Features.Auth.Commands;
 
 public class ResetPasswordCommand : ICommand<ResetPasswordResult>
 {
-    public string ResetPasswordToken { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
     public string ConfirmPassword { get; set; } = string.Empty;
 }
@@ -19,10 +21,10 @@ public sealed class ResetPasswordCommandValidator : AbstractValidator<ResetPassw
 {
     public ResetPasswordCommandValidator()
     {
-        RuleFor(x => x.ResetPasswordToken)
+        RuleFor(x => x.Email)
             .NotEmpty()
             .WithErrorCode(ErrorCode.E0001)
-            .OverridePropertyName(nameof(ResetPasswordCommand.ResetPasswordToken));
+            .OverridePropertyName(nameof(ResetPasswordCommand.Email));
 
         RuleFor(x => x.NewPassword)
             .NotEmpty()
@@ -40,57 +42,50 @@ public sealed class ResetPasswordCommandValidator : AbstractValidator<ResetPassw
 
 
 public sealed class ResetPasswordCommandHandler(IAuthUnitOfWork authUnitOfWork,
-                                                 IPasswordHasher passwordHasher
-) : ICommandHandler<ResetPasswordCommand, ResetPasswordResult>
+                                                 IPasswordHasher passwordHasher,
+                                                 IUserQuery userQuery,
+                                                 IAuthQuery authQuery) : ICommandHandler<ResetPasswordCommand, ResetPasswordResult>
 {
     private readonly IAuthUnitOfWork _vAuthUnitOfWork = authUnitOfWork;
     private readonly IPasswordHasher _vPasswordHasher = passwordHasher;
+    private readonly IUserQuery _vUserQuery = userQuery;
+    private readonly IAuthQuery _vAuthQuery = authQuery;
 
     public async Task<ResetPasswordResult> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var result = new ResetPasswordResult();
 
-        // 1. Find valid reset password token
-        var resetToken = await _vAuthUnitOfWork.ResetPasswordTokens.GetValidTokenForUpdateAsync(command.ResetPasswordToken, cancellationToken);
-
-        if (resetToken is null)
+        // 1. Find employee by email
+        var employeeId = await _vUserQuery.GetEmployeeIdByEmailAsync(command.Email, cancellationToken);
+        if (employeeId is null)
         {
-            return SendError(result, ErrorCode.E0001, nameof(command.ResetPasswordToken));
+            return SendError(result, ErrorCode.E0001, nameof(command.Email));
         }
 
-        // 2. Check if token is expired
-        if (resetToken.IsExpired)
+        // 2. Get user ID by employee ID
+        var userId = await _vAuthQuery.GetUserIdByEmployeeIdAsync(employeeId.Value, cancellationToken);
+        if (userId is null)
         {
-            return SendError(result, ErrorCode.E0043, nameof(command.ResetPasswordToken));
+            return SendError(result, ErrorCode.E0001, nameof(command.Email));
         }
 
-        // 3. Check if token has been used
-        if (resetToken.IsUsed || resetToken.IsRevoked)
-        {
-            return SendError(result, ErrorCode.E0001, nameof(command.ResetPasswordToken));
-        }
-
-        // 4. Get user by ID from token
-        var user = await _vAuthUnitOfWork.Users
-            .GetByIdForUpdateAsync(resetToken.UserId, cancellationToken);
+        // 3. Get user by ID for update
+        var user = await _vAuthUnitOfWork.Users.GetByIdForUpdateAsync(userId.Value, cancellationToken);
 
         if (user is null)
         {
-            return SendError(result, ErrorCode.E0001, "user");
+            return SendError(result, ErrorCode.E0001, nameof(command.Email));
         }
 
-        // 5. Hash new password
+        // 4. Hash new password
         var newPasswordHash = _vPasswordHasher.HashPassword(command.NewPassword);
 
-        // 6. Begin transaction
+        // 5. Begin transaction
         await _vAuthUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             // Update password
-            user.UpdatePassword(newPasswordHash, resetToken.UserId);
-
-            // Mark token as used
-            resetToken.MarkAsUsed();
+            user.UpdatePassword(newPasswordHash, userId.Value);
 
             // Commit transaction
             await _vAuthUnitOfWork.CommitTransactionAsync(cancellationToken);
