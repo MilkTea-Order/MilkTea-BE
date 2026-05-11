@@ -1,4 +1,5 @@
 ﻿using MilkTea.Domain.Common.Exceptions;
+using MilkTea.Domain.Orders.Enums;
 
 namespace MilkTea.Domain.Orders.Exceptions
 {
@@ -53,5 +54,11 @@ namespace MilkTea.Domain.Orders.Exceptions
     {
         public NotExistActionBy()
             : base("Action by does not exist.") { }
+    }
+
+    public sealed class InvalidOrderDetailStatusTransitionException : DomainException
+    {
+        public InvalidOrderDetailStatusTransitionException(OrderDetailStatus from, OrderDetailStatus to)
+            : base($"Cannot transition order item status from '{from}' to '{to}'.") { }
     }
 }

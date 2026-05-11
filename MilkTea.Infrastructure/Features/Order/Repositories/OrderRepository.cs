@@ -125,4 +125,14 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
                         .OrderByDescending(x => x.CreatedDate)
                         .FirstOrDefaultAsync(cancellationToken);
     }
+
+    /// <inheritdoc/>
+    public async Task<List<OrderEntity>> GetOrdersByStatusWithItemsAsync(OrderStatus status, CancellationToken cancellationToken = default)
+    {
+        return await _vContext.Orders.AsNoTracking()
+            .Where(o => o.Status == status)
+            .AsSplitQuery()
+            .Include(o => o.OrderItems)
+            .ToListAsync(cancellationToken);
+    }
 }

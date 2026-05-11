@@ -1,10 +1,4 @@
 namespace MilkTea.Domain.Orders.ValueObjects;
-
-/// <summary>
-/// Value Object capturing menu item info at the time of order.
-/// Snapshot để giữ thông tin menu lúc đặt hàng, không phụ thuộc vào entity Menu.
-/// Immutable value object.
-/// </summary>
 public sealed class MenuItem : IEquatable<MenuItem>
 {
     public int MenuId { get; }
@@ -14,7 +8,6 @@ public sealed class MenuItem : IEquatable<MenuItem>
     public int? KindOfHotpot1Id { get; }
     public int? KindOfHotpot2Id { get; }
 
-    // For EF Core
     private MenuItem() { }
 
     private MenuItem(

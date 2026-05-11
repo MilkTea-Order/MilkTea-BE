@@ -12,23 +12,12 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItemE
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
-            .HasColumnName("ID")
-            .ValueGeneratedOnAdd();
+                    .HasColumnName("ID")
+                    .ValueGeneratedOnAdd();
 
         builder.Property(x => x.OrderId)
-            .HasColumnName("OrderID")
-            .IsRequired();
-
-        builder.Property(x => x.Quantity).HasColumnName("Quantity").IsRequired();
-        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(x => x.CancelledBy).HasColumnName("CancelledBy");
-        builder.Property(x => x.CancelledDate).HasColumnName("CancelledDate");
-        builder.Property(x => x.Note).HasColumnName("Note");
-
-        builder.Ignore(x => x.UpdatedBy);
-        builder.Ignore(x => x.UpdatedDate);
-        builder.Ignore(x => x.TotalAmount);
+                    .HasColumnName("OrderID")
+                    .IsRequired();
 
         builder.ComplexProperty(x => x.MenuItem, menuItem =>
         {
@@ -45,6 +34,31 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItemE
             menuItem.Property(m => m.KindOfHotpot2Id).HasColumnName("KindOfHotpot2ID");
         });
 
-        //builder.Navigation("Order");
+
+        builder.Property(x => x.Quantity).HasColumnName("Quantity").IsRequired();
+
+        builder.Property(x => x.Status)
+                   .HasColumnName("StatusOfOrderDetailID")
+                   .HasConversion<int>()
+                   .IsRequired();
+
+        builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
+        builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
+
+        builder.Property(x => x.PerformBy);
+        builder.Property(x => x.PerformDate);
+
+        builder.Property(x => x.CompletedBy);
+        builder.Property(x => x.CompletedDate);
+
+        builder.Property(x => x.CancelledBy).HasColumnName("CancelledBy");
+        builder.Property(x => x.CancelledDate).HasColumnName("CancelledDate");
+        builder.Property(x => x.CancelReason);
+
+        builder.Property(x => x.Note).HasColumnName("Note");
+
+        builder.Ignore(x => x.UpdatedBy);
+        builder.Ignore(x => x.UpdatedDate);
+        builder.Ignore(x => x.TotalAmount);
     }
 }

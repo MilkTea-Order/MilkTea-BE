@@ -1,4 +1,5 @@
 using MilkTea.Domain.Common.Abstractions;
+using MilkTea.Domain.Orders.Enums;
 using MilkTea.Domain.Orders.Exceptions;
 using MilkTea.Domain.Orders.ValueObjects;
 
@@ -7,36 +8,39 @@ namespace MilkTea.Domain.Orders.Entities;
 public sealed class OrderItemEntity : Entity<int>
 {
     public int OrderId { get; private set; }
-    internal OrderEntity? Order { get; private set; }
 
     public MenuItem MenuItem { get; private set; } = default!;
 
     public int Quantity { get; private set; }
 
+    public OrderDetailStatus Status { get; private set; } = OrderDetailStatus.Pending;
+
     public decimal TotalAmount => MenuItem.Price * Quantity;
 
     public string? Note { get; private set; }
 
-    // Cancellation
+    public int? PerformBy { get; private set; }
+    public DateTime? PerformDate { get; private set; }
+
+    public int? CompletedBy { get; private set; }
+    public DateTime? CompletedDate { get; private set; }
+
     public int? CancelledBy { get; private set; }
     public DateTime? CancelledDate { get; private set; }
+    public string? CancelReason { get; private set; }
     public bool IsCancelled => CancelledBy.HasValue && CancelledDate.HasValue;
 
-    // For EF
     private OrderItemEntity() { }
 
-    internal static OrderItemEntity Create(
-        MenuItem menuItem,
-        int quantity,
-        int createdBy,
-        string? note = null)
+    internal static OrderItemEntity Create(MenuItem menuItem,
+                                                int quantity,
+                                                int createdBy,
+                                                string? note = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
         ArgumentNullException.ThrowIfNull(menuItem);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(createdBy);
-
         var now = DateTime.Now;
-
         return new OrderItemEntity
         {
             MenuItem = menuItem,
@@ -93,10 +97,63 @@ public sealed class OrderItemEntity : Entity<int>
         if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
 
+        Status = OrderDetailStatus.Cancelled;
         CancelledBy = cancelledBy;
         CancelledDate = DateTime.Now;
 
         UpdatedBy = cancelledBy;
         UpdatedDate = CancelledDate;
+    }
+
+    /// <summary>
+    /// Updates the status of the order item with sequential validation and audit fields.
+    /// </summary>
+    /// <param name="newStatus">The target status to transition to.</param>
+    /// <param name="performedBy">The identifier of the user performing the update.</param>
+    /// <param name="cancelReason">The reason for cancellation (required when transitioning to Cancelled status).</param>
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
+    /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="performedBy"/> is less than or equal to zero.</exception>
+    public void UpdateStatus(OrderDetailStatus newStatus, int performedBy, string? cancelReason = null)
+    {
+        if (IsCancelled) throw new OrderItemCancelledException();
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(performedBy);
+
+        if (!CanTransitionTo(newStatus))
+            throw new InvalidOrderDetailStatusTransitionException(Status, newStatus);
+
+        var now = DateTime.Now;
+        Status = newStatus;
+        UpdatedBy = performedBy;
+        UpdatedDate = now;
+
+        switch (newStatus)
+        {
+            case OrderDetailStatus.InProgress:
+                PerformBy = performedBy;
+                PerformDate = now;
+                break;
+            case OrderDetailStatus.Completed:
+                CompletedBy = performedBy;
+                CompletedDate = now;
+                break;
+            case OrderDetailStatus.Cancelled:
+                CancelledBy = performedBy;
+                CancelledDate = now;
+                CancelReason = cancelReason;
+                break;
+        }
+    }
+
+    private bool CanTransitionTo(OrderDetailStatus target)
+    {
+        var allowed = Status switch
+        {
+            OrderDetailStatus.Pending => new[] { OrderDetailStatus.InProgress, OrderDetailStatus.Cancelled },
+            OrderDetailStatus.InProgress => new[] { OrderDetailStatus.Completed },
+            _ => Array.Empty<OrderDetailStatus>()
+        };
+
+        return allowed.Contains(target);
     }
 }

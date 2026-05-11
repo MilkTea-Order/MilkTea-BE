@@ -109,24 +109,3 @@ namespace MilkTea.Application.Features.Orders.Queries
         }
     }
 }
-
-
-//foreach (var o in reports.DateGroup)
-//{
-//    if (tableDict.TryGetValue(o.DinnerTableId, out var t))
-//    {
-//        o.DinnerTable = new TableDto
-//        {
-//            Id = t.Id,
-//            Name = t.Name,
-//            Code = t.Code,
-//            Position = t.Position,
-//            NumberOfSeats = t.NumberOfSeats,
-//            StatusId = t.StatusId,
-//            StatusName = t.StatusName,
-//            Note = t.Note,
-//            UsingImg = t.UsingImg,
-//            EmptyImg = t.EmptyImg,
-//        };
-//    }
-//}

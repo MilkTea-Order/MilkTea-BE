@@ -249,5 +249,92 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
             };
         }
 
+        public async Task<List<KitchenOrderDto>> GetKitchenOrdersAsync(OrderStatus orderStatus,
+                                                                        OrderDetailStatus orderDetailStatus,
+                                                                        CancellationToken cancellationToken = default)
+        {
+            var todayStart = DateTime.Now.Date;
+            var todayEnd = todayStart.AddDays(1);
+            var rows = await _vContext.Orders.AsNoTracking()
+                .Where(o => o.Status == orderStatus && o.CreatedDate >= todayStart && o.CreatedDate < todayEnd)
+                .Join(
+                    _vContext.OrderItems.AsNoTracking()
+                    .Where(i => i.Status == orderDetailStatus),
+                    o => o.Id,
+                    i => i.OrderId,
+                    (o, i) => new
+                    {
+                        OrderId = o.Id,
+                        o.DinnerTableId,
+                        OrderCreatedDate = o.CreatedDate,
+                        OrderCreatedBy = o.CreatedBy,
+                        OrderNote = o.Note,
+                        OrderStatus = o.Status,
+                        OrderItemId = i.Id,
+                        ItemQuantity = i.Quantity,
+                        OrderItemNote = i.Note,
+                        ItemStatus = i.Status,
+                        KindOfHotpot1Id = i.MenuItem.KindOfHotpot1Id,
+                        KindOfHotpot2Id = i.MenuItem.KindOfHotpot2Id,
+                        MenuId = i.MenuItem.MenuId,
+                        SizeId = i.MenuItem.SizeId,
+                        Price = i.MenuItem.Price,
+                        PriceListId = i.MenuItem.PriceListId,
+                        ItemCreatedDate = i.CreatedDate,
+                        ItemPerformDate = i.PerformDate,
+                        ItemCompletedDate = i.CompletedDate,
+                        ItemCancelledDate = i.CancelledDate
+                    })
+                .ToListAsync(cancellationToken);
+
+            return rows.GroupBy(r => new { r.OrderId, r.DinnerTableId })
+                .Select(g =>
+                {
+                    var first = g.First();
+                    return new KitchenOrderDto
+                    {
+                        OrderId = first.OrderId,
+                        CreatedDate = first.OrderCreatedDate,
+                        CreatedBy = first.OrderCreatedBy,
+                        Note = first.OrderNote,
+                        Status = new OrderStatusDto
+                        {
+                            Id = (int)first.OrderStatus,
+                            Name = first.OrderStatus.GetDescription()
+                        },
+                        DinnerTable = new TableDto
+                        {
+                            Id = first.DinnerTableId
+                        },
+                        OrderItems = g.Select(r => new KitchenOrderItemDto
+                        {
+                            Id = r.OrderItemId,
+                            OrderId = r.OrderId,
+                            Quantity = r.ItemQuantity,
+                            Note = r.OrderItemNote,
+                            Status = new OrderStatusDto
+                            {
+                                Id = (int)r.ItemStatus,
+                                Name = r.ItemStatus.GetDescription()
+                            },
+                            Menu = new MenuDto
+                            {
+                                Id = r.MenuId
+                            },
+                            Size = new SizeDto
+                            {
+                                Id = r.SizeId
+                            },
+                            KindOfHotpot1Id = r.KindOfHotpot1Id,
+                            KindOfHotpot2Id = r.KindOfHotpot2Id,
+                            CreatedDate = r.ItemCreatedDate,
+                            PerformDate = r.ItemPerformDate,
+                            CompletedDate = r.ItemCompletedDate,
+                            CancelledDate = r.ItemCancelledDate
+                        }).ToList()
+                    };
+                })
+                .ToList();
+        }
     }
 }

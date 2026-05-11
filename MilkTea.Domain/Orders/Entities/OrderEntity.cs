@@ -105,6 +105,30 @@ public sealed class OrderEntity : Aggregate<int>
     }
 
     /// <summary>
+    /// Updates the status of a specific order item with audit trail.
+    /// </summary>
+    /// <param name="orderItemId">The unique identifier of the order item.</param>
+    /// <param name="newStatus">The target status to transition to.</param>
+    /// <param name="updatedBy">The identifier of the user performing the update.</param>
+    /// <param name="cancelReason">The reason for cancellation (required when transitioning to Cancelled status).</param>
+    /// <exception cref="OrderItemNotFoundException">Thrown when the order item does not exist.</exception>
+    /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
+    /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
+    public void UpdateOrderItemStatus(int orderItemId, OrderDetailStatus newStatus, int updatedBy, string? cancelReason = null)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
+
+        var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        if (item is null) throw new OrderItemNotFoundException();
+
+        EnsureCanEdit();
+        item.UpdateStatus(newStatus, updatedBy, cancelReason);
+        Touch(updatedBy);
+    }
+
+    /// <summary>
     /// Updates the quantity of a specific order item and records the user who made the change.
     /// </summary>
     /// <param name="orderItemId">The unique identifier of the order item to update.</param>

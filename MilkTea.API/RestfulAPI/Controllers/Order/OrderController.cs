@@ -176,6 +176,22 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         }
 
         [Authorize]
+        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/status")]
+        public async Task<ResponseDto> UpdateOrderItemStatus([FromRoute] int orderId, [FromRoute] int orderDetailId, [FromBody] UpdateOrderItemStatusRequestDto request)
+        {
+            var command = new UpdateOrderItemStatusCommand
+            {
+                OrderID = orderId,
+                OrderDetailID = orderDetailId,
+                Status = request.Status,
+                Reason = request.Reason
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
+
+        [Authorize]
         [HttpPatch("{orderId:int}/change-table")]
         public async Task<ResponseDto> ChangeTable([FromRoute] int orderId, [FromBody] ChangeTableRequestDto request)
         {
@@ -243,6 +259,26 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             var result = await _vSender.Send(query);
             if (result.ResultData.HasData) return SendError(result.ResultData);
             var response = _vMapper.Map<GetOrderReportResponseDto>(result.Static);
+            return SendSuccess(response);
+        }
+
+        [Authorize]
+        [HttpGet("kitchen")]
+        public async Task<ResponseDto> GetKitchenOrders(
+            [FromQuery] int orderStatusId = 1,
+            [FromQuery] int orderDetailStatusId = 1)
+        {
+            var query = new GetKitchenOrdersQuery
+            {
+                OrderStatusId = orderStatusId,
+                OrderDetailStatusId = orderDetailStatusId
+            };
+            var result = await _vSender.Send(query);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            var response = new GetKitchenOrdersResponseDto
+            {
+                Orders = _vMapper.Map<List<KitchenOrderDto>>(result.Orders)
+            };
             return SendSuccess(response);
         }
     }

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
+using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Application.Features.Orders.Models.Results;
-using MilkTea.Application.Models.Orders;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Domain.Common.Constants;
@@ -141,7 +141,7 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
             }
             await _vOrderingUnitOfWork.Orders.AddAsync(order, cancellationToken);
             await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
-            result.Order = new Order
+            result.Order = new OrderDto
             {
                 OrderId = order.Id,
                 DinnerTableId = order.DinnerTableId,
@@ -149,15 +149,14 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
                 OrderDate = order.OrderDate,
                 CreatedBy = order.CreatedBy,
                 CreatedDate = order.CreatedDate,
-                StatusId = (int)order.Status,
                 Note = order.Note,
                 TotalAmount = order.GetTotalAmount(),
-                Status = new OrderStatus
+                Status = new OrderStatusDto
                 {
                     Id = (int)order.Status,
                     Name = order.Status.GetDescription()
                 },
-                DinnerTable = new Table
+                DinnerTable = new TableDto
                 {
                     Id = table.Id,
                     Code = table.Code,

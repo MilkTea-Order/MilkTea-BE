@@ -13,7 +13,7 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Responses
         public DateOnly Date { get; set; }
         public decimal TotalAmount { get; set; }
         public List<OrderDto> Orders { get; set; } = new List<OrderDto>();
-    }
+    } 
 
     public class StaticOrderReportResponseDto
     {

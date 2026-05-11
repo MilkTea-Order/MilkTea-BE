@@ -53,13 +53,6 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<OrderEntity>
         builder.Property(x => x.MergedBy).HasColumnName("MergedBy");
         builder.Property(x => x.MergedDate).HasColumnName("MergedDate");
 
-        //builder.ComplexProperty(x => x.BillNo, b =>
-        //{
-        //    b.Property(p => p!.Value)
-        //        .HasColumnName("BillNo")
-        //        .HasColumnType("tinytext")
-        //        .IsRequired(false);
-        //});
 
         builder.OwnsOne(x => x.BillNo, b =>
         {

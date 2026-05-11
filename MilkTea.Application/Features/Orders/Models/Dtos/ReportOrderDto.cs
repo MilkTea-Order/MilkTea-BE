@@ -5,7 +5,6 @@
         public List<OrderDateGroupDto> DateGroup { get; set; } = new();
         public StaticDto Statics { get; set; } = new();
     }
-
     public class OrderDateGroupDto
     {
         public DateOnly Date { get; set; }

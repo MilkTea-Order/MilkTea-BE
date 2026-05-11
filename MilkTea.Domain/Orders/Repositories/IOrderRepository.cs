@@ -79,4 +79,8 @@ public interface IOrderRepository
     /// <returns>True if the dinner table is currently in use; otherwise, false.</returns>
     Task<bool> HadUsing(int dinnerTableId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Gets all orders with items filtered by order status. Used for kitchen display.
+    /// </summary>
+    Task<List<OrderEntity>> GetOrdersByStatusWithItemsAsync(OrderStatus status, CancellationToken cancellationToken = default);
 }

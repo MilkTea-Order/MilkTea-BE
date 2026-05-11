@@ -1,7 +1,7 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
+using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Application.Features.Orders.Models.Results;
-using MilkTea.Application.Models.Orders;
 using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Repositories;
 using Shared.Extensions;
@@ -46,7 +46,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
         var sizes = await _vCatalogQuery.GetMenuSizesAsync(sizeIds, cancellationToken);
         var table = await _vCatalogQuery.GetTableAsync(order.DinnerTableId, cancellationToken);
 
-        result.Order = new OrderDetail
+        result.Order = new OrderDto
         {
             OrderId = order.Id,
             DinnerTableId = order.DinnerTableId,
@@ -54,15 +54,14 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             OrderBy = order.OrderBy,
             CreatedDate = order.CreatedDate,
             CreatedBy = order.CreatedBy,
-            StatusId = (int)order.Status,
             Note = order.Note,
             TotalAmount = order.GetTotalAmount(),
-            Status = new OrderStatus
+            Status = new OrderStatusDto
             {
                 Id = (int)order.Status,
                 Name = order.Status.GetDescription()
             },
-            DinnerTable = table is null ? null : new Table
+            DinnerTable = table is null ? null : new TableDto
             {
                 Id = table.Id,
                 Code = table.Code,
@@ -73,13 +72,11 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                 StatusName = table.StatusName,
                 Note = table.Note,
             },
-            OrderDetails = orderItems
-                .Select(item => new OrderLine
+            OrderItems = orderItems
+                .Select(item => new OrderItemDto
                 {
                     Id = item.Id,
                     OrderId = order.Id,
-                    MenuId = item.MenuItem.MenuId,
-                    SizeId = item.MenuItem.SizeId,
                     Quantity = item.Quantity,
                     Price = item.MenuItem.Price,
                     PriceListId = item.MenuItem.PriceListId,
@@ -91,7 +88,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                     KindOfHotpot1Id = item.MenuItem.KindOfHotpot1Id,
                     KindOfHotpot2Id = item.MenuItem.KindOfHotpot2Id,
                     Menu = menus.TryGetValue(item.MenuItem.MenuId, out var m)
-                                    ? new Menu
+                                    ? new MenuDto
                                     {
                                         Id = m.MenuId,
                                         Code = m.MenuCode,
@@ -107,7 +104,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                                     : null,
 
                     Size = sizes.TryGetValue(item.MenuItem.SizeId, out var s)
-                                    ? new Size
+                                    ? new SizeDto
                                     {
                                         Id = s.SizeId,
                                         Name = s.SizeName,

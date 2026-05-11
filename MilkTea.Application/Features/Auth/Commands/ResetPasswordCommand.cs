@@ -59,14 +59,14 @@ public sealed class ResetPasswordCommandHandler(IAuthUnitOfWork authUnitOfWork,
         var employeeId = await _vUserQuery.GetEmployeeIdByEmailAsync(command.Email, cancellationToken);
         if (employeeId is null)
         {
-            return SendError(result, ErrorCode.E0001, nameof(command.Email));
+            return SendError(result, ErrorCode.E0001, "User");
         }
 
         // 2. Get user ID by employee ID
         var userId = await _vAuthQuery.GetUserIdByEmployeeIdAsync(employeeId.Value, cancellationToken);
         if (userId is null)
         {
-            return SendError(result, ErrorCode.E0001, nameof(command.Email));
+            return SendError(result, ErrorCode.E0001, "User");
         }
 
         // 3. Get user by ID for update
@@ -74,7 +74,7 @@ public sealed class ResetPasswordCommandHandler(IAuthUnitOfWork authUnitOfWork,
 
         if (user is null)
         {
-            return SendError(result, ErrorCode.E0001, nameof(command.Email));
+            return SendError(result, ErrorCode.E0001, "User");
         }
 
         // 4. Hash new password
