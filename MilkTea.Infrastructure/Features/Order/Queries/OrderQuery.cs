@@ -250,7 +250,7 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
         }
 
         public async Task<List<KitchenOrderDto>> GetKitchenOrdersAsync(OrderStatus orderStatus,
-                                                                        OrderDetailStatus orderDetailStatus,
+                                                                        OrderItemStatus orderDetailStatus,
                                                                         CancellationToken cancellationToken = default)
         {
             var todayStart = DateTime.Now.Date;

@@ -103,7 +103,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #region GetOrderDetailByIDAndStatusResponseDto
             CreateMap<Application.Features.Orders.Models.Dtos.OrderDto, GetOrderDetailByIDAndStatusResponseDto>()
                 .IncludeBase<Application.Features.Orders.Models.Dtos.OrderDto, MilkTea.API.RestfulAPI.DTOs.Orders.Common.OrderDto>()
-                .ForMember(d => d.OrderDetails, o => o.MapFrom(s => s.OrderItems));
+                .ForMember(d => d.Items, o => o.MapFrom(s => s.OrderItems));
             #endregion
 
             #region Order Report
@@ -126,7 +126,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
 
             #region GetKitchenOrdersResponseDto
             CreateMap<Application.Features.Orders.Models.Dtos.KitchenOrderDto, API.RestfulAPI.DTOs.Orders.Responses.KitchenOrderDto>()
-                .ForMember(d => d.OrderId, o => o.MapFrom(s => s.OrderId))
+                .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate))
                 .ForMember(d => d.CreatedBy, o => o.MapFrom(s => s.CreatedBy))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))

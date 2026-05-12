@@ -115,7 +115,7 @@ public sealed class OrderEntity : Aggregate<int>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
     /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
     /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
-    public void UpdateOrderItemStatus(int orderItemId, OrderDetailStatus newStatus, int updatedBy, string? cancelReason = null)
+    public void UpdateOrderItemStatus(int orderItemId, OrderItemStatus newStatus, int updatedBy, string? cancelReason = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);

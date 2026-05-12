@@ -6,6 +6,7 @@ using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Enums;
+using MilkTea.Shared.Extensions;
 using Shared.Abstractions.CQRS;
 using Shared.Extensions;
 
@@ -15,7 +16,7 @@ namespace MilkTea.Application.Features.Orders.Queries;
 public sealed class GetKitchenOrdersQuery : IQuery<GetKitchenOrdersResult>
 {
     public int OrderStatusId { get; set; } = (int)OrderStatus.Unpaid;
-    public int OrderDetailStatusId { get; set; } = (int)OrderDetailStatus.Pending;
+    public string OrderItemStatus { get; set; } = string.Empty;
 }
 
 public sealed class GetKitchenOrdersQueryValidator : AbstractValidator<GetKitchenOrdersQuery>
@@ -27,10 +28,11 @@ public sealed class GetKitchenOrdersQueryValidator : AbstractValidator<GetKitche
             .WithErrorCode(ErrorCode.E0001)
             .OverridePropertyName(nameof(GetKitchenOrdersQuery.OrderStatusId));
 
-        RuleFor(x => x.OrderDetailStatusId)
-            .Must(x => Enum.IsDefined(typeof(OrderDetailStatus), x))
+        RuleFor(x => x.OrderItemStatus)
+            .Must(statusName => string.IsNullOrEmpty(statusName) 
+                                || OrderDetailStatusExtensions.TryParse(statusName, out _))
             .WithErrorCode(ErrorCode.E0001)
-            .OverridePropertyName(nameof(GetKitchenOrdersQuery.OrderDetailStatusId));
+            .OverridePropertyName(nameof(GetKitchenOrdersQuery.OrderItemStatus));
     }
 }
 
@@ -47,7 +49,9 @@ public sealed class GetKitchenOrdersQueryHandler(IOrderQuery orderQuery,
         var result = new GetKitchenOrdersResult();
 
         var orderStatus = (OrderStatus)query.OrderStatusId;
-        var orderDetailStatus = (OrderDetailStatus)query.OrderDetailStatusId;
+        var orderDetailStatus = query.OrderItemStatus.IsNullOrWhiteSpace() 
+                                    ? OrderItemStatus.Pending 
+                                    : Enum.Parse<OrderItemStatus>(query.OrderItemStatus, ignoreCase: true);
 
         var orders = await _vOrderQuery.GetKitchenOrdersAsync(orderStatus, orderDetailStatus, cancellationToken);
 
@@ -121,30 +125,30 @@ public sealed class GetKitchenOrdersQueryHandler(IOrderQuery orderQuery,
         return result;
     }
 
-    private static List<KitchenOrderDto> sortOrdersByStatus(List<KitchenOrderDto> orders,OrderDetailStatus status)
+    private static List<KitchenOrderDto> sortOrdersByStatus(List<KitchenOrderDto> orders,OrderItemStatus status)
     {
         return status switch
         {
-            OrderDetailStatus.Pending =>
+            OrderItemStatus.Pending =>
                 orders.OrderBy(o => o.DinnerTable!.Id)
                       .ThenBy(o => o.CreatedDate)
                       .ToList(),
 
-            OrderDetailStatus.InProgress =>
+            OrderItemStatus.InProgress =>
                 orders.OrderBy(o => o.DinnerTable!.Id)
                       .ThenBy(o => o.OrderItems
                           .Where(i => i.PerformDate.HasValue)
                           .MinBy(i => i.PerformDate)?.PerformDate ?? DateTime.MaxValue)
                       .ToList(),
 
-            OrderDetailStatus.Completed =>
+            OrderItemStatus.Completed =>
                 orders.OrderBy(o => o.DinnerTable!.Id)
                       .ThenByDescending(o => o.OrderItems
                           .Where(i => i.CompletedDate.HasValue)
                           .MaxBy(i => i.CompletedDate)?.CompletedDate ?? DateTime.MinValue)
                       .ToList(),
 
-            OrderDetailStatus.Cancelled =>
+            OrderItemStatus.Cancelled =>
                 orders.OrderBy(o => o.DinnerTable!.Id)
                       .ThenByDescending(o => o.OrderItems
                           .Where(i => i.CancelledDate.HasValue)

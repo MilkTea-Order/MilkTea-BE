@@ -104,6 +104,19 @@ namespace MilkTea.API.RestfulAPI.Common
             return resultToReturn;
         }
 
+        public static ResponseDto ErrorMeta(object Data, string ErrorCode, string ErrorField)
+        {
+            ResponseDto resultToReturn = new()
+            {
+                Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error",
+                Data = Data,
+                Code = Parameters.CODE_ERROR,
+                Message = $"{ErrorField}:{ErrorCode}"
+            };
+
+            return resultToReturn;
+        }
+
         public static ResponseDto Success(object Data, string Message = Parameters.TEXT_SUCCESS)
         {
             ResponseDto resultToReturn = new()

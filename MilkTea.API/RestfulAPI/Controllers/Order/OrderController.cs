@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.DTOs.Catalog.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Requests;
@@ -9,6 +10,7 @@ using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Queries;
+using MilkTea.Domain.Common.Constants;
 
 namespace MilkTea.API.RestfulAPI.Controllers.Order
 {
@@ -37,24 +39,6 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         }
 
         [Authorize]
-        [HttpGet("{orderId:int}")]
-        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool isCancelled = false)
-        {
-            var query = new GetOrderDetailByIdAndStatusQuery
-            {
-                OrderId = orderId,
-                IsCancelled = isCancelled
-            };
-
-            var result = await _vSender.Send(query);
-
-            if (result.ResultData.HasData) return SendError(result.ResultData);
-
-            var response = _vMapper.Map<GetOrderDetailByIDAndStatusResponseDto>(result.Order);
-            return SendSuccess(response);
-        }
-
-        [Authorize]
         [HttpPost]
         public async Task<ResponseDto> CreateOrder([FromBody] CreateOrderRequestDto request)
         {
@@ -79,6 +63,24 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
             var response = _vMapper.Map<CreateOrderResponseDto>(result.Order);
 
+            return SendSuccess(response);
+        }
+
+        [Authorize]
+        [HttpGet("{orderId:int}")]
+        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool isCancelled = false)
+        {
+            var query = new GetOrderDetailByIdAndStatusQuery
+            {
+                OrderId = orderId,
+                IsCancelled = isCancelled
+            };
+
+            var result = await _vSender.Send(query);
+
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+
+            var response = _vMapper.Map<GetOrderDetailByIDAndStatusResponseDto>(result.Order);
             return SendSuccess(response);
         }
 
@@ -122,74 +124,6 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             return SendSuccess();
         }
 
-        [Authorize]
-        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/cancel")]
-        public async Task<ResponseDto> CancelOrderDetail([FromRoute] int orderId, [FromRoute] int orderDetailId)
-        {
-            var command = new CancelOrderDetailCommnad
-            {
-                OrderID = orderId,
-                OrderDetailID = orderDetailId,
-            };
-            var result = await _vSender.Send(command);
-            if (result.ResultData.HasData)
-            {
-                return SendError(result.ResultData);
-            }
-            return SendSuccess();
-        }
-
-        [Authorize]
-        [HttpPatch("{orderId:int}/items/cancel")]
-        public async Task<ResponseDto> CancelOrderDetails([FromRoute] int orderId, [FromBody] CancelOrderDetailsRequestDto request)
-        {
-            var command = new CancelOrderDetailsCommand
-            {
-                OrderID = orderId,
-                OrderDetailIDs = request.OrderDetailIDs,
-            };
-
-            var result = await _vSender.Send(command);
-
-            if (result.ResultData.HasData)
-            {
-                return SendError(result.ResultData);
-            }
-            return SendSuccess();
-        }
-
-
-        [Authorize]
-        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/update")]
-        public async Task<ResponseDto> UpdateOrderDetail([FromRoute] int orderId, [FromRoute] int orderDetailId, [FromBody] UpdateOrderDetailRequestDto request)
-        {
-            var command = new UpdateOrderDetailCommand
-            {
-                OrderID = orderId,
-                OrderDetailID = orderDetailId,
-                Quantity = request.Quantity,
-                Note = request.Note
-            };
-            var result = await _vSender.Send(command);
-            if (result.ResultData.HasData) return SendError(result.ResultData);
-            return SendSuccess();
-        }
-
-        [Authorize]
-        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/status")]
-        public async Task<ResponseDto> UpdateOrderItemStatus([FromRoute] int orderId, [FromRoute] int orderDetailId, [FromBody] UpdateOrderItemStatusRequestDto request)
-        {
-            var command = new UpdateOrderItemStatusCommand
-            {
-                OrderID = orderId,
-                OrderDetailID = orderDetailId,
-                Status = request.Status,
-                Reason = request.Reason
-            };
-            var result = await _vSender.Send(command);
-            if (result.ResultData.HasData) return SendError(result.ResultData);
-            return SendSuccess();
-        }
 
         [Authorize]
         [HttpPatch("{orderId:int}/change-table")]
@@ -204,6 +138,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             if (result.ResultData.HasData) return SendError(result.ResultData);
             return SendSuccess();
         }
+        
         [Authorize]
         [HttpPatch("{orderId:int}/merge-table")]
         public async Task<ResponseDto> MergeTable([FromRoute] int orderId, [FromBody] MergeTableRequestDto request)
@@ -264,14 +199,12 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
         [Authorize]
         [HttpGet("kitchen")]
-        public async Task<ResponseDto> GetKitchenOrders(
-            [FromQuery] int orderStatusId = 1,
-            [FromQuery] int orderDetailStatusId = 1)
+        public async Task<ResponseDto> GetKitchenOrders([FromQuery] string orderItemStatus, [FromQuery] int orderStatusId = 1)
         {
             var query = new GetKitchenOrdersQuery
             {
                 OrderStatusId = orderStatusId,
-                OrderDetailStatusId = orderDetailStatusId
+                OrderItemStatus = orderItemStatus
             };
             var result = await _vSender.Send(query);
             if (result.ResultData.HasData) return SendError(result.ResultData);
@@ -280,6 +213,78 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
                 Orders = _vMapper.Map<List<KitchenOrderDto>>(result.Orders)
             };
             return SendSuccess(response);
+        }
+
+        [Authorize]
+        [HttpPatch("{orderId:int}/items/{orderDetailId:int}/cancel")]
+        public async Task<ResponseDto> CancelOrderDetail([FromRoute] int orderId, [FromRoute] int orderDetailId)
+        {
+            var command = new CancelOrderDetailCommnad
+            {
+                OrderID = orderId,
+                OrderDetailID = orderDetailId,
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+            return SendSuccess();
+        }
+
+        [Authorize]
+        [HttpPatch("{orderId:int}/items/cancel")]
+        public async Task<ResponseDto> CancelOrderDetails([FromRoute] int orderId, [FromBody] CancelOrderDetailsRequestDto request)
+        {
+            var command = new CancelOrderDetailsCommand
+            {
+                OrderID = orderId,
+                OrderDetailIDs = request.OrderDetailIDs,
+            };
+
+            var result = await _vSender.Send(command);
+
+            if (result.ResultData.HasData)
+            {
+                return SendError(result.ResultData);
+            }
+            return SendSuccess();
+        }
+
+
+        [Authorize]
+        [HttpPatch("{orderId:int}/items/{orderDetailId:int}")]
+        public async Task<ResponseDto> UpdateOrderDetail([FromRoute] int orderId, [FromRoute] int orderDetailId, [FromBody] UpdateOrderDetailRequestDto request)
+        {
+            var command = new UpdateOrderDetailCommand
+            {
+                OrderID = orderId,
+                OrderDetailID = orderDetailId,
+                Quantity = request.Quantity,
+                Note = request.Note
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
+        }
+
+        [Authorize]
+        [HttpPatch("items/status")]
+        public async Task<ResponseDto> UpdateOrderItemStatus([FromBody] UpdateOrderItemStatusRequestDto request)
+        {
+            var command = new UpdateOrderItemStatusCommand
+            {
+                Items = request.Items.Select(i => new UpdateOrderItemStatusItem
+                {
+                    OrderID = i.OrderID,
+                    OrderDetailID = i.OrderDetailID,
+                    Status = i.Status,
+                    Reason = i.Reason
+                }).ToList()
+            };
+            var result = await _vSender.Send(command);
+            if (result.ResultData.HasData) return SendError(result.ResultData);
+            return SendSuccess();
         }
     }
 }

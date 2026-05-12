@@ -12,19 +12,19 @@ public class GetKitchenOrdersResponseDto
 public class KitchenOrderDto
 {
     [JsonPropertyOrder(1)]
-    public int OrderId { get; set; }
+    public int OrderID { get; set; }
     [JsonPropertyOrder(2)]
     public DinnerTableBaseDto? DinnerTable { get; set; }
     [JsonPropertyOrder(3)]
-    public StatusBaseDto? Status { get; set; }
+    public StatusBaseDto? Status { get; set; } 
     [JsonPropertyOrder(4)]
-    public DateTime CreatedDate { get; set; }
-    [JsonPropertyOrder(5)]
-    public int CreatedBy { get; set; }
-    [JsonPropertyOrder(6)]
     public List<KitchenOrderItemDto> Items { get; set; } = new();
-    [JsonPropertyOrder(7)]
+    [JsonPropertyOrder(5)]
     public string? Note { get; set; }
+    [JsonPropertyOrder(6)]
+    public DateTime CreatedDate { get; set; }  
+    [JsonPropertyOrder(7)]
+    public int CreatedBy { get; set; }
 }
 
 public class KitchenOrderItemDto

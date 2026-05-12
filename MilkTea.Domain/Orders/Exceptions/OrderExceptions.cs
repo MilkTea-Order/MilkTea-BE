@@ -58,7 +58,7 @@ namespace MilkTea.Domain.Orders.Exceptions
 
     public sealed class InvalidOrderDetailStatusTransitionException : DomainException
     {
-        public InvalidOrderDetailStatusTransitionException(OrderDetailStatus from, OrderDetailStatus to)
+        public InvalidOrderDetailStatusTransitionException(OrderItemStatus from, OrderItemStatus to)
             : base($"Cannot transition order item status from '{from}' to '{to}'.") { }
     }
 }

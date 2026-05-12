@@ -61,6 +61,7 @@ namespace MilkTea.Application.Features.Orders.Commands
                 result = SendError(result, ErrorCode.E0041, nameof(command.OrderId));
                 AddItemMeta(result, ex.Shortages.Select(s => new
                 {
+                    key = nameof(command.OrderId),
                     s.MaterialId,
                     s.MaterialName,
                     s.RequiredQuantity,

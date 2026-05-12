@@ -13,7 +13,7 @@ public sealed class OrderItemEntity : Entity<int>
 
     public int Quantity { get; private set; }
 
-    public OrderDetailStatus Status { get; private set; } = OrderDetailStatus.Pending;
+    public OrderItemStatus Status { get; private set; } = OrderItemStatus.Pending;
 
     public decimal TotalAmount => MenuItem.Price * Quantity;
 
@@ -97,7 +97,7 @@ public sealed class OrderItemEntity : Entity<int>
         if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
 
-        Status = OrderDetailStatus.Cancelled;
+        Status = OrderItemStatus.Cancelled;
         CancelledBy = cancelledBy;
         CancelledDate = DateTime.Now;
 
@@ -114,7 +114,7 @@ public sealed class OrderItemEntity : Entity<int>
     /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
     /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="performedBy"/> is less than or equal to zero.</exception>
-    public void UpdateStatus(OrderDetailStatus newStatus, int performedBy, string? cancelReason = null)
+    public void UpdateStatus(OrderItemStatus newStatus, int performedBy, string? cancelReason = null)
     {
         if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(performedBy);
@@ -129,15 +129,15 @@ public sealed class OrderItemEntity : Entity<int>
 
         switch (newStatus)
         {
-            case OrderDetailStatus.InProgress:
+            case OrderItemStatus.InProgress:
                 PerformBy = performedBy;
                 PerformDate = now;
                 break;
-            case OrderDetailStatus.Completed:
+            case OrderItemStatus.Completed:
                 CompletedBy = performedBy;
                 CompletedDate = now;
                 break;
-            case OrderDetailStatus.Cancelled:
+            case OrderItemStatus.Cancelled:
                 CancelledBy = performedBy;
                 CancelledDate = now;
                 CancelReason = cancelReason;
@@ -145,13 +145,13 @@ public sealed class OrderItemEntity : Entity<int>
         }
     }
 
-    private bool CanTransitionTo(OrderDetailStatus target)
+    private bool CanTransitionTo(OrderItemStatus target)
     {
         var allowed = Status switch
         {
-            OrderDetailStatus.Pending => new[] { OrderDetailStatus.InProgress, OrderDetailStatus.Cancelled },
-            OrderDetailStatus.InProgress => new[] { OrderDetailStatus.Completed },
-            _ => Array.Empty<OrderDetailStatus>()
+            OrderItemStatus.Pending => new[] { OrderItemStatus.InProgress, OrderItemStatus.Cancelled },
+            OrderItemStatus.InProgress => new[] { OrderItemStatus.Completed },
+            _ => Array.Empty<OrderItemStatus>()
         };
 
         return allowed.Contains(target);

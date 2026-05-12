@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace MilkTea.Domain.Orders.Enums;
 
-public enum OrderDetailStatus
+public enum OrderItemStatus
 {
     [Description("Chờ thực hiện")]
     Pending = 1,
@@ -19,7 +19,7 @@ public enum OrderDetailStatus
 
 public static class OrderDetailStatusExtensions
 {
-    public static bool TryParse(string? value, out OrderDetailStatus status)
+    public static bool TryParse(string? value, out OrderItemStatus status)
     {
         status = default;
         if (string.IsNullOrWhiteSpace(value))
