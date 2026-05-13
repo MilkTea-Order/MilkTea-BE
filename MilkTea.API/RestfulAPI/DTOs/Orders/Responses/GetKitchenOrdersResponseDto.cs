@@ -47,4 +47,7 @@ public class KitchenOrderItemDto
     public int? KindOfHotpot1Id { get; set; }
     [JsonPropertyOrder(8)]
     public int? KindOfHotpot2Id { get; set; }
+
+    [JsonPropertyOrder(9)]
+    public DateTime CreatedDate { get; set; }
 }

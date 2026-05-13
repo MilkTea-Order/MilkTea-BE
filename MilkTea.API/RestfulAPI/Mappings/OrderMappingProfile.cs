@@ -141,7 +141,8 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.KindOfHotpot1Id, o => o.MapFrom(s => s.KindOfHotpot1Id))
                 .ForMember(d => d.KindOfHotpot2Id, o => o.MapFrom(s => s.KindOfHotpot2Id))
                 .ForMember(d => d.Menu, o => o.MapFrom(s => s.Menu))
-                .ForMember(d => d.Size, o => o.MapFrom(s => s.Size));
+                .ForMember(d => d.Size, o => o.MapFrom(s => s.Size))
+                .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate));
             #endregion
         }
     }

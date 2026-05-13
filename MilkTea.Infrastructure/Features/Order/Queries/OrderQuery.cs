@@ -287,7 +287,7 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                     })
                 .ToListAsync(cancellationToken);
 
-            return rows.GroupBy(r => new { r.OrderId, r.DinnerTableId })
+            return rows.GroupBy(r => new { r.ItemCreatedDate, r.OrderId, r.DinnerTableId })
                 .Select(g =>
                 {
                     var first = g.First();

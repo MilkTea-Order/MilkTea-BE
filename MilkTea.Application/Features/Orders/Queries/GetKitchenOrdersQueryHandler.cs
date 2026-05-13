@@ -130,27 +130,23 @@ public sealed class GetKitchenOrdersQueryHandler(IOrderQuery orderQuery,
         return status switch
         {
             OrderItemStatus.Pending =>
-                orders.OrderBy(o => o.DinnerTable!.Id)
-                      .ThenBy(o => o.CreatedDate)
+                orders.OrderBy(o => o.OrderItems.Min(i => i.CreatedDate))
                       .ToList(),
 
             OrderItemStatus.InProgress =>
-                orders.OrderBy(o => o.DinnerTable!.Id)
-                      .ThenBy(o => o.OrderItems
+                orders.OrderBy(o => o.OrderItems
                           .Where(i => i.PerformDate.HasValue)
                           .MinBy(i => i.PerformDate)?.PerformDate ?? DateTime.MaxValue)
                       .ToList(),
 
             OrderItemStatus.Completed =>
-                orders.OrderBy(o => o.DinnerTable!.Id)
-                      .ThenByDescending(o => o.OrderItems
-                          .Where(i => i.CompletedDate.HasValue)
-                          .MaxBy(i => i.CompletedDate)?.CompletedDate ?? DateTime.MinValue)
+                orders.OrderByDescending(o => o.OrderItems
+                            .Where(i => i.CompletedDate.HasValue)
+                            .Max(i => i.CompletedDate) ?? DateTime.MinValue)
                       .ToList(),
 
             OrderItemStatus.Cancelled =>
-                orders.OrderBy(o => o.DinnerTable!.Id)
-                      .ThenByDescending(o => o.OrderItems
+                orders.OrderByDescending(o => o.OrderItems
                           .Where(i => i.CancelledDate.HasValue)
                           .MaxBy(i => i.CancelledDate)?.CancelledDate ?? DateTime.MinValue)
                       .ToList(),
