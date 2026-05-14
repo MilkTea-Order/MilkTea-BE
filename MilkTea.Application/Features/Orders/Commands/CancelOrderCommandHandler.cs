@@ -11,17 +11,17 @@ namespace MilkTea.Application.Features.Orders.Commands;
 
 public class CancelOrderCommand : IRequest<CancelOrderResult>
 {
-    public int OrderID { get; set; }
+    public int OrderId { get; init; }
 }
 
 public sealed class CancelOrderCommandValidator : AbstractValidator<CancelOrderCommand>
 {
     public CancelOrderCommandValidator()
     {
-        RuleFor(x => x.OrderID)
+        RuleFor(x => x.OrderId)
             .GreaterThan(0)
             .WithErrorCode(ErrorCode.E0001)
-            .OverridePropertyName("OrderID");
+            .OverridePropertyName(nameof(CancelOrderCommand.OrderId));
     }
 }
 
@@ -34,17 +34,17 @@ public sealed class CancelOrderCommandHandler(
     {
         var result = new CancelOrderResult();
 
-        var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
+        var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderId);
         if (order is null)
         {
-            return SendError(result, ErrorCode.E0001, nameof(command.OrderID));
+            return SendError(result, ErrorCode.E0001, nameof(command.OrderId));
         }
 
         await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
             var cancelledBy = currentUser.UserId;
-            order.Cancel(cancelledBy);
+            order.CancelOrder(cancelledBy);
             await _vOrderingUnitOfWork.Orders.UpdateAsync(order);
             await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             return result;
@@ -52,7 +52,12 @@ public sealed class CancelOrderCommandHandler(
         catch (OrderNotEditableException)
         {
             await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-            return SendError(result, ErrorCode.E0042, "OrderID");
+            return SendError(result, ErrorCode.E0042,  nameof(command.OrderId));
+        }
+        catch (OrderItemStatusInValid)
+        {
+            await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
+            return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatus");
         }
         catch (Exception)
         {

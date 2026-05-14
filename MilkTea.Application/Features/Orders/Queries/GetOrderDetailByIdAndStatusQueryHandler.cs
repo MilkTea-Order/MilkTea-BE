@@ -1,26 +1,24 @@
 using MediatR;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
-using MilkTea.Application.Features.Orders.Models.Dtos;
+using MilkTea.Application.Features.Orders.Abstractions;
 using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Domain.Common.Constants;
-using MilkTea.Domain.Orders.Repositories;
-using Shared.Extensions;
 
 namespace MilkTea.Application.Features.Orders.Queries;
 
 
 public sealed class GetOrderDetailByIdAndStatusQuery : IRequest<GetOrderDetailByIDAndStatusResult>
 {
-    public int OrderId { get; set; }
-    public bool IsCancelled { get; set; } = false;
+    public int OrderId { get; init; }
+    public bool IsCancelled { get; init; }
 }
 
 public sealed class GetOrderDetailByIdAndStatusQueryHandler(
-    IOrderUnitOfWork orderingUnitOfWork,
+    IOrderQuery orderQuery,
     ICatalogService catalogService) : IRequestHandler<GetOrderDetailByIdAndStatusQuery, GetOrderDetailByIDAndStatusResult>
 {
     private readonly ICatalogService _vCatalogQuery = catalogService;
-    private readonly IOrderUnitOfWork _vOrderUnitOfWork = orderingUnitOfWork;
+    private readonly IOrderQuery _vOrderQuery = orderQuery;
     public async Task<GetOrderDetailByIDAndStatusResult> Handle(GetOrderDetailByIdAndStatusQuery query, CancellationToken cancellationToken)
     {
         var result = new GetOrderDetailByIDAndStatusResult();
@@ -30,89 +28,52 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             return SendError(result, ErrorCode.E0036, nameof(query.OrderId));
         }
 
-        var order = await _vOrderUnitOfWork.Orders.GetOrderDetailByIDAndStatus(query.OrderId, null);
+        var order = await _vOrderQuery.GetOrderDetailByIdAndStatusAsync(query.OrderId, query.IsCancelled, cancellationToken);
 
         if (order is null)
         {
             return SendError(result, ErrorCode.E0001, nameof(query.OrderId));
         }
 
-        var orderItems = order.OrderItems.Where(x => x.IsCancelled == query.IsCancelled).ToList();
-
-        var menuIds = orderItems.Select(x => x.MenuItem.MenuId).Distinct();
-        var sizeIds = orderItems.Select(x => x.MenuItem.SizeId).Distinct();
-
+        var menuIds = order.OrderItems.Select(x => x.Menu?.Id).Where(id => id.HasValue).Select(id => id!.Value).Distinct();
+        var sizeIds = order.OrderItems.Select(x => x.Size?.Id).Where(id => id.HasValue).Select(id => id!.Value).Distinct();
         var menus = await _vCatalogQuery.GetMenusAsync(menuIds, cancellationToken);
         var sizes = await _vCatalogQuery.GetMenuSizesAsync(sizeIds, cancellationToken);
-        var table = await _vCatalogQuery.GetTableAsync(order.DinnerTableId, cancellationToken);
-
-        result.Order = new OrderDto
+        var table = await _vCatalogQuery.GetTableAsync(order.DinnerTable!.Id, cancellationToken);
+        
+        foreach (var item in order.OrderItems)
         {
-            OrderId = order.Id,
-            DinnerTableId = order.DinnerTableId,
-            OrderDate = order.OrderDate,
-            OrderBy = order.OrderBy,
-            CreatedDate = order.CreatedDate,
-            CreatedBy = order.CreatedBy,
-            Note = order.Note,
-            TotalAmount = order.GetTotalAmount(),
-            Status = new OrderStatusDto
+            if (item.Menu != null && menus.TryGetValue(item.Menu.Id, out var m))
             {
-                Id = (int)order.Status,
-                Name = order.Status.GetDescription()
-            },
-            DinnerTable = table is null ? null : new TableDto
-            {
-                Id = table.Id,
-                Code = table.Code,
-                Name = table.Name,
-                Position = table.Position,
-                NumberOfSeats = table.NumberOfSeats,
-                StatusId = table.StatusId,
-                StatusName = table.StatusName,
-                Note = table.Note,
-            },
-            OrderItems = orderItems
-                .Select(item => new OrderItemDto
-                {
-                    Id = item.Id,
-                    OrderId = order.Id,
-                    Quantity = item.Quantity,
-                    Price = item.MenuItem.Price,
-                    PriceListId = item.MenuItem.PriceListId,
-                    CreatedBy = item.CreatedBy,
-                    CreatedDate = item.CreatedDate,
-                    CancelledBy = item.CancelledBy,
-                    CancelledDate = item.CancelledDate,
-                    Note = item.Note,
-                    KindOfHotpot1Id = item.MenuItem.KindOfHotpot1Id,
-                    KindOfHotpot2Id = item.MenuItem.KindOfHotpot2Id,
-                    Menu = menus.TryGetValue(item.MenuItem.MenuId, out var m)
-                                    ? new MenuDto
-                                    {
-                                        Id = m.MenuId,
-                                        Code = m.MenuCode,
-                                        Name = m.MenuName,
-                                        MenuGroupId = m.MenuGroupId,
-                                        MenuGroupName = m.MenuGroupName,
-                                        StatusId = m.StatusId,
-                                        StatusName = m.StatusName,
-                                        UnitId = m.UnitId,
-                                        UnitName = m.UnitName,
-                                        Note = m.Note
-                                    }
-                                    : null,
+                item.Menu.MenuGroupId = m.MenuGroupId;
+                item.Menu.MenuGroupName = m.MenuGroupName;
+                item.Menu.Code = m.MenuCode;
+                item.Menu.Name = m.MenuName;
+                item.Menu.StatusId = m.StatusId;
+                item.Menu.StatusName = m.StatusName;
+                item.Menu.UnitId = m.UnitId;
+                item.Menu.UnitName = m.UnitName;
+            }
 
-                    Size = sizes.TryGetValue(item.MenuItem.SizeId, out var s)
-                                    ? new SizeDto
-                                    {
-                                        Id = s.SizeId,
-                                        Name = s.SizeName,
-                                        RankIndex = s.RankIndex
-                                    }
-                                    : null,
-                }).ToList()
-        };
+            if (item.Size != null && sizes.TryGetValue(item.Size.Id, out var s))
+            {
+                item.Size.Name = s.SizeName;
+                item.Size.RankIndex = s.RankIndex;
+            }
+        }
+
+        if (order.DinnerTable != null && table != null)
+        {
+            order.DinnerTable.Code = table.Code;
+            order.DinnerTable.Name = table.Name;
+            order.DinnerTable.Position = table.Position;
+            order.DinnerTable.NumberOfSeats = table.NumberOfSeats;
+            order.DinnerTable.StatusId = table.StatusId;
+            order.DinnerTable.StatusName = table.StatusName;
+            order.DinnerTable.Note = table.Note;
+        }
+
+        result.Order = order;
         return result;
     }
 

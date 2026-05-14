@@ -73,7 +73,6 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
             var resultQuery = baseQuery.Select(o => new OrderDto
             {
                 OrderId = o.Id,
-                DinnerTableId = o.DinnerTableId,
                 OrderDate = o.OrderDate,
                 OrderBy = o.OrderBy,
                 CreatedDate = o.CreatedDate,
@@ -88,19 +87,26 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                 PaymentMethod = o.PaymentedType,
                 CancellDate = o.CancelledDate,
                 Note = o.Note,
+                DinnerTable = new TableDto
+                {
+                    Id =  o.DinnerTableId,
+                },
                 Status = new OrderStatusDto
                 {
                     Id = (int)o.Status,
                     Name = o.Status.GetDescription()
                 },
-                TotalAmount = _vContext.OrderItems
-                    .Where(d => d.OrderId == o.Id
-                             && !(d.CancelledBy != null && d.CancelledDate != null))
-                    .Sum(d => d.Quantity * d.MenuItem.Price)
+                // TotalAmount = _vContext.OrderItems
+                //     .Where(d => d.OrderId == o.Id
+                //              && !(d.CancelledBy != null && d.CancelledDate != null))
+                //     .Sum(d => d.Quantity * d.MenuItem.Price)
+                TotalAmount = Math.Round(o.OrderItems
+                    .Where(i => i.Status != OrderItemStatus.Cancelled)
+                    .Sum(i => i.MenuItem.Price * i.Quantity), 3)
             });
 
             if (orderStatus == OrderStatus.Unpaid)
-                resultQuery = resultQuery.OrderBy(x => x.DinnerTableId);
+                resultQuery = resultQuery.OrderBy(x => x.DinnerTable!.Id);
             else if (orderStatus == OrderStatus.NotCollected)
                 resultQuery = resultQuery.OrderByDescending(x => x.PaymentDate);
             else if (orderStatus == OrderStatus.Paid)
@@ -108,7 +114,6 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
             else if (orderStatus == OrderStatus.Cancelled)
                 resultQuery = resultQuery.OrderByDescending(x => x.CancellDate);
 
-            Console.WriteLine(resultQuery.ToQueryString());
             return await resultQuery.ToListAsync(cancellationToken);
         }
 
@@ -162,7 +167,6 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                     Data = new OrderDto
                     {
                         OrderId = x.Id,
-                        DinnerTableId = x.DinnerTableId,
                         OrderDate = x.OrderDate,
                         OrderBy = x.OrderBy,
                         CreatedDate = x.CreatedDate,
@@ -177,6 +181,10 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                         PaymentMethod = x.PaymentedType,
                         TotalAmount = x.TotalAmount ?? 0,
                         Note = x.Note,
+                        DinnerTable = new TableDto
+                        {
+                            Id = x.DinnerTableId,
+                        },
                         Status = new OrderStatusDto
                         {
                             Id = (int)x.Status,
@@ -335,6 +343,75 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                     };
                 })
                 .ToList();
+        }
+
+        public async Task<OrderDto?> GetOrderDetailByIdAndStatusAsync(int orderId, bool? isCancelled, CancellationToken cancellationToken = default)
+        {
+            var order = await _vContext.Orders.AsNoTracking()
+                .Where(o => o.Id == orderId)
+                .Select(o => new OrderDto
+                {
+                    OrderId = o.Id,
+                    OrderDate = o.OrderDate,
+                    OrderBy = o.OrderBy,
+                    CreatedDate = o.CreatedDate,
+                    CreatedBy = o.CreatedBy,
+                    ActionBy = o.ActionBy,
+                    ActionDate = o.ActionDate,
+                    CancelledBy = o.CancelledBy,
+                    CancelledDate = o.CancelledDate,
+                    PaymentBy = o.PaymentedBy,
+                    PaymentDate = o.PaymentedDate,
+                    PaymentAmount = o.PaymentedTotal,
+                    PaymentMethod = o.PaymentedType,
+                    CancellDate = o.CancelledDate,
+                    Note = o.Note,
+                    TotalAmount = Math.Round(o.OrderItems
+                        .Where(i => i.Status != OrderItemStatus.Cancelled)
+                        .Sum(i => i.MenuItem.Price * i.Quantity), 3),
+                    Status = new OrderStatusDto
+                    {
+                        Id = (int)o.Status,
+                        Name = o.Status.GetDescription()
+                    },
+                    DinnerTable = new TableDto
+                    {
+                        Id = o.DinnerTableId
+                    },
+                    OrderItems = o.OrderItems
+                        .Where(i =>
+                            isCancelled == null ||
+                            (isCancelled.Value
+                                ? i.Status == OrderItemStatus.Cancelled
+                                : i.Status != OrderItemStatus.Cancelled)
+                        )
+                        .Select(i => new OrderItemDto
+                        {
+                            Id = i.Id,
+                            OrderId = o.Id,
+                            Quantity = i.Quantity,
+                            Price = i.MenuItem.Price,
+                            PriceListId = i.MenuItem.PriceListId,
+                            CreatedBy = i.CreatedBy,
+                            CreatedDate = i.CreatedDate,
+                            CancelledBy = i.CancelledBy,
+                            CancelledDate = i.CancelledDate,
+                            Note = i.Note,
+                            KindOfHotpot1Id = i.MenuItem.KindOfHotpot1Id,
+                            KindOfHotpot2Id = i.MenuItem.KindOfHotpot2Id,
+                            Menu = new MenuDto
+                            {
+                                Id = i.MenuItem.MenuId
+                            },
+                            Size = new SizeDto
+                            {
+                                Id = i.MenuItem.SizeId
+                            }
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return order;
         }
     }
 }

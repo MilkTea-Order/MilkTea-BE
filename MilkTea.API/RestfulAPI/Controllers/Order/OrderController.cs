@@ -2,7 +2,6 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MilkTea.API.RestfulAPI.Common;
 using MilkTea.API.RestfulAPI.DTOs.Catalog.Requests;
 using MilkTea.API.RestfulAPI.DTOs.Order.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Orders.Requests;
@@ -10,7 +9,8 @@ using MilkTea.API.RestfulAPI.DTOs.Orders.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Responses;
 using MilkTea.Application.Features.Orders.Commands;
 using MilkTea.Application.Features.Orders.Queries;
-using MilkTea.Domain.Common.Constants;
+using MilkTea.Domain.Orders.Enums;
+
 
 namespace MilkTea.API.RestfulAPI.Controllers.Order
 {
@@ -24,11 +24,11 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
         [Authorize]
         [HttpGet]
-        public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] int statusId = 1, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
+        public async Task<ResponseDto> GetOrdersByOrderByAndStatus([FromQuery] string status = nameof(OrderStatus.Unpaid), [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
         {
             var query = new GetOrdersByOrderByAndStatusQuery
             {
-                StatusId = statusId,
+                Status = status,
                 FromDate = fromDate,
                 ToDate = toDate
             };
@@ -68,7 +68,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
         [Authorize]
         [HttpGet("{orderId:int}")]
-        public async Task<ResponseDto> GetOrderDetailByIDAndStatusID([FromRoute] int orderId, [FromQuery] bool isCancelled = false)
+        public async Task<ResponseDto> GetOrderDetailByIdAndStatusId([FromRoute] int orderId, [FromQuery] bool isCancelled = false)
         {
             var query = new GetOrderDetailByIdAndStatusQuery
             {
@@ -80,7 +80,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
 
             if (result.ResultData.HasData) return SendError(result.ResultData);
 
-            var response = _vMapper.Map<GetOrderDetailByIDAndStatusResponseDto>(result.Order);
+            var response = _vMapper.Map<GetOrderDetailByIdAndStatusResponseDto>(result.Order);
             return SendSuccess(response);
         }
 
@@ -112,7 +112,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         {
             var command = new CancelOrderCommand
             {
-                OrderID = orderId,
+                OrderId = orderId,
             };
 
             var result = await _vSender.Send(command);

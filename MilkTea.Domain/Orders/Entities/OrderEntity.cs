@@ -52,10 +52,31 @@ public sealed class OrderEntity : Aggregate<int>
         };
         return order;
     }
-
+    
+    /// <summary>
+    /// Cancels the order, recording the user who performed the cancellation.
+    /// </summary>
+    /// <param name="cancelledBy">The identifier of the user performing the cancellation.</param>
+    /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
+    public void CancelOrder(int cancelledBy)
+    {
+        EnsureOrderIsEditable();
+        
+        // Check OrderItem must in allowed status (pending, canceled)
+        if (_vOrderItems.Any(x => x.Status != OrderItemStatus.Pending
+                                  && x.Status != OrderItemStatus.Cancelled))
+        {
+            throw new OrderItemStatusInValid();
+        }
+        
+        UpdateStatus(OrderStatus.Cancelled);
+        CancelledBy = cancelledBy;
+        CancelledDate = DateTime.Now;
+    }
+    
     public void CreateOrderItem(MenuItem menuItem, int quantity, int createdBy, string? note = null)
     {
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
         var orderItem = OrderItemEntity.Create(menuItem, quantity, createdBy, note);
         _vOrderItems.Add(orderItem);
         Touch(updatedBy: createdBy);
@@ -67,16 +88,16 @@ public sealed class OrderEntity : Aggregate<int>
     /// <param name="orderItemId">The unique identifier of the order item to cancel.</param>
     /// <param name="removedBy">The identifier of the user performing the cancellation.</param>
     /// <exception cref="OrderItemNotFoundException">Thrown when the specified order item does not exist.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been canceled.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="removedBy"/> is less than or equal to zero.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>"
     public void CancelOrderItem(int orderItemId, int removedBy)
     {
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (item is null) throw new OrderItemNotFoundException();
         item.Cancel(removedBy);
-        if (_vOrderItems.All(x => x.IsCancelled)) Cancel(removedBy);
+        if (_vOrderItems.All(x => x.IsCancelled)) CancelOrder(removedBy);
         Touch(removedBy);
     }
 
@@ -89,11 +110,11 @@ public sealed class OrderEntity : Aggregate<int>
     /// <exception cref="OrderItemNotFoundException">Thrown if any of the specified order items cannot be found.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="removedBy"/> is less than or equal to zero.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when any of the order items have already been cancelled.</exception>
+    /// <exception cref="OrderItemCancelledException">Thrown when any of the order items have already been canceled.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="orderItemIds"/> is null.</exception>
     public void CancelOrderItems(List<int> orderItemIds, int removedBy)
     {
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
         ArgumentNullException.ThrowIfNull(orderItemIds);
         foreach (var item in orderItemIds)
         {
@@ -110,20 +131,20 @@ public sealed class OrderEntity : Aggregate<int>
     /// <param name="orderItemId">The unique identifier of the order item.</param>
     /// <param name="newStatus">The target status to transition to.</param>
     /// <param name="updatedBy">The identifier of the user performing the update.</param>
-    /// <param name="cancelReason">The reason for cancellation (required when transitioning to Cancelled status).</param>
+    /// <param name="cancelReason">The reason for cancellation (required when transitioning to Canceled status).</param>
     /// <exception cref="OrderItemNotFoundException">Thrown when the order item does not exist.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been canceled.</exception>
     /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
     public void UpdateOrderItemStatus(int orderItemId, OrderItemStatus newStatus, int updatedBy, string? cancelReason = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
+        EnsureOrderIsEditable();
+        
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (item is null) throw new OrderItemNotFoundException();
-
-        EnsureCanEdit();
         item.UpdateStatus(newStatus, updatedBy, cancelReason);
         Touch(updatedBy);
     }
@@ -137,22 +158,21 @@ public sealed class OrderEntity : Aggregate<int>
     /// <exception cref="OrderItemNotFoundException">Thrown when the specified order item does not exist.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="orderItemId"/>, <paramref name="quantity"/>, or <paramref name="updatedBy"/> is less than or equal to zero.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
-    public void UpdateItemQuantity(int orderItemId, int quantity, int updatedBy)
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been canceled.</exception>
+    public void UpdateOrderItemQuantity(int orderItemId, int quantity, int updatedBy)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
+        EnsureOrderIsEditable();
+        
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (item is null) throw new OrderItemNotFoundException();
 
-        EnsureCanEdit();
-
         item.UpdateQuantity(quantity, updatedBy);
 
-        UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.Now;
+        Touch(updatedBy);
     }
 
     /// <summary>
@@ -164,37 +184,19 @@ public sealed class OrderEntity : Aggregate<int>
     /// <exception cref="OrderItemNotFoundException">Thrown when the specified order item does not exist.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="orderItemId"/> or <paramref name="updatedBy"/> is less than or equal to zero.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
-    public void UpdateItemNote(int orderItemId, string? note, int updatedBy)
+    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been canceled.</exception>
+    public void UpdateOrderItemNote(int orderItemId, string? note, int updatedBy)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(orderItemId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
         var item = _vOrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (item is null) throw new OrderItemNotFoundException();
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
         item.UpdateNote(note, updatedBy);
-        UpdatedBy = updatedBy;
-        UpdatedDate = DateTime.Now;
+        Touch(updatedBy);
     }
 
 
-    /// <summary>
-    /// Cancels the order, recording the user who performed the cancellation.
-    /// </summary>
-    /// <param name="cancelledBy">The identifier of the user performing the cancellation.</param>
-    /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
-    public void Cancel(int cancelledBy)
-    {
-        EnsureCanEdit();
-        UpdateStatus(OrderStatus.Cancelled, cancelledBy);
-        CancelledBy = cancelledBy;
-        CancelledDate = DateTime.Now;
-        //foreach (var item in _vOrderItems.Where(x => !x.IsCancelled))
-        //{
-        //    item.Cancel(cancelledBy);
-        //}
-        //Touch(cancelledBy);
-    }
 
 
     public void UpdateNote(string note, int updatedBy)
@@ -216,7 +218,7 @@ public sealed class OrderEntity : Aggregate<int>
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dinnerTableId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
         ChangeBy = updatedBy;
         ChangeDate = DateTime.Now;
         DinnerTableId = dinnerTableId;
@@ -234,7 +236,7 @@ public sealed class OrderEntity : Aggregate<int>
     public void MergeFrom(OrderEntity orderSource, int mergedBy)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(mergedBy);
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
         if (orderSource.Status != OrderStatus.Unpaid) throw new OrderSourceCannotMergeException();
         MergedBy = mergedBy;
         MergedDate = DateTime.Now;
@@ -258,7 +260,7 @@ public sealed class OrderEntity : Aggregate<int>
     /// <exception cref="OrderNotEditableException">Thrown when the order cannot be edited because its status is not Unpaid.</exception>
     public void Payment(string prefix, int payBy, string paymentType)
     {
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
 
         if (payBy <= 0) throw new NotExistActionBy();
         if (string.IsNullOrWhiteSpace(paymentType)) throw new NotExistPaymentType();
@@ -283,7 +285,7 @@ public sealed class OrderEntity : Aggregate<int>
     }
 
     /// <summary>
-    /// Marks the order as collected and updates its status to Paid.
+    /// Marks the order as collected and updates its status to Pay.
     /// </summary>
     /// <param name="collectedBy">Identifier of the user who collected the order.</param>
     /// <exception cref="NotExistActionBy">Thrown when the collectedBy identifier is invalid.</exception>
@@ -305,7 +307,7 @@ public sealed class OrderEntity : Aggregate<int>
     {
         ArgumentNullException.ThrowIfNull(promotion);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(appliedBy);
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
 
         Promotion = promotion;
         //RecalculateTotalAmount();
@@ -314,7 +316,7 @@ public sealed class OrderEntity : Aggregate<int>
 
     public void RemovePromotion(int updatedBy)
     {
-        EnsureCanEdit();
+        EnsureOrderIsEditable();
 
         Promotion = null;
         //RecalculateTotalAmount();
@@ -322,7 +324,7 @@ public sealed class OrderEntity : Aggregate<int>
     }
 
     /// <summary>
-    /// Get Total Amount before payment (no excluded cancelled items)
+    /// Get Total Amount before payment (no excluded canceled items)
     /// </summary>
     /// <returns></returns>
     public decimal GetTotalAmount()
@@ -337,7 +339,7 @@ public sealed class OrderEntity : Aggregate<int>
     }
 
     /// <summary>
-    /// Get Total Amount for Pay (excluding cancelled items)
+    /// Get Total Amount for Pay (excluding canceled items)
     /// </summary>
     /// <returns></returns>
     private decimal GetTotalAmountForPay()
@@ -364,9 +366,8 @@ public sealed class OrderEntity : Aggregate<int>
     /// Updates the order status to the specified value.
     /// </summary>
     /// <param name="newStatus">The new status to set for the order.</param>
-    /// <param name="changedBy">The identifier of the user making the change.</param>
     /// <exception cref="NotExistOrderStatus">Thrown when the specified order status does not exist.</exception>
-    private void UpdateStatus(OrderStatus newStatus, int changedBy)
+    private void UpdateStatus(OrderStatus newStatus)
     {
         if (!Enum.IsDefined(typeof(OrderStatus), newStatus))
         {
@@ -374,25 +375,20 @@ public sealed class OrderEntity : Aggregate<int>
         }
         Status = newStatus;
     }
-    private void EnsureNotCancelled()
-    {
-        if (Status == OrderStatus.Cancelled)
-            throw new OrderCancelledException();
-    }
 
     /// <summary>
     /// Throws an exception if the order status is not Unpaid.
     /// </summary>
     /// <exception cref="OrderNotEditableException">Thrown when the order cannot be edited because its status is not Unpaid.</exception>
-    private void EnsureCanEdit()
+    private void EnsureOrderIsEditable()
     {
         if (Status != OrderStatus.Unpaid) throw new OrderNotEditableException();
     }
-
+    
     private void AssignBillNo(string? prefix, DateTime time)
     {
-        EnsureCanEdit();
-        if (BillNo is null) BillNo = BillNo.Create(prefix!, time);
+        EnsureOrderIsEditable();
+        BillNo ??= BillNo.Create(prefix!, time);
     }
 
 
@@ -408,21 +404,5 @@ public sealed class OrderEntity : Aggregate<int>
                             .Where(x => !x.IsCancelled)
                             .Select(x => new OrderCollectedItem(x.MenuItem.MenuId, x.MenuItem.SizeId, x.Quantity)).ToList()
                         ));
-    }
-
-
-    private void RecalculateTotalAmount()
-    {
-        var subtotal = _vOrderItems.Where(x => !x.IsCancelled).Sum(x => x.TotalAmount);
-
-        if (Promotion is not null)
-        {
-            var discount = Promotion.CalculateDiscount(subtotal);
-            TotalAmount = Math.Max(0, subtotal - discount);
-        }
-        else
-        {
-            TotalAmount = subtotal;
-        }
     }
 }

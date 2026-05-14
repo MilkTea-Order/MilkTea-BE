@@ -1,17 +1,17 @@
 using FluentValidation;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
 using MilkTea.Application.Features.Orders.Abstractions;
-using MilkTea.Application.Features.Orders.Models.Dtos;
 using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Enums;
+using MilkTea.Shared.Extensions;
 using Shared.Abstractions.CQRS;
 namespace MilkTea.Application.Features.Orders.Queries;
 
 public sealed class GetOrdersByOrderByAndStatusQuery : IQuery<GetOrdersByOrderByAndStatusResult>
 {
-    public int StatusId { get; set; }
+    public required string Status { get; init; }
     public DateTime? FromDate { get; set; }
     public DateTime? ToDate { get; set; }
 }
@@ -20,11 +20,11 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
     public GetOrdersByOrderByAndStatusQueryValidator()
     {
         // Status must be a valid enum value
-        RuleFor(x => x.StatusId)
-            .Must(x => Enum.IsDefined(typeof(OrderStatus), x))
+        RuleFor(x => x.Status)
+            .Must(x => x.TryParseEnum<OrderStatus>(out _))
             .WithErrorCode(ErrorCode.E0001)
-            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.StatusId));
-
+            .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.Status));
+        
         // If one of the dates is provided, the other must also be provided
         RuleFor(x => x.FromDate)
             .NotNull()
@@ -63,38 +63,37 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(IIdentifyServicePort
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
     {
         GetOrdersByOrderByAndStatusResult result = new();
-        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, (OrderStatus)query.StatusId, query.FromDate, query.ToDate, cancellationToken);
-        var tableIds = orders.Select(o => o.DinnerTableId).Distinct().ToList();
+        // var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, (OrderStatus)query.StatusId, query.FromDate, query.ToDate, cancellationToken);
+        var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, 
+                                                                Enum.Parse<OrderStatus>(query.Status, ignoreCase: true), 
+                                                                      query.FromDate, query.ToDate, cancellationToken);
+        var tableIds = orders.Select(o => o.DinnerTable!.Id).Distinct().ToList();
 
         var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);
         var tableDict = table.ToDictionary(x => x.Id);
 
         foreach (var o in orders)
         {
-            if (tableDict.TryGetValue(o.DinnerTableId, out var t))
+            if (o.DinnerTable != null && tableDict.TryGetValue(o.DinnerTable.Id, out var t))
             {
-                o.DinnerTable = new TableDto
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Code = t.Code,
-                    Position = t.Position,
-                    NumberOfSeats = t.NumberOfSeats,
-                    StatusId = t.StatusId,
-                    StatusName = t.StatusName,
-                    Note = t.Note,
-                    UsingImg = t.UsingImg,
-                    EmptyImg = t.EmptyImg,
-                };
+                o.DinnerTable.Code = t.Code;
+                o.DinnerTable.Name = t.Name;
+                o.DinnerTable.Position = t.Position;
+                o.DinnerTable.NumberOfSeats = t.NumberOfSeats;
+                o.DinnerTable.StatusId = t.StatusId;
+                o.DinnerTable.StatusName = t.StatusName;
+                o.DinnerTable.Note = t.Note;
+                o.DinnerTable.EmptyImg = t.EmptyImg;
+                o.DinnerTable.UsingImg = t.UsingImg;
             }
         }
         result.Orders = orders;
         return result;
     }
-    private static GetOrdersByOrderByAndStatusResult SendError(GetOrdersByOrderByAndStatusResult result, string errorCode, params string[] values)
-    {
-        if (values is { Length: > 0 })
-            result.ResultData.Add(errorCode, values.ToList());
-        return result;
-    }
+    // private static GetOrdersByOrderByAndStatusResult SendError(GetOrdersByOrderByAndStatusResult result, string errorCode, params string[] values)
+    // {
+    //     if (values is { Length: > 0 })
+    //         result.ResultData.Add(errorCode, values.ToList());
+    //     return result;
+    // }
 }

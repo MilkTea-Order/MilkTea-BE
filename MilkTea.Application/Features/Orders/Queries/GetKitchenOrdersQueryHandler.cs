@@ -8,7 +8,6 @@ using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Enums;
 using MilkTea.Shared.Extensions;
 using Shared.Abstractions.CQRS;
-using Shared.Extensions;
 
 namespace MilkTea.Application.Features.Orders.Queries;
 
@@ -62,8 +61,8 @@ public sealed class GetKitchenOrdersQueryHandler(IOrderQuery orderQuery,
         }
 
         var tableIds = orders.Select(o => o.DinnerTable!.Id).Distinct().ToList();
-        var menuIds = orders.SelectMany(o => o.OrderItems).Select(i => i.Menu == null ? 0 : i.Menu.Id).Where(id => id != 0).Distinct().ToList();
-        var sizeIds = orders.SelectMany(o => o.OrderItems).Select(i => i.Size == null ? 0 : i.Size.Id).Where(id => id != 0).Distinct().ToList();
+        var menuIds = orders.SelectMany(o => o.OrderItems).Select(i => i.Menu?.Id ?? 0).Where(id => id != 0).Distinct().ToList();
+        var sizeIds = orders.SelectMany(o => o.OrderItems).Select(i => i.Size?.Id ?? 0).Where(id => id != 0).Distinct().ToList();
 
         var tables = await _vTableService.GetTableAsync(tableIds, cancellationToken);
         var tableDict = tables.ToDictionary(t => t.Id);
@@ -121,11 +120,11 @@ public sealed class GetKitchenOrdersQueryHandler(IOrderQuery orderQuery,
             }
         }
 
-        result.Orders = sortOrdersByStatus(orders, orderDetailStatus);
+        result.Orders = SortOrdersByStatus(orders, orderDetailStatus);
         return result;
     }
 
-    private static List<KitchenOrderDto> sortOrdersByStatus(List<KitchenOrderDto> orders,OrderItemStatus status)
+    private static List<KitchenOrderDto> SortOrdersByStatus(List<KitchenOrderDto> orders,OrderItemStatus status)
     {
         return status switch
         {

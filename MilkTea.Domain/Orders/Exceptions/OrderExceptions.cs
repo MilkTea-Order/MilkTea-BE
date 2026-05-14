@@ -3,62 +3,26 @@ using MilkTea.Domain.Orders.Enums;
 
 namespace MilkTea.Domain.Orders.Exceptions
 {
-    public sealed class OrderCancelledException : DomainException
-    {
-        public OrderCancelledException() : base("Order has been cancelled.") { }
-    }
+    public sealed class OrderCancelledException() : DomainException("Order has been cancelled.");
 
-    public sealed class OrderNotEditableException : DomainException
-    {
-        public OrderNotEditableException()
-            : base("Order must unpaid status.") { }
-    }
+    public sealed class OrderNotEditableException() : DomainException("Order must unpaid status.");
 
-    public sealed class OrderItemCancelledException : DomainException
-    {
-        public OrderItemCancelledException()
-            : base("Order item has been cancelled.") { }
-    }
+    public sealed class OrderItemStatusInValid() : DomainException("Order item status is invalid.");
 
-    public sealed class OrderItemNotFoundException : DomainException
-    {
-        public OrderItemNotFoundException()
-            : base("Order item not found.") { }
-    }
+    public sealed class OrderItemCancelledException() : DomainException("Order item has been cancelled.");
 
-    public sealed class OrderSourceCannotMergeException : DomainException
-    {
-        public OrderSourceCannotMergeException()
-            : base("Order cannot be merged.") { }
-    }
+    public sealed class OrderItemNotFoundException() : DomainException("Order item not found.");
 
-    public sealed class NotExistOrderStatus : DomainException
-    {
-        public NotExistOrderStatus()
-            : base("Order status is not exist.") { }
-    }
+    public sealed class OrderSourceCannotMergeException() : DomainException("Order cannot be merged.");
 
-    public sealed class NotExistBillPrefix : DomainException
-    {
-        public NotExistBillPrefix()
-            : base("Bill prefix does not exist.") { }
-    }
+    public sealed class NotExistOrderStatus() : DomainException("Order status is not exist.");
 
-    public sealed class NotExistPaymentType : DomainException
-    {
-        public NotExistPaymentType()
-            : base("Payment type does not exist.") { }
-    }
+    public sealed class NotExistBillPrefix() : DomainException("Bill prefix does not exist.");
 
-    public sealed class NotExistActionBy : DomainException
-    {
-        public NotExistActionBy()
-            : base("Action by does not exist.") { }
-    }
+    public sealed class NotExistPaymentType() : DomainException("Payment type does not exist.");
 
-    public sealed class InvalidOrderDetailStatusTransitionException : DomainException
-    {
-        public InvalidOrderDetailStatusTransitionException(OrderItemStatus from, OrderItemStatus to)
-            : base($"Cannot transition order item status from '{from}' to '{to}'.") { }
-    }
+    public sealed class NotExistActionBy() : DomainException("Action by does not exist.");
+
+    public sealed class InvalidOrderDetailStatusTransitionException(OrderItemStatus from, OrderItemStatus to)
+        : DomainException($"Cannot transition order item status from '{from}' to '{to}'.");
 }

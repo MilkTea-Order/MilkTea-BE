@@ -64,13 +64,13 @@ namespace MilkTea.Application.Features.Orders.Commands
                     }
                     else
                     {
-                        order.UpdateItemQuantity(command.OrderDetailID, command.Quantity.Value, currentUser.UserId);
+                        order.UpdateOrderItemQuantity(command.OrderDetailID, command.Quantity.Value, currentUser.UserId);
                     }
                 }
                 if (command.Note is not null)
                 {
                     var note = command.Note.IsNullOrWhiteSpace() ? null : command.Note.Trim();
-                    order.UpdateItemNote(command.OrderDetailID, note, currentUser.UserId);
+                    order.UpdateOrderItemNote(command.OrderDetailID, note, currentUser.UserId);
                 }
                 await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             }

@@ -3,9 +3,10 @@
     public class OrderDto
     {
         public int OrderId { get; set; }
-        public int DinnerTableId { get; set; }
+        
         public DateTime? OrderDate { get; set; }
         public int? OrderBy { get; set; }
+        
         public DateTime? CreatedDate { get; set; }
         public int? CreatedBy { get; set; }
 

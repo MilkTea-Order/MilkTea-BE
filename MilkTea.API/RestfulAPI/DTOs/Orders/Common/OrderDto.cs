@@ -6,7 +6,7 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Common;
 public class OrderDto
 {
     [JsonPropertyOrder(1)]
-    public int OrderID { get; set; }
+    public int OrderId { get; set; }
 
     [JsonPropertyOrder(2)]
     public DinnerTableDto? DinnerTable { get; set; }
