@@ -70,7 +70,7 @@ namespace MilkTea.Application.Features.Orders.Queries
                                                                 query.FromDate, query.ToDate, query.PaymentMethod, cancellationToken);
 
             //var tableIds = reports.Orders.Select(o => o.DinnerTableId).Distinct().ToList();
-            var tableIds = reports.DateGroup.SelectMany(g => g.Orders).Select(o => o.DinnerTableId).Distinct().ToList();
+            var tableIds = reports.DateGroup.SelectMany(g => g.Orders).Select(o => o.DinnerTable!.Id).Distinct().ToList();
             var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);
 
             var tableDict = table.ToDictionary(x => x.Id);
@@ -79,7 +79,7 @@ namespace MilkTea.Application.Features.Orders.Queries
             {
                 foreach (var o in group.Orders)
                 {
-                    if (tableDict.TryGetValue(o.DinnerTableId, out var t))
+                    if (o.DinnerTable != null && tableDict.TryGetValue(o.DinnerTable.Id, out var t))
                     {
                         o.DinnerTable = new TableDto
                         {

@@ -55,5 +55,14 @@ namespace MilkTea.Application.Features.Orders.Abstractions
         /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
         /// <returns>A task containing kitchen order DTOs.</returns>
         Task<List<KitchenOrderDto>> GetKitchenOrdersAsync(OrderStatus orderStatus, OrderItemStatus orderDetailStatus, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retrieves an order with its items filtered by order ID and optional cancellation status.
+        /// </summary>
+        /// <param name="orderId">The unique identifier of the order.</param>
+        /// <param name="isCancelled">Filter by order item cancellation status. Pass <c>true</c> to retrieve cancelled items, <c>false</c> for active items, or <c>null</c> to include all.</param>
+        /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the order DTO with filtered items, or <c>null</c> if not found.</returns>
+        Task<OrderDto?> GetOrderDetailByIdAndStatusAsync(int orderId, bool? isCancelled, CancellationToken cancellationToken = default);
     }
 }

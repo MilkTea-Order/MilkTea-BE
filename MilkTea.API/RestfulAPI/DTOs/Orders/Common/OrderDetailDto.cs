@@ -7,8 +7,8 @@ public class OrderDetailDto
     public int Id { get; set; }
     public MenuBaseDto? Menu { get; set; }
     public SizeBaseDto? Size { get; set; }
-    public int? KindOfHotpot1ID { get; set; }
-    public int? KindOfHotpot2ID { get; set; }
+    public int? KindOfHotpot1Id { get; set; }
+    public int? KindOfHotpot2Id { get; set; }
     public int Quantity { get; set; }
     public decimal Price { get; set; }
     public int CreatedBy { get; set; }

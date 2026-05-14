@@ -58,7 +58,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
               .ForMember(d => d.EmptyImg, o => o.MapFrom(s => s.EmptyImg));
 
             CreateMap<Application.Features.Orders.Models.Dtos.OrderDto, MilkTea.API.RestfulAPI.DTOs.Orders.Common.OrderDto>()
-                .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
+                .ForMember(d => d.OrderId, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate ?? default))
                 .ForMember(d => d.OrderBy, o => o.MapFrom(s => s.OrderBy ?? 0))
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate ?? default))
@@ -78,7 +78,8 @@ namespace MilkTea.API.RestfulAPI.Mappings
               .ForMember(d => d.CancelledBy, o => o.MapFrom(s => s.CancelledBy))
               .ForMember(d => d.CancelledDate, o => o.MapFrom(s => s.CancelledDate))
               .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))
-              .ForMember(d => d.KindOfHotpot1ID, o => o.MapFrom(s => s.KindOfHotpot1Id))
+              .ForMember(d => d.KindOfHotpot1Id, o => o.MapFrom(s => s.KindOfHotpot1Id))
+              .ForMember(d => d.KindOfHotpot2Id, o => o.MapFrom(s => s.KindOfHotpot2Id))
               .ForMember(d => d.Menu, o => o.MapFrom(s => s.Menu))
               .ForMember(d => d.Size, o => o.MapFrom(s => s.Size));
 
@@ -101,7 +102,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion
 
             #region GetOrderDetailByIDAndStatusResponseDto
-            CreateMap<Application.Features.Orders.Models.Dtos.OrderDto, GetOrderDetailByIDAndStatusResponseDto>()
+            CreateMap<Application.Features.Orders.Models.Dtos.OrderDto, GetOrderDetailByIdAndStatusResponseDto>()
                 .IncludeBase<Application.Features.Orders.Models.Dtos.OrderDto, MilkTea.API.RestfulAPI.DTOs.Orders.Common.OrderDto>()
                 .ForMember(d => d.Items, o => o.MapFrom(s => s.OrderItems));
             #endregion

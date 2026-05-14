@@ -22,7 +22,6 @@ public interface IOrderRepository
     /// Deletes an order.
     /// </summary>
     /// <param name="order">The order entity to delete.</param>
-    /// <param name="cancellationToken">Token to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous delete operation.</returns>
     void Remove(OrderEntity order);
 
@@ -59,7 +58,10 @@ public interface IOrderRepository
     /// <summary>
     /// Gets an order with details by ID and cancellation status.
     /// </summary>
-    Task<OrderEntity?> GetOrderDetailByIDAndStatus(int orderID, bool? isCancelled);
+    /// <param name="orderId">The unique identifier of the order.</param>
+    /// <param name="isCancelled">The cancellation status to filter by. Pass <c>true</c> to retrieve cancelled orders, <c>false</c> for active orders, or <c>null</c> to include all.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the matching order with details, or <c>null</c> if not found.</returns>
+    Task<OrderEntity?> GetOrderDetailByIdAndStatus(int orderId, bool? isCancelled);
 
     /// <summary>
     /// Gets all order item IDs for a specific order.
@@ -67,7 +69,7 @@ public interface IOrderRepository
     Task<List<int>> GetOrderItemIdsByOrderIdAsync(int orderId);
 
     /// <summary>
-    /// Checks if an order item is cancelled.
+    /// Checks if an order item is canceled.
     /// </summary>
     Task<bool> IsOrderItemCancelledAsync(int orderItemId);
 

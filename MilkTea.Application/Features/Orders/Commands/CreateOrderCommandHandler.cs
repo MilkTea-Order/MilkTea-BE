@@ -144,7 +144,6 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
             result.Order = new OrderDto
             {
                 OrderId = order.Id,
-                DinnerTableId = order.DinnerTableId,
                 OrderBy = order.OrderBy,
                 OrderDate = order.OrderDate,
                 CreatedBy = order.CreatedBy,

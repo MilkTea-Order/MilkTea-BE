@@ -71,7 +71,7 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
     }
 
     /// <inheritdoc/>
-    public async Task<OrderEntity?> GetOrderDetailByIDAndStatus(int orderId, bool? isCancelled)
+    public async Task<OrderEntity?> GetOrderDetailByIdAndStatus(int orderId, bool? isCancelled)
     {
         var query = _vContext.Orders
             .Where(o => o.Id == orderId)
