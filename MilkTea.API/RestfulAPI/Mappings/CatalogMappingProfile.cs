@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using MilkTea.API.RestfulAPI.DTOs.Catalog.Responses;
 using MilkTea.API.RestfulAPI.DTOs.Common;
+using MilkTea.Application.Features.Catalog.Models.Dtos;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Currency;
 using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
-using MilkTea.Application.Models.Catalog;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Table;
+using MenuGroupDto = MilkTea.Application.Features.Catalog.Models.Dtos.Menu.MenuGroupDto;
 
 
 namespace MilkTea.API.RestfulAPI.Mappings
@@ -13,48 +16,53 @@ namespace MilkTea.API.RestfulAPI.Mappings
         public CatalogMappingProfile()
         {
             #region Common
+            // Status Base
+            CreateMap<StatusDto, StatusBaseDto>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.Name));
+            
             // Dinner Table Base
-            CreateMap<Application.Features.Catalog.Models.Dtos.Table.TableDto, DinnerTableBaseDto>()
+            CreateMap<TableDto, DinnerTableBaseDto>()
                 .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
                 .ForMember(d => d.Position, o => o.MapFrom(s => s.Position))
                 .ForMember(d => d.NumberOfSeats, o => o.MapFrom(s => s.NumberOfSeats ?? 0))
-                .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId ?? 0, Name = s.StatusName ?? string.Empty }))
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
+            
             // Menu Group Base
             CreateMap<MenuGroupDto, MenuGroupBaseDto>()
-                .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuGroupId))
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.MenuGroupId))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuGroupName))
-                .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }));
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status));
 
             CreateMap<MenuDto, MenuBaseDto>()
                  .ForMember(d => d.ID, o => o.MapFrom(s => s.MenuId))
                  .ForMember(d => d.Name, o => o.MapFrom(s => s.MenuName))
                  .ForMember(d => d.Code, o => o.MapFrom(s => s.MenuCode))
                  .ForMember(d => d.Image, o => o.MapFrom(s => s.MenuImage))
-                 .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId, Name = s.StatusName ?? string.Empty }))
+                 .ForMember(d => d.Status, o => o.MapFrom(s => s.Status))
                  .ForMember(d => d.Unit, o => o.MapFrom(s => new UnitBaseDto { ID = s.UnitId, Name = s.UnitName ?? string.Empty }))
                  .ForMember(d => d.MenuGroupID, o => o.MapFrom(s => s.MenuGroupId))
                  .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
             // Size Base
-            CreateMap<MenuSizePriceDto, SizeBaseDto>()
-                .ForMember(d => d.ID, o => o.MapFrom(s => s.SizeId))
-                .ForMember(d => d.Name, o => o.MapFrom(s => s.SizeName))
-                .ForMember(d => d.RankIndex, o => o.MapFrom(s => s.RankIndex));
+            CreateMap<SizeAndPriceDto, SizeBaseDto>()
+                .ForMember(d => d.ID, o => o.MapFrom(s => s.Size.SizeId))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.Size.SizeName))
+                .ForMember(d => d.RankIndex, o => o.MapFrom(s => s.Size.RankIndex));
 
             // Price Size of Menu
-            CreateMap<MenuSizePriceDto, PriceBaseDto>()
-                .ForMember(d => d.PriceListID, o => o.MapFrom(s => s.PriceListId))
-                .ForMember(d => d.Price, o => o.MapFrom(s => s.Price))
-                .ForMember(d => d.Currency, o => o.MapFrom(s => new CurrencyBaseDto
-                {
-                    ID = s.CurrencyId,
-                    Name = s.CurrencyName ?? string.Empty,
-                    Code = s.CurrencyCode ?? string.Empty
-                }));
+            CreateMap<CurrencyDto, CurrencyBaseDto>()
+                .ForMember(d => d.Code, o => o.MapFrom(s => s.Code))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.Name))
+                .ForMember(d => d.ID, o => o.MapFrom(s => s.Id));        
+            CreateMap<SizeAndPriceDto, PriceBaseDto>()
+                .ForMember(d => d.PriceListID, o => o.MapFrom(s => s.Price.PriceListId))
+                .ForMember(d => d.Price, o => o.MapFrom(s => s.Price.Price))
+                .ForMember(d => d.Currency, o => o.MapFrom(s => s.Price.Currency));
 
             #endregion Common
 
@@ -80,8 +88,8 @@ namespace MilkTea.API.RestfulAPI.Mappings
             #endregion Get Menu Item Available of Group And Name
 
             #region Menu size of Menu
-            CreateMap<MenuSizePriceDto, GetMenuSizeOfMenuResponseDto>()
-                .IncludeBase<MenuSizePriceDto, SizeBaseDto>()
+            CreateMap<SizeAndPriceDto, GetMenuSizeOfMenuResponseDto>()
+                .IncludeBase<SizeAndPriceDto, SizeBaseDto>()
                 .ForMember(d => d.Price, o => o.MapFrom(s => s));
             #endregion Menu size of Menu
 

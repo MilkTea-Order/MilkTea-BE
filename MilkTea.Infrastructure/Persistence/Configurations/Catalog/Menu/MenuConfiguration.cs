@@ -20,7 +20,7 @@ public class MenuConfiguration : IEntityTypeConfiguration<MenuEntity>
         builder.Property(x => x.Formula).HasColumnName("Formula");
         builder.Property(x => x.AvatarPicture).HasColumnName("AvatarPicture");
         builder.Property(x => x.Note).HasColumnName("Note");
-        builder.Property(x => x.MenuGroupID).HasColumnName("MenuGroupID").IsRequired();
+        builder.Property(x => x.MenuGroupId).HasColumnName("MenuGroupID").IsRequired();
 
         // Map enum to existing StatusID column
         builder.Property(x => x.Status)
@@ -28,7 +28,7 @@ public class MenuConfiguration : IEntityTypeConfiguration<MenuEntity>
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(x => x.UnitID).HasColumnName("UnitID").IsRequired();
+        builder.Property(x => x.UnitId).HasColumnName("UnitID").IsRequired();
         builder.Property(x => x.TasteQTy).HasColumnName("TasteQTy");
         builder.Property(x => x.PrintSticker).HasColumnName("PrintSticker");
 

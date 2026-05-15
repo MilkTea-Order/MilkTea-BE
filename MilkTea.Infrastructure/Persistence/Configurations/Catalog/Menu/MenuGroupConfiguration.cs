@@ -24,18 +24,13 @@ public class MenuGroupConfiguration : IEntityTypeConfiguration<MenuGroupEntity>
 
         builder.HasMany(x => x.Menus)
             .WithOne()
-            .HasForeignKey("MenuGroupID")
+            .HasForeignKey("MenuGroupId")
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Navigation(x => x.Menus)
             .HasField("_vMenus")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-
-        //builder.Property(x => x.CreatedBy).HasColumnName("CreatedBy").IsRequired();
-        //builder.Property(x => x.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        //builder.Property(x => x.UpdatedBy).HasColumnName("UpdatedBy");
-        //builder.Property(x => x.UpdatedDate).HasColumnName("UpdatedDate");
+        
 
         builder.Ignore(x => x.CreatedBy);
         builder.Ignore(x => x.CreatedDate);

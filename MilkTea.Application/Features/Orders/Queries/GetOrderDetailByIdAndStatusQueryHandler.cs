@@ -49,8 +49,8 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
                 item.Menu.MenuGroupName = m.MenuGroupName;
                 item.Menu.Code = m.MenuCode;
                 item.Menu.Name = m.MenuName;
-                item.Menu.StatusId = m.StatusId;
-                item.Menu.StatusName = m.StatusName;
+                item.Menu.StatusId = m.Status.Id;
+                item.Menu.StatusName = m.Status.Name;
                 item.Menu.UnitId = m.UnitId;
                 item.Menu.UnitName = m.UnitName;
             }
@@ -68,8 +68,8 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
             order.DinnerTable.Name = table.Name;
             order.DinnerTable.Position = table.Position;
             order.DinnerTable.NumberOfSeats = table.NumberOfSeats;
-            order.DinnerTable.StatusId = table.StatusId;
-            order.DinnerTable.StatusName = table.StatusName;
+            order.DinnerTable.StatusId = table.Status.Id;
+            order.DinnerTable.StatusName = table.Status.Name;
             order.DinnerTable.Note = table.Note;
         }
 

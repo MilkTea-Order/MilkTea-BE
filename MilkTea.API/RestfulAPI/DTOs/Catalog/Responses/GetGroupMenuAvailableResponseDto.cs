@@ -8,4 +8,6 @@ namespace MilkTea.API.RestfulAPI.DTOs.Catalog.Responses
         [JsonPropertyOrder(4)]
         public int? Quantity { get; set; } = 0;
     }
+    
+    
 }

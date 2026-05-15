@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
+using MilkTea.Application.Features.Catalog.Models.Dtos;
 using MilkTea.Application.Features.Catalog.Models.Dtos.Table;
 using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Infrastructure.Persistence;
@@ -36,15 +37,14 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
                 Name = x.Name,
                 Position = x.Position,
                 NumberOfSeats = x.NumberOfSeats,
-                StatusId = x.StatusId,
-                StatusName = ((TableStatus)x.StatusId).GetDescription(),
+                Status = new StatusDto
+                {
+                    Id =  x.StatusId,
+                    Name = ((TableStatus)x.StatusId).GetDescription(),
+                },
                 Note = x.Note,
-                EmptyImg = x.EmptyPicture != null
-                    ? $"data:image/png;base64,{Convert.ToBase64String(x.EmptyPicture)}"
-                    : null,
-                UsingImg = x.UsingPicture != null
-                    ? $"data:image/png;base64,{Convert.ToBase64String(x.UsingPicture)}"
-                    : null
+                EmptyImg = $"data:image/png;base64,{Convert.ToBase64String(x.EmptyPicture)}",
+                UsingImg = $"data:image/png;base64,{Convert.ToBase64String(x.UsingPicture)}"
             }).ToList();
         }
 

@@ -1,9 +1,10 @@
 using MediatR;
+using MilkTea.Application.Features.Catalog.Abstractions.Queries;
 using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
 using MilkTea.Application.Features.Catalog.Models.Results;
 using MilkTea.Domain.Catalog;
-using MilkTea.Domain.Catalog.Menu.Enums;
 using MilkTea.Domain.Common.Constants;
+using MilkTea.Domain.Common.Enums;
 using MilkTea.Shared.Domain.Constants;
 
 namespace MilkTea.Application.Features.Catalog.Queries;
@@ -11,42 +12,31 @@ namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetMenuItemsOfGroupQuery : IRequest<GetMenuItemsOfGroupResult>
 {
-    public int GroupId { get; set; }
-    public bool IsMenuActive { get; set; } = true;
+    public int GroupId { get; init; }
+    public bool IsMenuActive { get; init; } = true;
 }
-public sealed class GetMenuItemsOfGroupQueryHandler(
-    ICatalogUnitOfWork catalogUnitOfWork) : IRequestHandler<GetMenuItemsOfGroupQuery, GetMenuItemsOfGroupResult>
+public sealed class GetMenuItemsOfGroupQueryHandler(ICatalogQuery catalogQuery) 
+                                                    : IRequestHandler<GetMenuItemsOfGroupQuery, GetMenuItemsOfGroupResult>
 {
+    private readonly ICatalogQuery _vCatalogQuery = catalogQuery;
     public async Task<GetMenuItemsOfGroupResult> Handle(GetMenuItemsOfGroupQuery query, CancellationToken cancellationToken)
     {
         var result = new GetMenuItemsOfGroupResult();
-        result.ResultData.AddMeta(MetaKey.DATE_REQUEST, DateTime.Now);
 
         if (query.GroupId <= 0)
+        {
             return SendError(result, ErrorCode.E0036, "GroupID");
+        }
 
         // Convert MenuStatusId to enum if provided (default active menu)
-        var menuStatus = query.IsMenuActive ? MenuStatus.Active : MenuStatus.Inactive;
+        var menuStatus = query.IsMenuActive ? CommonStatus.Active : CommonStatus.Inactive;
 
-        var menus = await catalogUnitOfWork.Menus.GetByIdWithMenuAsync(query.GroupId, (int)menuStatus, cancellationToken);
+        var menus = await _vCatalogQuery.GetMenusAsync(query.GroupId, 
+                                                                        null, 
+                                                                        menuStatus, 
+                                                                        cancellationToken: cancellationToken);
 
-        if (menus == null)
-        {
-            result.Menus = new List<MenuDto>();
-        }
-        else
-        {
-            result.Menus = menus.Menus.Select(m => new MenuDto
-            {
-                MenuId = m.Id,
-                MenuCode = m.Code,
-                MenuName = m.Name,
-                MenuGroupId = m.MenuGroupID,
-                MenuGroupName = menus.Name,
-                StatusId = (int)m.Status,
-                StatusName = m.Status.ToString()
-            }).ToList();
-        }
+        result.Menus = menus.Count == 0 ? new List<MenuDto>() : menus;
         return result;
     }
 

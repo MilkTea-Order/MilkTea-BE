@@ -1,14 +1,15 @@
 ﻿using MilkTea.Application.Features.Catalog.Abstractions.Constracts;
-using MilkTea.Application.Models.Catalog;
-
+using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Size;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Table;
 
 namespace MilkTea.Application.Features.Catalog.Abstractions.Services
 {
     public interface ICatalogService
     {
-        Task<IReadOnlyDictionary<int, MenuItemDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default);
+        Task<IReadOnlyDictionary<int, MenuDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyDictionary<int, MenuSizeDto>> GetMenuSizesAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default);
+        Task<IReadOnlyDictionary<int, SizeDto>> GetMenuSizesAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default);
 
         Task<(bool, (int, decimal))> CanPay(int menuId, int sizeId, CancellationToken cancellationToken = default);
 

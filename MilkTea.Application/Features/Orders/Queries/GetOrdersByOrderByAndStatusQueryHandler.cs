@@ -80,8 +80,8 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(IIdentifyServicePort
                 o.DinnerTable.Name = t.Name;
                 o.DinnerTable.Position = t.Position;
                 o.DinnerTable.NumberOfSeats = t.NumberOfSeats;
-                o.DinnerTable.StatusId = t.StatusId;
-                o.DinnerTable.StatusName = t.StatusName;
+                o.DinnerTable.StatusId = t.Status.Id;
+                o.DinnerTable.StatusName = t.Status.Name;
                 o.DinnerTable.Note = t.Note;
                 o.DinnerTable.EmptyImg = t.EmptyImg;
                 o.DinnerTable.UsingImg = t.UsingImg;

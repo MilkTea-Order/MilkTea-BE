@@ -28,10 +28,10 @@ namespace MilkTea.API.RestfulAPI.Controllers.Catalog
             return SendSuccess(response);
         }
 
-        [HttpGet("menus/groups/{groupID:int}/items")]
-        public async Task<ResponseDto> GetMenuItemOfGroup([FromRoute] int groupID, [FromQuery] bool isMenuActive = true)
+        [HttpGet("menus/groups/{groupId:int}/items")]
+        public async Task<ResponseDto> GetMenuItemOfGroup([FromRoute] int groupId, [FromQuery] bool isMenuActive = true)
         {
-            var query = new GetMenuItemsOfGroupQuery { GroupId = groupID, IsMenuActive = isMenuActive };
+            var query = new GetMenuItemsOfGroupQuery { GroupId = groupId, IsMenuActive = isMenuActive };
             var result = await _vSender.Send(query);
 
             if (result.ResultData.HasData)
@@ -44,10 +44,10 @@ namespace MilkTea.API.RestfulAPI.Controllers.Catalog
         }
 
 
-        [HttpGet("menus/groups/{groupID:int}/items/available")]
-        public async Task<ResponseDto> GetMenuItemAvailableOfGroup([FromRoute] int groupID)
+        [HttpGet("menus/groups/{groupId:int}/items/available")]
+        public async Task<ResponseDto> GetMenuItemAvailableOfGroup([FromRoute] int groupId)
         {
-            var query = new GetMenuItemsAvailableOfGroupQuery { GroupId = groupID };
+            var query = new GetMenuItemsAvailableOfGroupQuery { GroupId = groupId };
             var result = await _vSender.Send(query);
 
             if (result.ResultData.HasData)
@@ -88,16 +88,3 @@ namespace MilkTea.API.RestfulAPI.Controllers.Catalog
         }
     }
 }
-
-//[HttpGet("menus/groups")]
-//public async Task<ResponseDto> GetGroupMenu([FromQuery] int? statusID, [FromQuery] int? itemStatus)
-//{
-//    var query = new GetGroupMenuQuery { StatusId = statusID, ItemStatusId = itemStatus };
-//    var result = await _vSender.Send(query);
-
-//    if (result.ResultData.HasData)
-//    {
-//        return SendError(result.ResultData);
-//    }
-//    return SendSuccess(result.GroupMenu);
-//}

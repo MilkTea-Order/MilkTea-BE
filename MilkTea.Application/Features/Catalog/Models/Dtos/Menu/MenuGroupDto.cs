@@ -1,11 +1,10 @@
 ﻿namespace MilkTea.Application.Features.Catalog.Models.Dtos.Menu
 {
-    internal class MenuGroupDto
+    public class MenuGroupDto
     {
         public int MenuGroupId { get; set; }
         public string? MenuGroupName { get; set; }
-        public int StatusId { get; set; }
-        public string? StatusName { get; set; }
+        public required StatusDto Status { get; set; }
         public int Quantity { get; set; } = 0;
     }
 }

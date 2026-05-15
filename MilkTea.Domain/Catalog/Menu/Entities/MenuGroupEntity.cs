@@ -47,7 +47,7 @@ public sealed class MenuGroupEntity : Aggregate<int>
         Status = CommonStatus.Inactive;
         foreach (var m in _vMenus)
         {
-            if (m.Status == MenuStatus.Active)
+            if (m.Status == CommonStatus.Active)
                 m.Deactivate(by);
         }
 

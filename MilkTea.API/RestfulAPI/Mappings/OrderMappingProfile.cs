@@ -24,14 +24,14 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.NumberOfSeats, o => o.MapFrom(s => s.NumberOfSeats ?? 0))
                 .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto
                 {
-                    ID = s.StatusId ?? 0,
+                    Id = s.StatusId ?? 0,
                     Name = s.StatusName ?? string.Empty
                 }))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 
             // Base Order Status
             CreateMap<OrderStatusDto, StatusBaseDto>()
-                .ForMember(d => d.ID, o => o.MapFrom(s => s.Id))
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty));
 
             // Base Menu
@@ -40,7 +40,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Code ?? string.Empty))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.Name ?? string.Empty))
                 .ForMember(d => d.MenuGroupID, o => o.MapFrom(s => s.MenuGroupId))
-                .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { ID = s.StatusId ?? 0, Name = s.StatusName ?? string.Empty }))
+                .ForMember(d => d.Status, o => o.MapFrom(s => new StatusBaseDto { Id = s.StatusId ?? 0, Name = s.StatusName ?? string.Empty }))
                 .ForMember(d => d.Unit, o => o.MapFrom(s => new UnitBaseDto { ID = s.UnitId ?? 0, Name = s.UnitName ?? string.Empty }))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note));
 

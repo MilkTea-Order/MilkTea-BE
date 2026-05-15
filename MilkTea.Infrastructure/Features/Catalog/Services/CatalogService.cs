@@ -1,13 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MilkTea.Application.Features.Catalog.Abstractions.Constracts;
 using MilkTea.Application.Features.Catalog.Abstractions.Services;
-using MilkTea.Application.Models.Catalog;
-using MilkTea.Domain.Catalog.Menu.Enums;
+using MilkTea.Application.Features.Catalog.Models.Dtos;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Menu;
+using MilkTea.Application.Features.Catalog.Models.Dtos.Size;
 using MilkTea.Domain.Catalog.Price.Enums;
 using MilkTea.Domain.Catalog.Table.Enums;
 using MilkTea.Domain.Common.Enums;
 using MilkTea.Infrastructure.Persistence;
 using Shared.Extensions;
+using TableDto = MilkTea.Application.Features.Catalog.Models.Dtos.Table.TableDto;
 
 namespace MilkTea.Infrastructure.Features.Catalog.Services
 {
@@ -26,7 +28,7 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
             var price = await (
                 from m in _vContext.Menus.AsNoTracking()
                 join g in _vContext.MenuGroups.AsNoTracking()
-                                            on m.MenuGroupID
+                                            on m.MenuGroupId
                                                 equals g.Id
                 join ms in _vContext.MenuSizes.AsNoTracking()
                                             on new { MenuID = m.Id, SizeID = sizeId }
@@ -34,7 +36,7 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
                 join pld in _vContext.PriceListDetails.AsNoTracking()
                                             on new { PriceListID = activePriceListId.Value, MenuID = m.Id, SizeID = sizeId }
                                                 equals new { pld.PriceListID, pld.MenuID, pld.SizeID }
-                where m.Id == menuId && m.Status == MenuStatus.Active && g.Status == CommonStatus.Active
+                where m.Id == menuId && m.Status == CommonStatus.Active && g.Status == CommonStatus.Active
                 select (decimal?)pld.Price
             ).FirstOrDefaultAsync(cancellationToken);
             return price is null ? (false, (0, 0m)) : (true, (activePriceListId.Value, price.Value));
@@ -62,7 +64,7 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
             var rows = await (
                 from m in _vContext.Menus.AsNoTracking()
                 join g in _vContext.MenuGroups.AsNoTracking()
-                     on m.MenuGroupID equals g.Id
+                     on m.MenuGroupId equals g.Id
 
                 join ms in _vContext.MenuSizes.AsNoTracking()
                      on m.Id equals ms.MenuID
@@ -73,7 +75,7 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
 
                 where menuIds.Contains(m.Id)
                       && sizeIds.Contains(ms.SizeID)
-                      && m.Status == MenuStatus.Active
+                      && m.Status == CommonStatus.Active
                       && g.Status == CommonStatus.Active
 
                 select new
@@ -144,24 +146,27 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
         }
 
 
-        public async Task<IReadOnlyDictionary<int, MenuItemDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyDictionary<int, MenuDto>> GetMenusAsync(IEnumerable<int> menuIds, CancellationToken cancellationToken = default)
         {
             return await (
                     from m in _vContext.Menus.AsNoTracking()
                     join g in _vContext.MenuGroups.AsNoTracking()
-                        on m.MenuGroupID equals g.Id
+                        on m.MenuGroupId equals g.Id
                     join u in _vContext.Units.AsNoTracking()
-                        on m.UnitID equals u.Id
+                        on m.UnitId equals u.Id
                     where menuIds.Contains(m.Id)
-                    select new MenuItemDto
+                    select new MenuDto
                     {
                         MenuCode = m.Code,
-                        MenuGroupId = m.MenuGroupID,
+                        MenuGroupId = m.MenuGroupId,
                         MenuGroupName = g.Name,
                         MenuId = m.Id,
                         MenuName = m.Name,
-                        StatusId = (int)m.Status,
-                        StatusName = m.Status.GetDescription(),
+                        Status = new StatusDto
+                        {
+                            Id = (int)m.Status,
+                            Name = m.Status.GetDescription()
+                        },
                         UnitId = u.Id,
                         UnitName = u.Name,
                         Note = m.Note
@@ -169,11 +174,11 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
                 ).ToDictionaryAsync(x => x.MenuId, cancellationToken);
         }
 
-        public async Task<IReadOnlyDictionary<int, MenuSizeDto>> GetMenuSizesAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyDictionary<int, SizeDto>> GetMenuSizesAsync(IEnumerable<int> sizeIds, CancellationToken cancellationToken = default)
         {
             return await _vContext.Sizes.AsNoTracking()
                                   .Where(s => sizeIds.Contains(s.Id))
-                                  .Select(s => new MenuSizeDto
+                                  .Select(s => new SizeDto
                                   {
                                       SizeId = s.Id,
                                       SizeName = s.Name,
@@ -193,20 +198,19 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
                                       Name = t.Name,
                                       Position = t.Position,
                                       NumberOfSeats = t.NumberOfSeats,
-                                      StatusId = (int?)t.Status,
-                                      StatusName = t.Status.GetDescription(),
+                                      Status = new StatusDto()
+                                      {
+                                          Id = (int)t.Status,
+                                          Name = t.Status.GetDescription()
+                                      },
                                       Note = t.Note,
-                                      UsingImg = t.UsingPicture != null
-                                                   ? $"data:image/png;base64,{Convert.ToBase64String(t.UsingPicture)}"
-                                                   : null,
-                                      EmptyImg = t.EmptyPicture != null
-                                                   ? $"data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"
-                                                   : null
+                                      UsingImg = $"data:image/png;base64,{Convert.ToBase64String(t.UsingPicture)}",
+                                      EmptyImg = $"data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"
                                   })
                                   .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<Dictionary<int, TableDto>> GetTableAsync(IReadOnlyCollection<int> tableIds, CancellationToken cancellationToken = default)
+        public async Task<Dictionary<int, TableDto>> GetTableAsync(IReadOnlyCollection<int>? tableIds, CancellationToken cancellationToken = default)
         {
             if (tableIds == null || tableIds.Count == 0) return new Dictionary<int, TableDto>();
 
@@ -222,17 +226,16 @@ namespace MilkTea.Infrastructure.Features.Catalog.Services
                     Name = t.Name,
                     Position = t.Position,
                     NumberOfSeats = t.NumberOfSeats,
-                    StatusId = (int?)t.Status,
-                    StatusName = t.Status.GetDescription(),
+                    Status = new StatusDto()
+                    {
+                        Id = (int)t.Status,
+                        Name = t.Status.GetDescription()
+                    },
                     Note = t.Note,
 
-                    UsingImg = t.UsingPicture != null
-                        ? $"data:image/png;base64,{Convert.ToBase64String(t.UsingPicture)}"
-                        : null,
+                    UsingImg = $"data:image/png;base64,{Convert.ToBase64String(t.UsingPicture)}",
 
-                    EmptyImg = t.EmptyPicture != null
-                        ? $"data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"
-                        : null
+                    EmptyImg = "data:image/png;base64,{Convert.ToBase64String(t.EmptyPicture)}"
                 })
                 .ToDictionaryAsync(t => t.Id, cancellationToken);
         }

@@ -8,8 +8,8 @@ namespace MilkTea.Application.Features.Catalog.Queries
 {
     public sealed class GetMenuItemAvailableByGroupAndMenuNameQuery : IRequest<GetMenuItemsOfGroupResult>
     {
-        public int? GroupId { get; set; }
-        public string? MenuName { get; set; } = null;
+        public int? GroupId { get; init; }
+        public string? MenuName { get; init; } = null;
     }
     public class GetMenuItemAvailableByGroupAndMenuNameQueryHandler(ICatalogQuery catalogQuery) : IRequestHandler<GetMenuItemAvailableByGroupAndMenuNameQuery, GetMenuItemsOfGroupResult>
     {
@@ -25,7 +25,7 @@ namespace MilkTea.Application.Features.Catalog.Queries
                 return result;
             }
 
-            var menus = await _vCatalogQuery.GetMenusAsync(query.GroupId, query.MenuName, cancellationToken);
+            var menus = await _vCatalogQuery.GetMenusAsync(query.GroupId, query.MenuName, cancellationToken: cancellationToken);
             result.Menus = menus;
             return result;
         }

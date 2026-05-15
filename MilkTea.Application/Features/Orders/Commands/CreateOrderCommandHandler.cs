@@ -70,7 +70,7 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
             return SendError(result, ErrorCode.E0036, "dinnerTableId");
         }
         var table = await _vCatalogService.GetTableAsync(command.DinnerTableID, cancellationToken);
-        if (table is null || table.StatusId != (int)TableStatus.InUsing)
+        if (table is null || table.Status.Id != (int)TableStatus.InUsing)
         {
             return SendError(result, ErrorCode.E0036, "dinnerTableId");
         }
@@ -162,8 +162,8 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
                     Name = table.Name,
                     Position = table.Position,
                     NumberOfSeats = table.NumberOfSeats,
-                    StatusId = table.StatusId,
-                    StatusName = table.StatusName,
+                    StatusId = table.Status.Id,
+                    StatusName = table.Status.Name,
                     Note = table.Note,
                     UsingImg = table.UsingImg,
                 }

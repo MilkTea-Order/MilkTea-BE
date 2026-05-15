@@ -51,8 +51,8 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
         if (menuStatusId.HasValue)
         {
             query = query
-                .Include(mg => mg.Menus.Where(m => m.Status == (MenuStatus)menuStatusId.Value))
-                .Where(mg => mg.Menus.Any(m => m.Status == (MenuStatus)menuStatusId.Value));
+                .Include(mg => mg.Menus.Where(m => m.Status == (CommonStatus)menuStatusId.Value))
+                .Where(mg => mg.Menus.Any(m => m.Status == (CommonStatus)menuStatusId.Value));
         }
         else
         {
@@ -77,7 +77,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
 
         if (itemStatusId.HasValue)
         {
-            var menuStatus = (MenuStatus)itemStatusId.Value;
+            var menuStatus = (CommonStatus)itemStatusId.Value;
 
             query = query
                 .Where(mg => mg.Menus.Any(m => m.Status == menuStatus))
@@ -97,7 +97,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
         var groupId = await _vContext.Menus
                                 .AsNoTracking()
                                 .Where(m => m.Id == menuId)
-                                .Select(m => m.MenuGroupID)
+                                .Select(m => m.MenuGroupId)
                                 .FirstOrDefaultAsync(cancellationToken);
 
         if (groupId <= 0) return null;
@@ -118,7 +118,7 @@ public sealed class MenuRepository(AppDbContext context) : IMenuRepository
                             .AsNoTracking()
                             .AnyAsync(m =>
                                 m.Id == menuId &&
-                                m.Status == MenuStatus.Active &&
+                                m.Status == CommonStatus.Active &&
                                 m.MenuSizes.Any(ms => ms.SizeID == sizeId),
                                 cancellationToken);
     }

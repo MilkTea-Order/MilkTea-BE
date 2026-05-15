@@ -1,18 +1,16 @@
-﻿using MilkTea.Domain.Catalog.Menu.Enums;
-using MilkTea.Domain.Common.Abstractions;
+﻿using MilkTea.Domain.Common.Abstractions;
+using MilkTea.Domain.Common.Enums;
 
 namespace MilkTea.Domain.Catalog.Menu.Entities;
 public sealed class MenuEntity : Entity<int>
 {
     private readonly List<MenuSizeEntity> _vMenuSizes = new();
     public IReadOnlyList<MenuSizeEntity> MenuSizes => _vMenuSizes.AsReadOnly();
-
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
-
-    public int MenuGroupID { get; private set; }
-    public MenuStatus Status { get; private set; }
-    public int UnitID { get; private set; }
+    public int MenuGroupId { get; private set; }
+    public CommonStatus Status { get; private set; }
+    public int UnitId { get; private set; }
     public string? Formula { get; private set; }
     public byte[]? AvatarPicture { get; private set; }
     public string? Note { get; private set; }
@@ -35,9 +33,9 @@ public sealed class MenuEntity : Entity<int>
             Name = name,
             Formula = formula,
             Note = note,
-            Status = MenuStatus.Active,
-            MenuGroupID = menuGroupId,
-            UnitID = unitId,
+            Status = CommonStatus.Active,
+            MenuGroupId = menuGroupId,
+            UnitId = unitId,
             TasteQTy = tasteQty,
             PrintSticker = printSticker,
             CreatedBy = createdBy,
@@ -59,23 +57,23 @@ public sealed class MenuEntity : Entity<int>
 
     internal void Activate(int by)
     {
-        if (Status == MenuStatus.Active)
+        if (Status == CommonStatus.Active)
             throw new InvalidOperationException("Menu is already active.");
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(by);
 
-        Status = MenuStatus.Active;
+        Status = CommonStatus.Active;
         Touch(by);
     }
 
     internal void Deactivate(int by)
     {
-        if (Status == MenuStatus.Inactive)
+        if (Status == CommonStatus.Inactive)
             throw new InvalidOperationException("Menu is already inactive.");
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(by);
 
-        Status = MenuStatus.Inactive;
+        Status = CommonStatus.Inactive;
         Touch(by);
     }
 
