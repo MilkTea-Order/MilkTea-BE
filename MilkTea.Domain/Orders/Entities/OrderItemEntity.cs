@@ -56,11 +56,11 @@ public sealed class OrderItemEntity : Entity<int>
     /// </summary>
     /// <param name="quantity">The new quantity to set for the order item.</param>
     /// <param name="updatedBy">The identifier of the user performing the update.</param>
-    /// <exception cref="OrderItemCancelledException">Thrown if the order item has been cancelled.</exception>
+    /// <exception cref="OrderItemStatusInValidException">Thrown when the order item has current status != pending.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="quantity"/> or <paramref name="updatedBy"/> is less than or equal to zero.</exception>
     public void UpdateQuantity(int quantity, int updatedBy)
     {
-        if (IsCancelled) throw new OrderItemCancelledException();
+        if (Status != OrderItemStatus.Pending) throw new OrderItemStatusInValidException();
 
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
@@ -70,9 +70,15 @@ public sealed class OrderItemEntity : Entity<int>
         UpdatedDate = DateTime.Now;
     }
 
+    /// <summary>
+    /// Update note of itself
+    /// </summary>
+    /// <param name="note">note</param>
+    /// <param name="updatedBy">who update</param>
+    /// <exception cref="OrderItemStatusInValidException">Thrown when the order item has current status != pending.</exception>
     public void UpdateNote(string? note, int updatedBy)
     {
-        if (IsCancelled) throw new OrderItemCancelledException();
+        if (Status != OrderItemStatus.Pending) throw new OrderItemStatusInValidException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(updatedBy);
 
         Note = note;
@@ -90,12 +96,13 @@ public sealed class OrderItemEntity : Entity<int>
     ///  Cancels the order item.
     /// </summary>
     /// <param name="cancelledBy">The identifier of the user performing the cancellation.</param>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
+    /// <exception cref="OrderItemStatusInValidException">Thrown when the order item has current status != pending.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="cancelledBy"/> is less than or equal to zero.</exception>"
     public void Cancel(int cancelledBy)
     {
-        if (IsCancelled) throw new OrderItemCancelledException();
+        // if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
+        if (Status != OrderItemStatus.Pending) throw new OrderItemStatusInValidException();
 
         Status = OrderItemStatus.Cancelled;
         CancelledBy = cancelledBy;

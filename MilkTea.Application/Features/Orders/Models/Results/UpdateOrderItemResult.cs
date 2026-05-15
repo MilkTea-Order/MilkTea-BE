@@ -2,7 +2,7 @@
 
 namespace MilkTea.Application.Features.Orders.Models.Results
 {
-    public class UpdateOrderDetailResult
+    public class UpdateOrderItemResult
     {
         public StringListEntry ResultData { get; set; } = new();
     }

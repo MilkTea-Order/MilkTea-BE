@@ -51,7 +51,11 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>

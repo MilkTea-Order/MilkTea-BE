@@ -10,6 +10,5 @@
         {
             CASH, BANK, GRAB, SHOPEE
         };
-
     }
 }

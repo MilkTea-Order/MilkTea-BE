@@ -6,27 +6,27 @@ namespace MilkTea.API.RestfulAPI.Common
 {
     public class ResultsReturned
     {
-        public static ResponseDto NotFound(string Message = Parameters.TEXT_NOT_FOUND)
+        public static ResponseDto NotFound(string message = Parameters.TEXT_NOT_FOUND)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error, " + Parameters.CODE_NOT_FOUND + " - " + Parameters.TEXT_NOT_FOUND,
                 Data = null,
                 Code = Parameters.CODE_NOT_FOUND,
-                Message = Message
+                Message = message
             };
 
             return resultToReturn;
         }
 
-        public static ResponseDto TokenError(string? Message)
+        public static ResponseDto TokenError(string? message)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error, " + Parameters.CODE_UNAUTHORIZED + " - " + Parameters.TEXT_UNAUTHORIZED,
                 Data = null,
                 Code = Parameters.CODE_UNAUTHORIZED,
-                Message = Message ?? Parameters.TEXT_UNAUTHORIZED
+                Message = message ?? Parameters.TEXT_UNAUTHORIZED
             };
             return resultToReturn;
         }
@@ -40,14 +40,14 @@ namespace MilkTea.API.RestfulAPI.Common
 
 
 
-        public static ResponseDto Error(string Message)
+        public static ResponseDto Error(string message)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error",
                 Data = null,
                 Code = Parameters.CODE_ERROR,
-                Message = Message
+                Message = message
             };
 
             return resultToReturn;
@@ -90,54 +90,54 @@ namespace MilkTea.API.RestfulAPI.Common
         /// <summary>
         /// @see HTG_CWOS_API.Customer.Utils.ErrorCode
         /// </summary>
-        /// <param name="Data">@see StringListEntry</param>
+        /// <param name="data">@see StringListEntry</param>
         /// <returns></returns>
-        public static ResponseDto ErrorDetail(object Data)
+        public static ResponseDto ErrorDetail(object data)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error",
-                Data = Data,
+                Data = data,
                 Code = Parameters.CODE_ERROR,
             };
 
             return resultToReturn;
         }
 
-        public static ResponseDto ErrorMeta(object Data, string ErrorCode, string ErrorField)
+        public static ResponseDto ErrorMeta(object data, string errorCode, string errorField)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error",
-                Data = Data,
+                Data = data,
                 Code = Parameters.CODE_ERROR,
-                Message = $"{ErrorField}:{ErrorCode}"
+                Message = $"{errorField}:{errorCode}"
             };
 
             return resultToReturn;
         }
 
-        public static ResponseDto Success(object Data, string Message = Parameters.TEXT_SUCCESS)
+        public static ResponseDto Success(object data, string message = Parameters.TEXT_SUCCESS)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error",
-                Data = Data,
+                Data = data,
                 Code = Parameters.CODE_SUCCESS,
-                Message = Message
+                Message = message
             };
 
             return resultToReturn;
         }
 
-        public static ResponseDto Success(string Message = Parameters.TEXT_SUCCESS)
+        public static ResponseDto Success(string message = Parameters.TEXT_SUCCESS)
         {
             ResponseDto resultToReturn = new()
             {
                 Description = Parameters.CODE_SUCCESS + " - " + Parameters.TEXT_SUCCESS + ", " + Parameters.CODE_ERROR + " - Error",
                 Data = null,
                 Code = Parameters.CODE_SUCCESS,
-                Message = Message
+                Message = message
             };
 
             return resultToReturn;

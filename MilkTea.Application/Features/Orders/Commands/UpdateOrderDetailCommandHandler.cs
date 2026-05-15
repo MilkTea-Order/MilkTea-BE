@@ -10,27 +10,27 @@ using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Orders.Commands
 {
-    public class UpdateOrderDetailCommand : ICommand<UpdateOrderDetailResult>
+    public class UpdateOrderItemCommand : ICommand<UpdateOrderItemResult>
     {
-        public int OrderID { get; set; }
-        public int OrderDetailID { get; set; }
-        public int? Quantity { get; set; }
-        public string? Note { get; set; }
+        public int OrderId { get; init; }
+        public int OrderItemId { get; init; }
+        public int? Quantity { get; init; }
+        public string? Note { get; init; }
     }
 
-    public sealed class UpdateOrderDetailCommandValidator : AbstractValidator<UpdateOrderDetailCommand>
+    public sealed class UpdateOrderItemCommandValidator : AbstractValidator<UpdateOrderItemCommand>
     {
-        public UpdateOrderDetailCommandValidator()
+        public UpdateOrderItemCommandValidator()
         {
-            RuleFor(x => x.OrderID)
+            RuleFor(x => x.OrderId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName("OrderID");
+                .OverridePropertyName(nameof(UpdateOrderItemCommand.OrderId));
 
-            RuleFor(x => x.OrderDetailID)
+            RuleFor(x => x.OrderItemId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName("OrderDetailID");
+                .OverridePropertyName(nameof(UpdateOrderItemCommand.OrderItemId));
 
             RuleFor(x => x)
                 .Must(x => x.Quantity.HasValue || x.Note is not null)
@@ -40,17 +40,19 @@ namespace MilkTea.Application.Features.Orders.Commands
     }
     public class UpdateOrderDetailCommandHandler
         (IOrderUnitOfWork orderingUnitOfWork,
-        IIdentifyServicePorts currentUser) : IRequestHandler<UpdateOrderDetailCommand, UpdateOrderDetailResult>
+        IIdentifyServicePorts currentUser) : IRequestHandler<UpdateOrderItemCommand, UpdateOrderItemResult>
     {
         private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
-        public async Task<UpdateOrderDetailResult> Handle(UpdateOrderDetailCommand command, CancellationToken cancellationToken)
+        public async Task<UpdateOrderItemResult> Handle(UpdateOrderItemCommand command, CancellationToken cancellationToken)
         {
-            var result = new UpdateOrderDetailResult();
+            var result = new UpdateOrderItemResult();
             // Check order exist
-            var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
+            var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemIdAsync(command.OrderId, 
+                                                                                        command.OrderItemId, 
+                                                                                        cancellationToken);
             if (order is null)
             {
-                return SendError(result, ErrorCode.E0001, "OrderID");
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderId));
             }
             await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
@@ -60,44 +62,43 @@ namespace MilkTea.Application.Features.Orders.Commands
                     // If quantity equals zero, remove item, else update quantity
                     if (command.Quantity.Value == 0)
                     {
-                        order.CancelOrderItem(command.OrderDetailID, currentUser.UserId);
+                        order.CancelOrderItem(command.OrderItemId, currentUser.UserId);
                     }
                     else
                     {
-                        order.UpdateOrderItemQuantity(command.OrderDetailID, command.Quantity.Value, currentUser.UserId);
+                        order.UpdateOrderItemQuantity(command.OrderItemId, command.Quantity.Value, currentUser.UserId);
                     }
                 }
                 if (command.Note is not null)
                 {
                     var note = command.Note.IsNullOrWhiteSpace() ? null : command.Note.Trim();
-                    order.UpdateOrderItemNote(command.OrderDetailID, note, currentUser.UserId);
+                    order.UpdateOrderItemNote(command.OrderItemId, note, currentUser.UserId);
                 }
                 await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             }
             catch (OrderNotEditableException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "OrderID");
+                return SendError(result, ErrorCode.E0042, nameof(command.OrderId));
             }
             catch (OrderItemNotFoundException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0001, "OrderDetailID");
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderItemId));
             }
-            catch (OrderItemCancelledException)
+            catch (OrderItemStatusInValidException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "OrderDetailID");
+                return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatusToCancelItem");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E9999, "UpdateItemOrderDetail");
+                return SendError(result, ErrorCode.E9999, "UpdateOrderItem");
             }
             return result;
         }
-        private static UpdateOrderDetailResult SendError(UpdateOrderDetailResult result, string errorCode, params string[] values)
+        private static UpdateOrderItemResult SendError(UpdateOrderItemResult result, string errorCode, params string[] values)
         {
             if (values is { Length: > 0 })
                 result.ResultData.Add(errorCode, values.ToList());

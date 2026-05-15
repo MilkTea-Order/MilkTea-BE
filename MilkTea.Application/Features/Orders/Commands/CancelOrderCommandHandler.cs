@@ -54,10 +54,10 @@ public sealed class CancelOrderCommandHandler(
             await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
             return SendError(result, ErrorCode.E0042,  nameof(command.OrderId));
         }
-        catch (OrderItemStatusInValid)
+        catch (OrderItemStatusInValidException)
         {
             await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-            return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatus");
+            return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatusToCancelOrder");
         }
         catch (Exception)
         {

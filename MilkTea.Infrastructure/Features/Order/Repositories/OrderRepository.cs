@@ -59,6 +59,14 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
                                      .FirstOrDefaultAsync(o => o.Id == orderId);
     }
 
+    public async Task<OrderEntity?> GetOrderByIdWithItemIdAsync(int orderId, int orderItemId, CancellationToken cancellationToken = default)
+    {
+        return await _vContext.Orders
+            .Include(o => o.OrderItems
+            .Where(oi => oi.OrderId == orderId && oi.Id == orderItemId))
+            .FirstOrDefaultAsync(o => o.Id == orderId,cancellationToken);
+    }
+
     /// <inheritdoc/>
     public async Task<int> GetTotalOrdersCountInDateAsync(DateTime? date)
     {
@@ -124,15 +132,5 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
                         .Include(o => o.OrderItems)
                         .OrderByDescending(x => x.CreatedDate)
                         .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<OrderEntity>> GetOrdersByStatusWithItemsAsync(OrderStatus status, CancellationToken cancellationToken = default)
-    {
-        return await _vContext.Orders.AsNoTracking()
-            .Where(o => o.Status == status)
-            .AsSplitQuery()
-            .Include(o => o.OrderItems)
-            .ToListAsync(cancellationToken);
     }
 }

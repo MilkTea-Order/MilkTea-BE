@@ -7,27 +7,38 @@ using MilkTea.Application.Features.Orders.Models.Results;
 using MilkTea.Application.Ports.Users;
 using MilkTea.Domain.Common.Constants;
 using MilkTea.Domain.Orders.Enums;
+using MilkTea.Shared.Extensions;
 
 namespace MilkTea.Application.Features.Orders.Queries
 {
 
     public sealed class GetOrderReportQuery : IRequest<GetOrderReportResult>
     {
-        public string? PaymentMethod { get; set; }
-        public int OrderStatusId { get; set; }
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
+        public string? PaymentMethod { get; init; }
+        public string? Status { get; init; }
+        public DateTime? FromDate { get; init; }
+        public DateTime? ToDate { get; init; }
     }
 
     public sealed class GetOrderReportQueryValidator : AbstractValidator<GetOrderReportQuery>
     {
         public GetOrderReportQueryValidator()
         {
-            RuleFor(x => x.OrderStatusId)
-                .GreaterThanOrEqualTo(0)
-                .WithErrorCode(ErrorCode.E0036)
-                .OverridePropertyName(nameof(GetOrderReportQuery.OrderStatusId));
+            RuleFor(x => x.Status)
+                .Must(x => x.TryParseEnum<OrderStatus>(out _))
+                .WithErrorCode(ErrorCode.E0001)
+                .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.Status));
 
+            RuleFor(x => x.Status)
+                .Must(status =>
+                {
+                    status.TryParseEnum<OrderStatus>(out var parsedStatus);
+                    return parsedStatus is OrderStatus.NotCollected or OrderStatus.Paid;
+                })
+                .WithErrorCode(ErrorCode.E0036)
+                .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.Status))
+                .When(x => x.Status.TryParseEnum<OrderStatus>(out _));
+            
             RuleFor(x => x.PaymentMethod)
                 .Must(x => PaymentMethod.All.Contains(x!))
                 .When(x => !string.IsNullOrWhiteSpace(x.PaymentMethod))
@@ -61,15 +72,12 @@ namespace MilkTea.Application.Features.Orders.Queries
         {
             GetOrderReportResult result = new();
 
-            if (query.OrderStatusId != (int)OrderStatus.NotCollected && query.OrderStatusId != (int)OrderStatus.Paid)
-            {
-                return SendError(result, ErrorCode.E0036, nameof(GetOrderReportQuery.OrderStatusId));
-            }
+            
 
-            var reports = await _vOrderQuery.GetOrderReportAsync(_vCurrentUser.UserId, (OrderStatus)query.OrderStatusId,
-                                                                query.FromDate, query.ToDate, query.PaymentMethod, cancellationToken);
+            var reports = await _vOrderQuery.GetOrderReportAsync(_vCurrentUser.UserId, 
+                                                                      Enum.Parse<OrderStatus>(query.Status, ignoreCase: true),
+                                                                                query.FromDate, query.ToDate, query.PaymentMethod, cancellationToken);
 
-            //var tableIds = reports.Orders.Select(o => o.DinnerTableId).Distinct().ToList();
             var tableIds = reports.DateGroup.SelectMany(g => g.Orders).Select(o => o.DinnerTable!.Id).Distinct().ToList();
             var table = await _vTableService.GetTableAsync(tableIds, cancellationToken);
 

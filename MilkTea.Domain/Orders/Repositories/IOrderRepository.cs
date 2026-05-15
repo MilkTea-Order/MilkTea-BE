@@ -36,6 +36,15 @@ public interface IOrderRepository
     Task<OrderEntity?> GetOrderByIdWithItemsAsync(int orderId);
 
     /// <summary>
+    /// Gets an order by its ID with order item by item's ID  (Can update).
+    /// </summary>
+    /// <param name="orderId"></param>
+    /// <param name="orderItemId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<OrderEntity?> GetOrderByIdWithItemIdAsync(int orderId, int orderItemId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
     /// Retrieves an order for the specified table and status, including its items. (Can Update)
     /// </summary>
     /// <param name="tableId">The identifier of the table.</param>
@@ -80,9 +89,4 @@ public interface IOrderRepository
     /// <param name="cancellationToken"></param>
     /// <returns>True if the dinner table is currently in use; otherwise, false.</returns>
     Task<bool> HadUsing(int dinnerTableId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets all orders with items filtered by order status. Used for kitchen display.
-    /// </summary>
-    Task<List<OrderEntity>> GetOrdersByStatusWithItemsAsync(OrderStatus status, CancellationToken cancellationToken = default);
 }

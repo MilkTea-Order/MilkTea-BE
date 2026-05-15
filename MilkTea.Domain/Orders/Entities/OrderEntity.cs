@@ -66,7 +66,7 @@ public sealed class OrderEntity : Aggregate<int>
         if (_vOrderItems.Any(x => x.Status != OrderItemStatus.Pending
                                   && x.Status != OrderItemStatus.Cancelled))
         {
-            throw new OrderItemStatusInValid();
+            throw new OrderItemStatusInValidException();
         }
         
         UpdateStatus(OrderStatus.Cancelled);
@@ -88,7 +88,7 @@ public sealed class OrderEntity : Aggregate<int>
     /// <param name="orderItemId">The unique identifier of the order item to cancel.</param>
     /// <param name="removedBy">The identifier of the user performing the cancellation.</param>
     /// <exception cref="OrderItemNotFoundException">Thrown when the specified order item does not exist.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been canceled.</exception>
+    /// <exception cref="OrderItemStatusInValidException">Thrown when the order item has current status != pending.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="removedBy"/> is less than or equal to zero.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>"
     public void CancelOrderItem(int orderItemId, int removedBy)

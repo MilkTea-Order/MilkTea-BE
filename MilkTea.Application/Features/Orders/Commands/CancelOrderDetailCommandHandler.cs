@@ -8,66 +8,68 @@ using Shared.Abstractions.CQRS;
 
 namespace MilkTea.Application.Features.Orders.Commands
 {
-    public class CancelOrderDetailCommnad : ICommand<CancelOrderDetailResult>
+    public class CancelOrderDetailCommand : ICommand<CancelOrderDetailResult>
     {
-        public int OrderID { get; set; }
-        public int OrderDetailID { get; set; }
+        public int OrderId { get; init; }
+        public int OrderDetailId { get; init; }
     }
-    public sealed class CancelOrderDetailCommnadValidator : AbstractValidator<CancelOrderDetailCommnad>
+    public sealed class CancelOrderDetailCommandValidator : AbstractValidator<CancelOrderDetailCommand>
     {
-        public CancelOrderDetailCommnadValidator()
+        public CancelOrderDetailCommandValidator()
         {
             // Check null, empty, and less than or equal to 0
-            RuleFor(x => x.OrderID)
+            RuleFor(x => x.OrderId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName("OrderID");
+                .OverridePropertyName(nameof(CancelOrderDetailCommand.OrderId));
 
             // Check less than or equal to 0
-            RuleFor(x => x.OrderDetailID)
+            RuleFor(x => x.OrderDetailId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName("OrderDetailID");
+                .OverridePropertyName(nameof(CancelOrderDetailCommand.OrderDetailId));
 
         }
     }
-    public class CancelOrderDetailCommnadHandler(
+    public class CancelOrderDetailCommandHandler(
                                 IOrderUnitOfWork orderingUnitOfWork,
-                                IIdentifyServicePorts currentUser) : ICommandHandler<CancelOrderDetailCommnad, CancelOrderDetailResult>
+                                IIdentifyServicePorts currentUser) : ICommandHandler<CancelOrderDetailCommand, CancelOrderDetailResult>
     {
         private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
-        public async Task<CancelOrderDetailResult> Handle(CancelOrderDetailCommnad command, CancellationToken cancellationToken)
+        public async Task<CancelOrderDetailResult> Handle(CancelOrderDetailCommand command, CancellationToken cancellationToken)
         {
             var result = new CancelOrderDetailResult();
             // Load order with items for update
-            var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
+            var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemIdAsync(command.OrderId, 
+                                                                                        command.OrderDetailId, 
+                                                                                        cancellationToken);
             if (order is null)
             {
-                return SendError(result, ErrorCode.E0001, "OrderID");
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderId));
             }
 
             await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
                 var cancelledBy = currentUser.UserId;
-                order.CancelOrderItem(command.OrderDetailID, cancelledBy);
+                order.CancelOrderItem(command.OrderDetailId, cancelledBy);
                 await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
                 return result;
             }
             catch (OrderNotEditableException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "OrderID");
+                return SendError(result, ErrorCode.E0042, nameof(command.OrderId));
             }
             catch (OrderItemNotFoundException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0001, "OrderDetailID");
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderDetailId));
             }
             catch (OrderItemCancelledException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "OrderDetailID");
+                return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatusToCancelItem");
             }
             catch (Exception)
             {

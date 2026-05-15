@@ -7,7 +7,7 @@ namespace MilkTea.Domain.Orders.Exceptions
 
     public sealed class OrderNotEditableException() : DomainException("Order must unpaid status.");
 
-    public sealed class OrderItemStatusInValid() : DomainException("Order item status is invalid.");
+    public sealed class OrderItemStatusInValidException() : DomainException("Order item status is invalid.");
 
     public sealed class OrderItemCancelledException() : DomainException("Order item has been cancelled.");
 
