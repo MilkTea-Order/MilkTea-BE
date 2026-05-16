@@ -25,7 +25,7 @@ public sealed class GetOrderDetailByIdAndStatusQueryHandler(
 
         if (query.OrderId <= 0)
         {
-            return SendError(result, ErrorCode.E0036, nameof(query.OrderId));
+            return SendError(result, ErrorCode.E0001, nameof(query.OrderId));
         }
 
         var order = await _vOrderQuery.GetOrderDetailByIdAndStatusAsync(query.OrderId, query.IsCancelled, cancellationToken);

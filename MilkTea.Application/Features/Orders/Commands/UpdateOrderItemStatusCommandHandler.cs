@@ -15,14 +15,15 @@ public class UpdateOrderItemStatusCommand : ICommand<UpdateOrderItemStatusResult
 
 public class UpdateOrderItemStatusItem
 {
-    public int OrderID { get; set; }
-    public int OrderDetailID { get; set; }
+    public int OrderId { get; set; }
+    public int OrderDetailId { get; set; }
     public string Status { get; set; } = string.Empty;
     public string? Reason { get; set; }
 }
 
 public sealed class UpdateOrderItemStatusCommandHandler(IOrderUnitOfWork orderingUnitOfWork,
-                                                                    IIdentifyServicePorts currentUser) : ICommandHandler<UpdateOrderItemStatusCommand, UpdateOrderItemStatusResult>
+                                                                    IIdentifyServicePorts currentUser) 
+                                        : ICommandHandler<UpdateOrderItemStatusCommand, UpdateOrderItemStatusResult>
 {
     private readonly IOrderUnitOfWork _vOrderingUnitOfWork = orderingUnitOfWork;
 
@@ -34,17 +35,17 @@ public sealed class UpdateOrderItemStatusCommandHandler(IOrderUnitOfWork orderin
         // Validate outside transaction
         foreach (var item in command.Items)
         {
-            var key = $"{item.OrderID}:{item.OrderDetailID}";
+            var key = $"{item.OrderId}:{item.OrderDetailId}";
             if (!OrderDetailStatusExtensions.TryParse(item.Status, out _))
             {
-                failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0001, nameof(item.Status)));
+                failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0001, nameof(item.Status)));
                 continue;
             }
 
             OrderDetailStatusExtensions.TryParse(item.Status, out var newStatus);
             if (newStatus == OrderItemStatus.Cancelled && string.IsNullOrWhiteSpace(item.Reason))
             {
-                failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0036, nameof(item.Reason)));
+                failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0036, nameof(item.Reason)));
             }
         }
 
@@ -59,34 +60,34 @@ public sealed class UpdateOrderItemStatusCommandHandler(IOrderUnitOfWork orderin
         {
             foreach (var item in command.Items)
             {
-                var key = $"{item.OrderID}:{item.OrderDetailID}";
-                var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(item.OrderID);
+                var key = $"{item.OrderId}:{item.OrderDetailId}";
+                var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemsAsync(item.OrderId);
                 if (order is null)
                 {
-                    failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0001, nameof(item.OrderID)));
+                    failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0001, nameof(item.OrderId)));
                     continue;
                 }
 
                 try
                 {
                     OrderDetailStatusExtensions.TryParse(item.Status, out var newStatus);
-                    order.UpdateOrderItemStatus(item.OrderDetailID, newStatus, currentUser.UserId, item.Reason);
+                    order.UpdateOrderItemStatus(item.OrderDetailId, newStatus, currentUser.UserId, item.Reason);
                 }
                 catch (OrderNotEditableException)
                 {
-                    failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0042, nameof(item.OrderID)));
+                    failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0042, nameof(item.OrderId)));
                 }
                 catch (OrderItemNotFoundException)
                 {
-                    failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0001, nameof(item.OrderDetailID)));
+                    failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0001, nameof(item.OrderDetailId)));
                 }
-                catch (OrderItemCancelledException)
-                {
-                    failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0042, nameof(item.OrderDetailID)));
-                }
+                // catch (OrderItemCancelledException)
+                // {
+                //     failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0042, nameof(item.OrderDetailId)));
+                // }
                 catch (InvalidOrderDetailStatusTransitionException)
                 {
-                    failedItems.TryAdd(key, (item.OrderID, item.OrderDetailID, ErrorCode.E0042, nameof(item.Status)));
+                    failedItems.TryAdd(key, (item.OrderId, item.OrderDetailId, ErrorCode.E0042, nameof(item.Status)));
                 }
             }
 

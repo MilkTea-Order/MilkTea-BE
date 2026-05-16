@@ -43,6 +43,7 @@
         public string? Note { get; set; }
         public int? KindOfHotpot1Id { get; set; }
         public int? KindOfHotpot2Id { get; set; }
+        public OrderStatusDto? Status { get; set; }
         public MenuDto? Menu { get; set; }
         public SizeDto? Size { get; set; }
     }

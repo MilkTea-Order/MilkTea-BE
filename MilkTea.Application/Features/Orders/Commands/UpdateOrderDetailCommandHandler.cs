@@ -13,7 +13,7 @@ namespace MilkTea.Application.Features.Orders.Commands
     public class UpdateOrderItemCommand : ICommand<UpdateOrderItemResult>
     {
         public int OrderId { get; init; }
-        public int OrderItemId { get; init; }
+        public int OrderDetailId { get; init; }
         public int? Quantity { get; init; }
         public string? Note { get; init; }
     }
@@ -27,10 +27,10 @@ namespace MilkTea.Application.Features.Orders.Commands
                 .WithErrorCode(ErrorCode.E0001)
                 .OverridePropertyName(nameof(UpdateOrderItemCommand.OrderId));
 
-            RuleFor(x => x.OrderItemId)
+            RuleFor(x => x.OrderDetailId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName(nameof(UpdateOrderItemCommand.OrderItemId));
+                .OverridePropertyName(nameof(UpdateOrderItemCommand.OrderDetailId));
 
             RuleFor(x => x)
                 .Must(x => x.Quantity.HasValue || x.Note is not null)
@@ -48,7 +48,7 @@ namespace MilkTea.Application.Features.Orders.Commands
             var result = new UpdateOrderItemResult();
             // Check order exist
             var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdWithItemIdAsync(command.OrderId, 
-                                                                                        command.OrderItemId, 
+                                                                                        command.OrderDetailId, 
                                                                                         cancellationToken);
             if (order is null)
             {
@@ -62,17 +62,17 @@ namespace MilkTea.Application.Features.Orders.Commands
                     // If quantity equals zero, remove item, else update quantity
                     if (command.Quantity.Value == 0)
                     {
-                        order.CancelOrderItem(command.OrderItemId, currentUser.UserId);
+                        order.CancelOrderItem(command.OrderDetailId, currentUser.UserId);
                     }
                     else
                     {
-                        order.UpdateOrderItemQuantity(command.OrderItemId, command.Quantity.Value, currentUser.UserId);
+                        order.UpdateOrderItemQuantity(command.OrderDetailId, command.Quantity.Value, currentUser.UserId);
                     }
                 }
                 if (command.Note is not null)
                 {
                     var note = command.Note.IsNullOrWhiteSpace() ? null : command.Note.Trim();
-                    order.UpdateOrderItemNote(command.OrderItemId, note, currentUser.UserId);
+                    order.UpdateOrderItemNote(command.OrderDetailId, note, currentUser.UserId);
                 }
                 await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
             }
@@ -84,14 +84,14 @@ namespace MilkTea.Application.Features.Orders.Commands
             catch (OrderItemNotFoundException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0001, nameof(command.OrderItemId));
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderDetailId));
             }
             catch (OrderItemStatusInValidException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
                 return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatusToCancelItem");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
                 return SendError(result, ErrorCode.E9999, "UpdateOrderItem");

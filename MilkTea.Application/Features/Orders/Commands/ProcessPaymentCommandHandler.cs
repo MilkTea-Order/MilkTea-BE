@@ -12,7 +12,7 @@ namespace MilkTea.Application.Features.Orders.Commands
 
     public class ProcessPaymentCommand : ICommand<ProcessPaymentResult>
     {
-        public int OrderID { get; set; }
+        public int OrderId { get; set; }
         public string PaymentMethod { get; set; } = string.Empty;
     }
 
@@ -20,10 +20,10 @@ namespace MilkTea.Application.Features.Orders.Commands
     {
         public ProcessPaymentCommandValidator()
         {
-            RuleFor(x => x.OrderID)
+            RuleFor(x => x.OrderId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName("orderID");
+                .OverridePropertyName(nameof(ProcessPaymentCommand.OrderId));
 
             RuleFor(x => x.PaymentMethod)
                 .NotEmpty()
@@ -41,8 +41,8 @@ namespace MilkTea.Application.Features.Orders.Commands
         public async Task<ProcessPaymentResult> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
         {
             ProcessPaymentResult result = new();
-            var order = await _vOrderUnitOfWork.Orders.GetOrderByIdWithItemsAsync(request.OrderID);
-            if (order is null) return SendError(result, ErrorCode.E0001, request.OrderID.ToString());
+            var order = await _vOrderUnitOfWork.Orders.GetOrderByIdWithItemsAsync(request.OrderId);
+            if (order is null) return SendError(result, ErrorCode.E0001, request.OrderId.ToString());
             var billPrefix = await _vConfigurationService.GetBillPrefix();
             await _vOrderUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
@@ -58,7 +58,7 @@ namespace MilkTea.Application.Features.Orders.Commands
             catch (OrderNotEditableException)
             {
                 await _vOrderUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, nameof(request.OrderID));
+                return SendError(result, ErrorCode.E0042, nameof(request.OrderId));
             }
             catch (Exception)
             {

@@ -13,7 +13,7 @@ using Shared.Extensions;
 namespace MilkTea.Application.Features.Orders.Commands;
 public class CreateOrderCommand : ICommand<CreateOrderResult>
 {
-    public int DinnerTableID { get; set; }
+    public int DinnerTableId { get; set; }
     public List<OrderItemCommand> Items { get; set; } = new();
     public int? OrderedBy { get; set; }
     public string? Note { get; set; }
@@ -21,8 +21,8 @@ public class CreateOrderCommand : ICommand<CreateOrderResult>
 
 public class OrderItemCommand
 {
-    public int MenuID { get; set; }
-    public int SizeID { get; set; }
+    public int MenuId { get; set; }
+    public int SizeId { get; set; }
     public int Quantity { get; set; }
     public List<int>? ToppingIDs { get; set; }
     public List<int>? KindOfHotpotIDs { get; set; }
@@ -33,20 +33,20 @@ public sealed class CreateOrderCommandValidator : AbstractValidator<CreateOrderC
 {
     public CreateOrderCommandValidator()
     {
-        RuleFor(x => x.DinnerTableID)
+        RuleFor(x => x.DinnerTableId)
             .GreaterThan(0)
             .WithErrorCode(ErrorCode.E0036)
-            .OverridePropertyName("dinnerTableId");
+            .OverridePropertyName(nameof(CreateOrderCommand.DinnerTableId));
         RuleFor(x => x.Items)
             .NotNull()
             .NotEmpty()
             .WithErrorCode(ErrorCode.E0036)
-            .OverridePropertyName("items");
+            .OverridePropertyName(nameof(CreateOrderCommand.Items));
         RuleFor(x => x.OrderedBy)
             .GreaterThan(0)
             .When(x => x.OrderedBy.HasValue)
             .WithErrorCode(ErrorCode.E0036)
-            .OverridePropertyName("orderedBy");
+            .OverridePropertyName(nameof(CreateOrderCommand.OrderedBy));
     }
 }
 
@@ -64,15 +64,15 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
         var orderedBy = command.OrderedBy ?? createdBy;
 
         // Validate dinnerTable
-        var hadUsing = await _vOrderingUnitOfWork.Orders.HadUsing(command.DinnerTableID, cancellationToken);
+        var hadUsing = await _vOrderingUnitOfWork.Orders.HadUsing(command.DinnerTableId, cancellationToken);
         if (hadUsing)
         {
-            return SendError(result, ErrorCode.E0036, "dinnerTableId");
+            return SendError(result, ErrorCode.E0042, nameof(command.DinnerTableId));
         }
-        var table = await _vCatalogService.GetTableAsync(command.DinnerTableID, cancellationToken);
+        var table = await _vCatalogService.GetTableAsync(command.DinnerTableId, cancellationToken);
         if (table is null || table.Status.Id != (int)TableStatus.InUsing)
         {
-            return SendError(result, ErrorCode.E0036, "dinnerTableId");
+            return SendError(result, ErrorCode.E0042, nameof(command.DinnerTableId));
         }
 
         // Validate quantity of each items
@@ -83,10 +83,10 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
             {
                 if (!hasError)
                 {
-                    result = SendError(result, ErrorCode.E0036, "quantity");
+                    result = SendError(result, ErrorCode.E0036, "Quantity");
                     hasError = true;
                 }
-                AddItemMeta(result, item);
+                AddItemMeta("Quantity", result, item);
             }
         }
         if (hasError)
@@ -95,19 +95,19 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
         }
 
         //Validate each items
-        var menuSizePairs = command.Items.Select(i => (i.MenuID, i.SizeID)).Distinct().ToList();
+        var menuSizePairs = command.Items.Select(i => (MenuID: i.MenuId, SizeID: i.SizeId)).Distinct().ToList();
         var canPayMap = await _vCatalogService.CanPayBatch(menuSizePairs, cancellationToken);
         foreach (var item in command.Items)
         {
-            var key = (item.MenuID, item.SizeID);
+            var key = (MenuID: item.MenuId, SizeID: item.SizeId);
             if (!canPayMap.TryGetValue(key, out var info) || !info.CanPay)
             {
                 if (!hasError)
                 {
                     hasError = true;
-                    result = SendError(result, ErrorCode.E0001, "menu");
+                    result = SendError(result, ErrorCode.E0036, "Menu");
                 }
-                AddItemMeta(result, item);
+                AddItemMeta("Menu", result, item);
             }
         }
         if (hasError)
@@ -119,16 +119,16 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
         try
         {
             var order = Domain.Orders.Entities.OrderEntity.Create(
-                dinnerTableId: command.DinnerTableID,
+                dinnerTableId: command.DinnerTableId,
                 orderBy: orderedBy,
                 createdBy: createdBy,
                 note: command.Note);
             foreach (var item in command.Items)
             {
-                var priceInfo = canPayMap[(item.MenuID, item.SizeID)];
+                var priceInfo = canPayMap[(item.MenuId, item.SizeId)];
                 var menuItem = MenuItem.Of(
-                    menuId: item.MenuID,
-                    sizeId: item.SizeID,
+                    menuId: item.MenuId,
+                    sizeId: item.SizeId,
                     priceListId: priceInfo.Data.PriceListID,
                     price: priceInfo.Data.Price,
                     kindOfHotpot1Id: item.KindOfHotpotIDs?.Count > 0 ? item.KindOfHotpotIDs[0] : null,
@@ -182,13 +182,14 @@ public sealed class CreateOrderCommandHandler(IOrderUnitOfWork orderingUnitOfWor
             result.ResultData.Add(errorCode, values.ToList());
         return result;
     }
-    private static void AddItemMeta(CreateOrderResult result, dynamic item)
+    private static void AddItemMeta(string key, CreateOrderResult result, dynamic item)
     {
         var i = new
         {
+            key = key,
             menuId = item.MenuID,
             sizeId = item.SizeID
         };
-        result.ResultData.AddMeta("InvalidItems", i);
+        result.ResultData.AddMeta(key, i);
     }
 }

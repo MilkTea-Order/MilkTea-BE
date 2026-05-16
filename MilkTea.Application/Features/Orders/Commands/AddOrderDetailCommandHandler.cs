@@ -72,11 +72,11 @@ namespace MilkTea.Application.Features.Orders.Commands
             if (hasError) return result;
 
             // Check menu can pay
-            var pairs = command.Items.Select(i => (i.MenuID, i.SizeID)).Distinct().ToList();
+            var pairs = command.Items.Select(i => (MenuID: i.MenuId, SizeID: i.SizeId)).Distinct().ToList();
             var canPayMap = await _vCatalogService.CanPayBatch(pairs, cancellationToken);
             foreach (var item in command.Items)
             {
-                var key = (item.MenuID, item.SizeID);
+                var key = (MenuID: item.MenuId, SizeID: item.SizeId);
                 if (!canPayMap.TryGetValue(key, out var info) || !info.CanPay)
                 {
                     if (!hasError)
@@ -94,7 +94,7 @@ namespace MilkTea.Application.Features.Orders.Commands
             {
                 foreach (var item in command.Items)
                 {
-                    var key = (item.MenuID, item.SizeID);
+                    var key = (MenuID: item.MenuId, SizeID: item.SizeId);
                     var info = canPayMap[key];
 
                     var (priceListId, price) = info.Data;
@@ -106,8 +106,8 @@ namespace MilkTea.Application.Features.Orders.Commands
                     //                            && od.MenuItem.PriceListId == priceListId);
 
                     var menuItem = MenuItem.Of(
-                        menuId: item.MenuID,
-                        sizeId: item.SizeID,
+                        menuId: item.MenuId,
+                        sizeId: item.SizeId,
                         price: price,
                         priceListId: priceListId,
                         kindOfHotpot1Id: item.KindOfHotpotIDs?.Count > 0 ? item.KindOfHotpotIDs[0] : null,

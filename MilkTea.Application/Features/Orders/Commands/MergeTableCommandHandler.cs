@@ -11,7 +11,7 @@ namespace MilkTea.Application.Features.Orders.Commands
 {
     public class MergeTableCommand : ICommand<MergeTableResult>
     {
-        public int OrderID { get; set; }
+        public int OrderId { get; set; }
         public int SourceTableId { get; set; }
     }
 
@@ -19,14 +19,14 @@ namespace MilkTea.Application.Features.Orders.Commands
     {
         public MergeTableCommandValidator()
         {
-            RuleFor(x => x.OrderID)
+            RuleFor(x => x.OrderId)
                 .GreaterThan(0)
                 .WithErrorCode(ErrorCode.E0001)
-                .OverridePropertyName("OrderID");
+                .OverridePropertyName(nameof(MergeTableCommand.OrderId));
             RuleFor(x => x.SourceTableId)
                .GreaterThan(0)
                .WithErrorCode(ErrorCode.E0001)
-               .OverridePropertyName("SourceTableId");
+               .OverridePropertyName(nameof(MergeTableCommand.SourceTableId));
         }
     }
 
@@ -41,14 +41,14 @@ namespace MilkTea.Application.Features.Orders.Commands
         {
             MergeTableResult result = new();
             var mergeBy = _vCurrentUser.UserId;
-            var rootOrder = await _vOrderUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderID);
+            var rootOrder = await _vOrderUnitOfWork.Orders.GetOrderByIdWithItemsAsync(command.OrderId);
             if (rootOrder is null)
             {
-                return SendError(result, ErrorCode.E0001, "OrderID");
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderId));
             }
             if (rootOrder.DinnerTableId == command.SourceTableId)
             {
-                return SendError(result, ErrorCode.E0002, "SourceTableId");
+                return SendError(result, ErrorCode.E0002, nameof(command.SourceTableId));
             }
 
             // Check source table is inUsing and exist
@@ -56,15 +56,13 @@ namespace MilkTea.Application.Features.Orders.Commands
             // Not exist or not in using or empty
             if (!isSourceTableValid)
             {
-                await _vOrderUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "SourceTableID");
+                return SendError(result, ErrorCode.E0042, nameof(command.SourceTableId));
             }
             var sourceOrder = await _vOrderUnitOfWork.Orders.GetOrderByTableAndStatusWithItemsAsync(command.SourceTableId, null, cancellationToken);
             // Source order is not exist
             if (sourceOrder is null)
             {
-                await _vOrderUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0001, "SourceTableID");
+                return SendError(result, ErrorCode.E0001, nameof(command.SourceTableId));
             }
             await _vOrderUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
@@ -78,12 +76,12 @@ namespace MilkTea.Application.Features.Orders.Commands
             catch (OrderNotEditableException)
             {
                 await _vOrderUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "OrderID");
+                return SendError(result, ErrorCode.E0042, nameof(command.OrderId));
             }
             catch (OrderSourceCannotMergeException)
             {
                 await _vOrderUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "SourceTableID");
+                return SendError(result, ErrorCode.E0042, nameof(command.SourceTableId));
             }
             catch (Exception)
             {

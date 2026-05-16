@@ -66,7 +66,7 @@ namespace MilkTea.Application.Features.Orders.Commands
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
                 return SendError(result, ErrorCode.E0001, nameof(command.OrderDetailId));
             }
-            catch (OrderItemCancelledException)
+            catch (OrderItemStatusInValidException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
                 return SendError(result, ErrorCode.E0042, "OrderItemInvalidStatusToCancelItem");

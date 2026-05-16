@@ -295,8 +295,9 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                     })
                 .ToListAsync(cancellationToken);
 
-            return rows.GroupBy(r => new { r.ItemCreatedDate, r.OrderId, r.DinnerTableId })
-                .Select(g =>
+            // return rows.GroupBy(r => new { r.ItemCreatedDate, r.OrderId, r.DinnerTableId })
+            return rows.GroupBy(r => new { r.OrderId, r.DinnerTableId })
+            .Select(g =>
                 {
                     var first = g.First();
                     return new KitchenOrderDto
@@ -402,6 +403,11 @@ namespace MilkTea.Infrastructure.Features.Order.Queries
                             Menu = new MenuDto
                             {
                                 Id = i.MenuItem.MenuId
+                            },
+                            Status = new OrderStatusDto
+                            {
+                                Id =  (int)i.Status,
+                                Name = i.Status.GetDescription()
                             },
                             Size = new SizeDto
                             {

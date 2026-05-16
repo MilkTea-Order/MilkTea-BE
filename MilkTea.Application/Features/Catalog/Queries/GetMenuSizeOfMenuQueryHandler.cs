@@ -9,7 +9,7 @@ namespace MilkTea.Application.Features.Catalog.Queries;
 
 public sealed class GetMenuSizeOfMenuQuery : IRequest<GetMenuSizeOfMenuResult>
 {
-    public int MenuId { get; set; }
+    public int MenuId { get; init; }
 }
 
 public sealed class GetMenuSizeOfMenuQueryHandler(ICatalogQuery catalogQuery)
@@ -22,7 +22,7 @@ public sealed class GetMenuSizeOfMenuQueryHandler(ICatalogQuery catalogQuery)
         var result = new GetMenuSizeOfMenuResult();
 
         if (query.MenuId <= 0)
-            return SendError(result, ErrorCode.E0036, "MenuID");
+            return SendError(result, ErrorCode.E0036, nameof(query.MenuId));
 
         var menuSizes = await _vCatalogQuery.GetMenuSizesAsync(query.MenuId, cancellationToken);
         result.MenuSize = menuSizes;

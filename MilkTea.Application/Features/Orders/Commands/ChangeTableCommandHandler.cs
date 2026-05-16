@@ -11,8 +11,8 @@ namespace MilkTea.Application.Features.Orders.Commands
 {
     public class ChangeTableCommand : ICommand<ChangeTableResult>
     {
-        public int OrderID { get; set; }
-        public int NewDinnerTableID { get; set; }
+        public int OrderId { get; set; }
+        public int NewDinnerTableId { get; set; }
     }
 
     public sealed class ChangeTableCommandHandler(
@@ -32,35 +32,35 @@ namespace MilkTea.Application.Features.Orders.Commands
             var createdBy = _vCurrentUser.UserId;
 
             // Check order exist
-            var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdAsync(command.OrderID);
+            var order = await _vOrderingUnitOfWork.Orders.GetOrderByIdAsync(command.OrderId);
             if (order is null)
             {
-                return SendError(result, ErrorCode.E0001, "OrderID");
+                return SendError(result, ErrorCode.E0001, nameof(command.OrderId));
             }
             // Check new table 
-            var isInUsingTable = await _vTableServices.IsTableInUsing(command.NewDinnerTableID, cancellationToken);
+            var isInUsingTable = await _vTableServices.IsTableInUsing(command.NewDinnerTableId, cancellationToken);
             // Not exist or not in using table
             if (!isInUsingTable)
             {
-                return SendError(result, ErrorCode.E0042, "NewDinnerTableID");
+                return SendError(result, ErrorCode.E0042, nameof(command.NewDinnerTableId));
             }
-            var isAvailableTable = await _vOrderQueries.IsTableAvailable(command.NewDinnerTableID, cancellationToken);
+            var isAvailableTable = await _vOrderQueries.IsTableAvailable(command.NewDinnerTableId, cancellationToken);
             //Table is used by other order
             if (!isAvailableTable)
             {
-                return SendError(result, ErrorCode.E0042, "NewDinnerTableID");
+                return SendError(result, ErrorCode.E0042, nameof(command.NewDinnerTableId));
             }
             await _vOrderingUnitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                order.ChangTable(command.NewDinnerTableID, createdBy);
+                order.ChangTable(command.NewDinnerTableId, createdBy);
                 await _vOrderingUnitOfWork.CommitTransactionAsync(cancellationToken);
                 return result;
             }
             catch (OrderNotEditableException)
             {
                 await _vOrderingUnitOfWork.RollbackTransactionAsync(cancellationToken);
-                return SendError(result, ErrorCode.E0042, "OrderID");
+                return SendError(result, ErrorCode.E0042, nameof(command.OrderId));
             }
             catch (Exception)
             {

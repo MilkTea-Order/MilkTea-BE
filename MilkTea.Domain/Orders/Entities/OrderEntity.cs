@@ -134,7 +134,6 @@ public sealed class OrderEntity : Aggregate<int>
     /// <param name="cancelReason">The reason for cancellation (required when transitioning to Canceled status).</param>
     /// <exception cref="OrderItemNotFoundException">Thrown when the order item does not exist.</exception>
     /// <exception cref="OrderNotEditableException">Thrown when the order is not in an editable state.</exception>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been canceled.</exception>
     /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
     public void UpdateOrderItemStatus(int orderItemId, OrderItemStatus newStatus, int updatedBy, string? cancelReason = null)
     {

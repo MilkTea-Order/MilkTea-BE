@@ -5,6 +5,7 @@ namespace MilkTea.API.RestfulAPI.DTOs.Orders.Common;
 public class OrderDetailDto
 {
     public int Id { get; set; }
+    public StatusBaseDto? Status { get; set; }
     public MenuBaseDto? Menu { get; set; }
     public SizeBaseDto? Size { get; set; }
     public int? KindOfHotpot1Id { get; set; }

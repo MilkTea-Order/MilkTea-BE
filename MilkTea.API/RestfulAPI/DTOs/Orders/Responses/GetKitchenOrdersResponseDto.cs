@@ -12,7 +12,7 @@ public class GetKitchenOrdersResponseDto
 public class KitchenOrderDto
 {
     [JsonPropertyOrder(1)]
-    public int OrderID { get; set; }
+    public int OrderId { get; set; }
     [JsonPropertyOrder(2)]
     public DinnerTableBaseDto? DinnerTable { get; set; }
     [JsonPropertyOrder(3)]

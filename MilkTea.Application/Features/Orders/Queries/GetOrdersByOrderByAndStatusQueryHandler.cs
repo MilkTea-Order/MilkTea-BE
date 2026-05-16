@@ -22,7 +22,7 @@ public sealed class GetOrdersByOrderByAndStatusQueryValidator : AbstractValidato
         // Status must be a valid enum value
         RuleFor(x => x.Status)
             .Must(x => x.TryParseEnum<OrderStatus>(out _))
-            .WithErrorCode(ErrorCode.E0001)
+            .WithErrorCode(ErrorCode.E0036)
             .OverridePropertyName(nameof(GetOrdersByOrderByAndStatusQuery.Status));
         
         // If one of the dates is provided, the other must also be provided
@@ -63,7 +63,6 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(IIdentifyServicePort
     public async Task<GetOrdersByOrderByAndStatusResult> Handle(GetOrdersByOrderByAndStatusQuery query, CancellationToken cancellationToken)
     {
         GetOrdersByOrderByAndStatusResult result = new();
-        // var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, (OrderStatus)query.StatusId, query.FromDate, query.ToDate, cancellationToken);
         var orders = await _vOrderQuery.GetOrdersAsync(currentUser.UserId, 
                                                                 Enum.Parse<OrderStatus>(query.Status, ignoreCase: true), 
                                                                       query.FromDate, query.ToDate, cancellationToken);
@@ -90,10 +89,10 @@ public sealed class GetOrdersByOrderByAndStatusQueryHandler(IIdentifyServicePort
         result.Orders = orders;
         return result;
     }
-    // private static GetOrdersByOrderByAndStatusResult SendError(GetOrdersByOrderByAndStatusResult result, string errorCode, params string[] values)
-    // {
-    //     if (values is { Length: > 0 })
-    //         result.ResultData.Add(errorCode, values.ToList());
-    //     return result;
-    // }
+    private static GetOrdersByOrderByAndStatusResult SendError(GetOrdersByOrderByAndStatusResult result, string errorCode, params string[] values)
+    {
+        if (values is { Length: > 0 })
+            result.ResultData.Add(errorCode, values.ToList());
+        return result;
+    }
 }

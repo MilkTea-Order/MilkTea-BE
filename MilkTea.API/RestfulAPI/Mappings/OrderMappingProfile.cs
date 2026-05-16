@@ -80,6 +80,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
               .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))
               .ForMember(d => d.KindOfHotpot1Id, o => o.MapFrom(s => s.KindOfHotpot1Id))
               .ForMember(d => d.KindOfHotpot2Id, o => o.MapFrom(s => s.KindOfHotpot2Id))
+              .ForMember(d => d.Status,  o => o.MapFrom(s => s.Status))
               .ForMember(d => d.Menu, o => o.MapFrom(s => s.Menu))
               .ForMember(d => d.Size, o => o.MapFrom(s => s.Size));
 
@@ -127,7 +128,7 @@ namespace MilkTea.API.RestfulAPI.Mappings
 
             #region GetKitchenOrdersResponseDto
             CreateMap<Application.Features.Orders.Models.Dtos.KitchenOrderDto, API.RestfulAPI.DTOs.Orders.Responses.KitchenOrderDto>()
-                .ForMember(d => d.OrderID, o => o.MapFrom(s => s.OrderId))
+                .ForMember(d => d.OrderId, o => o.MapFrom(s => s.OrderId))
                 .ForMember(d => d.CreatedDate, o => o.MapFrom(s => s.CreatedDate))
                 .ForMember(d => d.CreatedBy, o => o.MapFrom(s => s.CreatedBy))
                 .ForMember(d => d.Note, o => o.MapFrom(s => s.Note))

@@ -100,7 +100,6 @@ public sealed class OrderItemEntity : Entity<int>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="cancelledBy"/> is less than or equal to zero.</exception>"
     public void Cancel(int cancelledBy)
     {
-        // if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(cancelledBy);
         if (Status != OrderItemStatus.Pending) throw new OrderItemStatusInValidException();
 
@@ -118,12 +117,10 @@ public sealed class OrderItemEntity : Entity<int>
     /// <param name="newStatus">The target status to transition to.</param>
     /// <param name="performedBy">The identifier of the user performing the update.</param>
     /// <param name="cancelReason">The reason for cancellation (required when transitioning to Cancelled status).</param>
-    /// <exception cref="OrderItemCancelledException">Thrown when the order item has already been cancelled.</exception>
     /// <exception cref="InvalidOrderDetailStatusTransitionException">Thrown when the status transition is not allowed.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="performedBy"/> is less than or equal to zero.</exception>
     public void UpdateStatus(OrderItemStatus newStatus, int performedBy, string? cancelReason = null)
     {
-        if (IsCancelled) throw new OrderItemCancelledException();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(performedBy);
 
         if (!CanTransitionTo(newStatus))

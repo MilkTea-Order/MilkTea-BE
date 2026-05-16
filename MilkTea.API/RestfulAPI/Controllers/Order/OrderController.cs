@@ -44,13 +44,13 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         {
             var command = new CreateOrderCommand
             {
-                DinnerTableID = request.DinnerTableID,
+                DinnerTableId = request.DinnerTableID,
                 OrderedBy = request.OrderByID,
                 Note = request.Note,
                 Items = request.Items.Select(i => new OrderItemCommand
                 {
-                    MenuID = i.MenuID,
-                    SizeID = i.SizeID,
+                    MenuId = i.MenuID,
+                    SizeId = i.SizeID,
                     Quantity = i.Quantity,
                     ToppingIDs = i.ToppingIDs,
                     KindOfHotpotIDs = i.KindOfHotpotIDs,
@@ -93,8 +93,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
                 OrderID = orderId,
                 Items = request.Items.Select(i => new OrderItemCommand
                 {
-                    MenuID = i.MenuID,
-                    SizeID = i.SizeID,
+                    MenuId = i.MenuID,
+                    SizeId = i.SizeID,
                     Quantity = i.Quantity,
                     ToppingIDs = i.ToppingIDs,
                     KindOfHotpotIDs = i.KindOfHotpotIDs,
@@ -131,8 +131,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         {
             var command = new ChangeTableCommand
             {
-                OrderID = orderId,
-                NewDinnerTableID = request.NewTableID
+                OrderId = orderId,
+                NewDinnerTableId = request.NewTableID
             };
             var result = await _vSender.Send(command);
             if (result.ResultData.HasData) return SendError(result.ResultData);
@@ -145,7 +145,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         {
             var command = new MergeTableCommand
             {
-                OrderID = orderId,
+                OrderId = orderId,
                 SourceTableId = request.TargetTableID
             };
             var result = await _vSender.Send(command);
@@ -159,7 +159,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
         {
             var command = new ProcessPaymentCommand
             {
-                OrderID = orderId,
+                OrderId = orderId,
                 PaymentMethod = request.PaymentMethod,
             };
             var result = await _vSender.Send(command);
@@ -239,7 +239,7 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             var command = new UpdateOrderItemCommand
             {
                 OrderId = orderId,
-                OrderItemId = orderDetailId,
+                OrderDetailId = orderDetailId,
                 Quantity = request.Quantity,
                 Note = request.Note
             };
@@ -256,8 +256,8 @@ namespace MilkTea.API.RestfulAPI.Controllers.Order
             {
                 Items = request.Items.Select(i => new UpdateOrderItemStatusItem
                 {
-                    OrderID = i.OrderID,
-                    OrderDetailID = i.OrderDetailID,
+                    OrderId = i.OrderID,
+                    OrderDetailId = i.OrderDetailID,
                     Status = i.Status,
                     Reason = i.Reason
                 }).ToList()
