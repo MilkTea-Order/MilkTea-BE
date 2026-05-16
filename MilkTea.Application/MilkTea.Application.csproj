@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Features\Auth\Abstractions\Queries\" />
     <Folder Include="Features\Finance\Abstractions\Services\" />
+    <Folder Include="Models\Users\" />
   </ItemGroup>
 
 </Project>

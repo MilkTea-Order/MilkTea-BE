@@ -1,9 +1,8 @@
 using FluentValidation;
+using MilkTea.Application.Features.Auth.Abstractions.Queries;
 using MilkTea.Application.Features.Auth.Models.Results;
-using MilkTea.Application.Models.Users;
 using MilkTea.Application.Ports.Authentication.JWTPorts;
 using MilkTea.Application.Ports.Hash.Password;
-using MilkTea.Application.Ports.Hash.Permission;
 using MilkTea.Domain.Auth.Repositories;
 using MilkTea.Domain.Common.Constants;
 using MilkTea.Shared.Domain.Constants;
@@ -13,8 +12,8 @@ namespace MilkTea.Application.Features.Auth.Commands;
 
 public class LoginCommand : ICommand<LoginWithUserNameResult>
 {
-    public string UserName { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string UserName { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 }
 
 public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
@@ -24,25 +23,25 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
         RuleFor(x => x.UserName)
             .NotEmpty()
             .WithErrorCode(ErrorCode.E0001)
-            .OverridePropertyName("Username");
+            .OverridePropertyName(nameof(LoginCommand.UserName));
 
         RuleFor(x => x.Password)
             .NotEmpty()
             .WithErrorCode(ErrorCode.E0001)
-            .OverridePropertyName("Password");
+            .OverridePropertyName(nameof(LoginCommand.Password));
     }
 }
 
 public sealed class LoginCommandHandler(IAuthUnitOfWork authUnitOfWork,
                                             IJWTServicePort jwtServicePort,
                                             IPasswordHasher passwordHasher,
-                                            IPermissionHasher permissionHasher
+                                            IPermissionQuery permissionQuery
                                             ) : ICommandHandler<LoginCommand, LoginWithUserNameResult>
 {
     private readonly IAuthUnitOfWork _vAuthUnitOfWork = authUnitOfWork;
-    private readonly IJWTServicePort _vJWTServicePort = jwtServicePort;
+    private readonly IJWTServicePort _vJwtServicePort = jwtServicePort;
     private readonly IPasswordHasher _vPasswordHasher = passwordHasher;
-    private readonly IPermissionHasher _vPermissionHasher = permissionHasher;
+    private readonly IPermissionQuery _vPermissionQuery = permissionQuery;
     public async Task<LoginWithUserNameResult> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
         var result = new LoginWithUserNameResult();
@@ -68,26 +67,14 @@ public sealed class LoginCommandHandler(IAuthUnitOfWork authUnitOfWork,
         }
 
         result.UserId = user.Id;
-        var permissions = await _vAuthUnitOfWork.Permissions.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
-        result.Permissions = permissions.Select(p =>
-                                            new UserPermission(
-                                                Id: p.PermissionDetail.Id,
-                                                PermissionId: p.PermissionDetail.PermissionID,
-                                                Note: p.PermissionDetail.Note,
-                                                Permission: new PermissionInfo(
-                                                    Id: p.Permission.Id,
-                                                    Name: p.Permission.Name,
-                                                    Code: _vPermissionHasher.DecodePermission(p.Permission.Code)
-                                                )
-                                            )
-                                        ).ToList();
+        result.Permissions = (await _vPermissionQuery.GetPermissionsByUserIdAsync(user.Id, cancellationToken)).ToList();
 
         // Create tokens
-        var (accessToken, expiresAt) = _vJWTServicePort.CreateJwtAccessToken(user.Id);
+        var (accessToken, expiresAt) = _vJwtServicePort.CreateJwtAccessToken(user.Id);
         result.AccessToken = accessToken;
         result.AccessTokenExpiresAt = expiresAt;
 
-        var (refreshToken, refreshTokenExpiresAt) = _vJWTServicePort.CreateJwtRefreshToken();
+        var (refreshToken, refreshTokenExpiresAt) = _vJwtServicePort.CreateJwtRefreshToken();
         result.RefreshToken = refreshToken;
 
         await _vAuthUnitOfWork.BeginTransactionAsync(cancellationToken);

@@ -103,6 +103,7 @@ public static class DependencyInjection
         // Queries
         services.AddScoped<IAuthQuery, AuthQuery>();
         services.AddScoped<IOtpQuery, OtpQuery>();
+        services.AddScoped<IPermissionQuery, PermissionQuery>();
         // Service
         services.AddScoped<IAuthService, AuthService>();
         #endregion Auth

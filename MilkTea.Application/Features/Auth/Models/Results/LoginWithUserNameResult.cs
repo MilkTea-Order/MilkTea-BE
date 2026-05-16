@@ -1,4 +1,4 @@
-using MilkTea.Application.Models.Users;
+using MilkTea.Application.Features.Auth.Models.Dtos;
 using MilkTea.Shared.Domain.Services;
 
 namespace MilkTea.Application.Features.Auth.Models.Results
@@ -11,7 +11,7 @@ namespace MilkTea.Application.Features.Auth.Models.Results
         public string RefreshToken { get; set; } = string.Empty;
 
         public DateTime AccessTokenExpiresAt { get; set; } = default!;
-        public List<UserPermission> Permissions { get; set; } = default!;
+        public List<PermissionDto> Permissions { get; set; } = default!;
     }
 }
 
